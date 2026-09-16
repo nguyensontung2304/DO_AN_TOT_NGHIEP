@@ -1,0 +1,42 @@
+.fg-page {}
+
+.fg-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  &__card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px 24px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border-left: 4px solid #6495ed;
+
+    &--green  { border-color: #27ae60; }
+    &--blue   { border-color: #3498db; }
+    &--purple { border-color: #9b59b6; }
+
+    strong {
+      display: block;
+      font-size: 32px;
+      font-weight: 800;
+      color: #1a1a2e;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    span { font-size: 13px; color: #888; }
+  }
+}
+
+.fg-qty {
+  font-size: 18px;
+  font-weight: 800;
+  color: #27ae60;
+}

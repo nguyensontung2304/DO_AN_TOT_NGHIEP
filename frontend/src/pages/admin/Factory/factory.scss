@@ -1,0 +1,155 @@
+.factory-page {}
+
+.factory-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  &__card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px 24px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border-left: 4px solid #6495ed;
+
+    &--yellow { border-color: #f39c12; }
+    &--purple { border-color: #9b59b6; }
+    &--green  { border-color: #27ae60; }
+
+    strong {
+      display: block;
+      font-size: 32px;
+      font-weight: 800;
+      color: #1a1a2e;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    span { font-size: 13px; color: #888; }
+  }
+}
+
+.factory-order-panel {
+  border: 1.5px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  background: #fafafa;
+
+  &:last-child { margin-bottom: 0; }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+
+    strong { font-size: 16px; color: #1a1a2e; }
+    span   { font-size: 14px; color: #888; }
+  }
+}
+
+.factory-section-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #555;
+  margin: 0 0 10px 0;
+}
+
+.factory-design-request {
+  background: #fff8ee;
+  border: 1px solid #ffe0aa;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.factory-design-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+
+  textarea {
+    flex: 1;
+    padding: 9px 12px;
+    border: 1.5px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    resize: vertical;
+    outline: none;
+    font-family: inherit;
+
+    &:focus { border-color: #0f3460; }
+  }
+}
+
+.factory-design-info {
+  background: #f0f4ff;
+  border: 1px solid #c8d8ff;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+
+  &--done {
+    background: #f0fff4;
+    border-color: #b2dfdb;
+  }
+}
+
+.factory-design-note {
+  font-size: 14px;
+  color: #333;
+  margin: 8px 0 0 0;
+  line-height: 1.6;
+}
+
+.factory-report-form {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.factory-scrap-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  &__head {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 36px;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    padding: 0 4px;
+  }
+}
+
+.factory-scrap-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 36px;
+  gap: 8px;
+  align-items: center;
+
+  input {
+    padding: 8px 12px;
+    border: 1.5px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+
+    &:focus { border-color: #0f3460; }
+  }
+}

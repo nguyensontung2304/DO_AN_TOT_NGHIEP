@@ -1,0 +1,28 @@
+// $large_desktop: 1200px;
+// $desktop: 992px;
+// $table: 768px;
+// $mobile: 480px;
+
+@mixin largeDesktop() {
+  @media only screen and (min-width: 1200px) {
+    @content;
+  }
+}
+
+@mixin desktop() {
+  @media only screen and (max-width: 1200px) {
+    @content;
+  }
+}
+
+@mixin tablet() {
+  @media only screen and (max-width: 992px) {
+    @content;
+  }
+}
+
+@mixin mobile() {
+  @media only screen and (max-width: 768px) {
+    @content;
+  }
+}

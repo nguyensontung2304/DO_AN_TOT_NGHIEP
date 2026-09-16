@@ -1,0 +1,36 @@
+// import pg from "pg";
+
+// const { Pool } = pg;
+
+// const pool = new Pool({
+//   host: "localhost",
+//   port: 5432,
+//   user: "postgres",
+//   password: "postgres",
+//   database: "doantotnghiep_db",
+// });
+
+// export default pool;
+
+import { Sequelize } from "sequelize";
+
+// Thông tin kết nối đọc từ file .env
+const sequelize = new Sequelize(
+  process.env.DB_NAME, // database name
+  process.env.DB_USER, // username
+  process.env.DB_PASSWORD, // password
+  {
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    dialect: "postgres",
+    logging: false,
+    define: {
+      freezeTableName: true,
+      timestamps: false,
+    },
+  },
+);
+
+await sequelize.authenticate();
+
+export default sequelize;

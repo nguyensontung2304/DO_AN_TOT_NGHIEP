@@ -1,0 +1,86 @@
+.warehouse-page {
+  // layout inherits from admin
+}
+
+.wh-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  &__card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px 24px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border-left: 4px solid #6495ed;
+
+    &--yellow { border-color: #f39c12; }
+    &--blue   { border-color: #3498db; }
+    &--green  { border-color: #27ae60; }
+
+    strong {
+      display: block;
+      font-size: 32px;
+      font-weight: 800;
+      color: #1a1a2e;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    span {
+      font-size: 13px;
+      color: #888;
+    }
+  }
+}
+
+.wh-mat-form {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+
+  input {
+    flex: 1;
+    min-width: 140px;
+    padding: 10px 14px;
+    border: 1.5px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+
+    &:focus {
+      border-color: #0f3460;
+    }
+  }
+}
+
+.wh-stock {
+  font-weight: 700;
+  font-size: 15px;
+  color: #27ae60;
+
+  &--low {
+    color: #e74c3c;
+  }
+}
+
+.wh-ok {
+  color: #27ae60;
+}
+
+.wh-lack {
+  color: #e74c3c;
+}
+
+.wh-lack-tag {
+  font-weight: 700;
+  color: #c0392b;
+  margin-left: 4px;
+}

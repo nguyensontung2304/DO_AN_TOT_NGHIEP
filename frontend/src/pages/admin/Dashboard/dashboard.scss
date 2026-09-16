@@ -1,0 +1,192 @@
+.dashboard-page {}
+
+// ── Alerts ────────────────────────────────────────────────────────────────────
+.dash-alerts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.dash-alert {
+  display: block;
+  padding: 12px 18px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.15s;
+
+  &:hover { opacity: 0.85; }
+
+  &--yellow { background: #fff8e6; color: #856404; border: 1px solid #ffe08a; }
+  &--orange { background: #fff0e6; color: #7a3c00; border: 1px solid #ffcc99; }
+  &--blue   { background: #e8f0ff; color: #004085; border: 1px solid #b8d0ff; }
+  &--purple { background: #f3eeff; color: #5c2d91; border: 1px solid #d5b8ff; }
+  &--red    { background: #fff0f0; color: #721c24; border: 1px solid #f5c6cb; }
+}
+
+// ── Stats grid ─────────────────────────────────────────────────────────────────
+.dash-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+
+  @media (max-width: 992px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 480px) { grid-template-columns: 1fr; }
+}
+
+.dash-stat-link {
+  text-decoration: none;
+
+  &:hover .dash-stat {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.dash-stat {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-left: 4px solid transparent;
+  transition: all 0.2s;
+
+  &--blue   { border-color: #3498db; }
+  &--purple { border-color: #9b59b6; }
+  &--orange { border-color: #e67e22; }
+  &--teal   { border-color: #1abc9c; }
+  &--green  { border-color: #27ae60; }
+  &--yellow { border-color: #f1c40f; }
+
+  &__icon { font-size: 32px; }
+
+  strong {
+    display: block;
+    font-size: 28px;
+    font-weight: 800;
+    color: #1a1a2e;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  p {
+    font-size: 13px;
+    color: #888;
+    margin: 0;
+  }
+}
+
+// ── Flow diagram ──────────────────────────────────────────────────────────────
+.flow-diagram {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 12px 4px;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
+}
+
+.flow-arrow {
+  font-size: 18px;
+  color: #ccc;
+  flex-shrink: 0;
+}
+
+.flow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  width: 96px;
+
+  &__circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #f0f2f5;
+    color: #aaa;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  &__icon  { font-size: 20px; }
+  &__label { font-size: 11px; color: #888; text-align: center; line-height: 1.3; }
+
+  &--active {
+    .flow-step__circle {
+      background: #fff3cd;
+      color: #856404;
+      box-shadow: 0 0 0 3px #ffe08a;
+    }
+    .flow-step__label { color: #856404; font-weight: 600; }
+  }
+
+  &--done {
+    .flow-step__circle {
+      background: #d4edda;
+      color: #155724;
+    }
+    .flow-step__label { color: #155724; }
+  }
+}
+
+// ── Bottom grid ────────────────────────────────────────────────────────────────
+.dash-bottom {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+
+  @media (max-width: 992px) { grid-template-columns: 1fr; }
+}
+
+// ── Quick links ────────────────────────────────────────────────────────────────
+.dash-quick-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dash-quick-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f7f8fa;
+  text-decoration: none;
+  transition: all 0.15s;
+  border: 1px solid transparent;
+
+  &:hover {
+    background: #eef2ff;
+    border-color: #c8d8ff;
+  }
+
+  &__icon { font-size: 24px; flex-shrink: 0; }
+
+  strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 2px;
+  }
+
+  small {
+    font-size: 12px;
+    color: #888;
+  }
+}
