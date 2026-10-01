@@ -11,7 +11,7 @@ function Map() {
       zoom={17}
       style={{
         width: "100%",
-        height: "500px",
+        height: "650px",
       }}
     >
       <TileLayer

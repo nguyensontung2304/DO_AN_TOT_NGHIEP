@@ -5,12 +5,12 @@ import "./warehouse.scss";
 
 function StatusBadge({ status }) {
   const map = {
-    pending:       { label: "Chờ thủ kho",   cls: "badge--yellow"  },
-    checked:       { label: "Đã kiểm kê",     cls: "badge--blue"    },
-    purchasing:    { label: "Đang mua hàng",  cls: "badge--orange"  },
-    ready:         { label: "Sẵn sàng SX",    cls: "badge--teal"    },
-    in_production: { label: "Đang SX",        cls: "badge--purple"  },
-    done:          { label: "Hoàn thành",     cls: "badge--green"   },
+    pending: { label: "Chờ thủ kho", cls: "badge--yellow" },
+    checked: { label: "Đã kiểm kê", cls: "badge--blue" },
+    purchasing: { label: "Đang mua hàng", cls: "badge--orange" },
+    ready: { label: "Sẵn sàng SX", cls: "badge--teal" },
+    in_production: { label: "Đang SX", cls: "badge--purple" },
+    done: { label: "Hoàn thành", cls: "badge--green" },
   };
   const s = map[status] || { label: status, cls: "badge--gray" };
   return <span className={`badge ${s.cls}`}>{s.label}</span>;
@@ -33,6 +33,8 @@ export default function Warehouse() {
     materials,
     addMaterial,
     updateMaterialStock,
+    updateMaterial,
+    removeMaterial,
     productionRequests,
     updateProductionRequestStatus,
     purchaseRequests,
@@ -47,21 +49,91 @@ export default function Warehouse() {
     finishedGoods,
   } = useApp();
 
-  // ── 1. Thêm vật tư vào kho ─────────────────────────────────────────────────
+  // 1. Thêm vật tư vào kho─
   const [matForm, setMatForm] = useState({ name: "", unit: "", stock: "" });
   const [matMsg, setMatMsg] = useState("");
+
+  // Sửa / xoá từng vật tư
+  const [editId, setEditId] = useState(null);
+  const [editForm, setEditForm] = useState({ name: "", unit: "", stock: "" });
+  const [rowMsg, setRowMsg] = useState("");
+
+  const flash = (msg) => {
+    setRowMsg(msg);
+    setTimeout(() => setRowMsg(""), 2500);
+  };
+
+  const startEdit = (m) => {
+    setEditId(m.id);
+    setEditForm({ name: m.name, unit: m.unit, stock: String(m.stock) });
+  };
+
+  const saveEdit = async (id) => {
+    if (!editForm.name.trim() || !editForm.unit.trim()) {
+      flash("⚠️ Tên và đơn vị không được để trống");
+      return;
+    }
+    try {
+      await updateMaterial(id, {
+        name: editForm.name.trim(),
+        unit: editForm.unit.trim(),
+        stock: Number(editForm.stock) || 0,
+      });
+      setEditId(null);
+      flash("✅ Đã cập nhật vật tư");
+    } catch {
+      flash("❌ Không cập nhật được vật tư");
+    }
+  };
+
+  const handleDeleteMaterial = async (m) => {
+    if (!window.confirm(`Xoá vật tư "${m.name}" khỏi kho?`)) return;
+    try {
+      await removeMaterial(m.id);
+      flash("✅ Đã xoá vật tư");
+    } catch {
+      flash("❌ Không xoá được vật tư");
+    }
+  };
+
+  // Mua thẳng 1 vật tư đang thiếu (click vào dòng vật tư)
+  const handleBuyMaterial = (m) => {
+    const target = Number(window.prompt(`Cần mua bao nhiêu ${m.unit} ${m.name}?`, "10"));
+    if (!target || target <= 0) return;
+
+    addPurchaseRequest({
+      productName: `Nhập kho: ${m.name}`,
+      items: [
+        {
+          materialId: m.id,
+          materialName: m.name,
+          unit: m.unit,
+          qtyNeeded: target,
+          qtyInStock: m.stock,
+          qtyToBuy: target,
+        },
+      ],
+    });
+    flash(`🛒 Đã tạo đơn mua ${target} ${m.unit} ${m.name} — chuyển sang bộ phận Mua hàng`);
+  };
 
   const handleAddMaterial = (e) => {
     e.preventDefault();
     if (!matForm.name.trim() || !matForm.unit.trim() || !matForm.stock) return;
-    addMaterial({ name: matForm.name.trim(), unit: matForm.unit.trim(), stock: Number(matForm.stock) });
+    addMaterial({
+      name: matForm.name.trim(),
+      unit: matForm.unit.trim(),
+      stock: Number(matForm.stock),
+    });
     setMatForm({ name: "", unit: "", stock: "" });
     setMatMsg("✅ Đã thêm vật tư!");
     setTimeout(() => setMatMsg(""), 2500);
   };
 
-  // ── 2. Kiểm kê yêu cầu SX từ Kỹ thuật ────────────────────────────────────
-  const pendingRequests = productionRequests.filter((r) => r.status === "pending");
+  // 2. Kiểm kê yêu cầu SX từ Kỹ thuật
+  const pendingRequests = productionRequests.filter(
+    (r) => r.status === "pending",
+  );
 
   // Tính thiếu/đủ cho từng yêu cầu
   const checkStock = (req) =>
@@ -95,19 +167,21 @@ export default function Warehouse() {
     updateProductionRequestStatus(req.id, "purchasing");
   };
 
-  // ── 3. Nhập kho sau khi mua về ────────────────────────────────────────────
-  const purchasedOrders = purchaseRequests.filter((r) => r.status === "purchased");
+  // 3. Nhập kho sau khi mua về
+  const purchasedOrders = purchaseRequests.filter(
+    (r) => r.status === "purchased",
+  );
 
   const handleStockIn = (pr) => {
-    // cộng số lượng đã mua vào tồn kho
-    pr.items.forEach((item) => updateMaterialStock(item.materialId, item.qtyToBuy));
+    // Cộng số lượng đã mua vào tồn kho
+    pr.items.forEach((item) =>
+      updateMaterialStock(item.materialId, item.qtyToBuy),
+    );
     updatePurchaseRequestStatus(pr.id, "stocked");
-    // kiểm tra lại xem yêu cầu SX đã đủ chưa
-    const req = productionRequests.find((r) => r.id === pr.productionRequestId);
-    if (req) updateProductionRequestStatus(req.id, "ready");
+    flash("📥 Đã nhập kho và cộng vào tồn");
   };
 
-  // ── 4. Tạo phiếu bàn giao cho Nhà máy ────────────────────────────────────
+  // 4. Tạo phiếu bàn giao cho Nhà máy
   const readyRequests = productionRequests.filter((r) => r.status === "ready");
 
   const handleHandover = (req) => {
@@ -123,15 +197,21 @@ export default function Warehouse() {
       })),
     });
     // trừ kho
-    req.materials.forEach((m) => updateMaterialStock(m.materialId, -m.requiredQty));
+    req.materials.forEach((m) =>
+      updateMaterialStock(m.materialId, -m.requiredQty),
+    );
     updateProductionRequestStatus(req.id, "in_production");
   };
 
-  // ── 5. Nhận thành phẩm từ Nhà máy ────────────────────────────────────────
-  const reportedReports = productionReports.filter((r) => r.status === "reported");
+  // 5. Nhận thành phẩm từ Nhà máy
+  const reportedReports = productionReports.filter(
+    (r) => r.status === "reported",
+  );
 
   const handleReceive = (report) => {
-    receiveFinishedGoods([{ name: report.productName, qty: report.finishedQty, unit: "cái" }]);
+    receiveFinishedGoods([
+      { name: report.productName, qty: report.finishedQty, unit: "cái" },
+    ]);
     updateProductionReportStatus(report.id, "delivered");
     const ho = handoverOrders.find((o) => o.id === report.handoverOrderId);
     if (ho) updateHandoverOrderStatus(ho.id, "done");
@@ -141,10 +221,12 @@ export default function Warehouse() {
     <div className="warehouse-page">
       <div className="page-header">
         <h1>🏭 Thủ kho</h1>
-        <p className="page-sub">Kiểm kê, nhập kho, bàn giao và nhận thành phẩm</p>
+        <p className="page-sub">
+          Kiểm kê, nhập kho, bàn giao và nhận thành phẩm
+        </p>
       </div>
 
-      {/* ── Tổng quan tồn kho ──────────────────────────────────────────────── */}
+      {/* Tổng quan tồn kho */}
       <div className="wh-summary">
         <div className="wh-summary__card">
           <strong>{materials.length}</strong>
@@ -164,19 +246,23 @@ export default function Warehouse() {
         </div>
       </div>
 
-      {/* ── 1. Kho vật tư ──────────────────────────────────────────────────── */}
+      {/* 1. Kho vật tư  */}
       <AdminCard title="Kho vật tư" icon="📦">
         <form className="wh-mat-form" onSubmit={handleAddMaterial}>
           <input
             placeholder="Tên vật tư"
             value={matForm.name}
-            onChange={(e) => setMatForm((f) => ({ ...f, name: e.target.value }))}
+            onChange={(e) =>
+              setMatForm((f) => ({ ...f, name: e.target.value }))
+            }
             required
           />
           <input
             placeholder="Đơn vị (tấm, kg, hộp...)"
             value={matForm.unit}
-            onChange={(e) => setMatForm((f) => ({ ...f, unit: e.target.value }))}
+            onChange={(e) =>
+              setMatForm((f) => ({ ...f, unit: e.target.value }))
+            }
             required
           />
           <input
@@ -184,12 +270,25 @@ export default function Warehouse() {
             min="0"
             placeholder="Tồn kho ban đầu"
             value={matForm.stock}
-            onChange={(e) => setMatForm((f) => ({ ...f, stock: e.target.value }))}
+            onChange={(e) =>
+              setMatForm((f) => ({ ...f, stock: e.target.value }))
+            }
             required
           />
-          <button type="submit" className="btn-submit">+ Thêm</button>
+          <button type="submit" className="btn-submit">
+            + Thêm
+          </button>
         </form>
-        {matMsg && <p className="form-success" style={{ marginTop: "10px" }}>{matMsg}</p>}
+        {matMsg && (
+          <p className="form-success" style={{ marginTop: "10px" }}>
+            {matMsg}
+          </p>
+        )}
+        {rowMsg && (
+          <p className="form-success" style={{ marginTop: "10px" }}>
+            {rowMsg}
+          </p>
+        )}
 
         <div className="table-wrap" style={{ marginTop: "16px" }}>
           <table className="data-table">
@@ -200,35 +299,118 @@ export default function Warehouse() {
                 <th>Đơn vị</th>
                 <th>Tồn kho</th>
                 <th>Trạng thái</th>
+                <th>Hành động</th>
               </tr>
             </thead>
             <tbody>
               {materials.map((m, i) => (
                 <tr key={m.id}>
                   <td>{i + 1}</td>
-                  <td><strong>{m.name}</strong></td>
-                  <td>{m.unit}</td>
-                  <td>
-                    <span className={`wh-stock ${m.stock <= 5 ? "wh-stock--low" : ""}`}>
-                      {m.stock}
-                    </span>
-                  </td>
-                  <td>
-                    {m.stock <= 5
-                      ? <span className="badge badge--red">Sắp hết</span>
-                      : <span className="badge badge--green">Còn hàng</span>}
-                  </td>
+                  {editId === m.id ? (
+                    <>
+                      <td>
+                        <input
+                          value={editForm.name}
+                          onChange={(e) =>
+                            setEditForm((f) => ({ ...f, name: e.target.value }))
+                          }
+                        />
+                      </td>
+                      <td>
+                        <input
+                          value={editForm.unit}
+                          onChange={(e) =>
+                            setEditForm((f) => ({ ...f, unit: e.target.value }))
+                          }
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          value={editForm.stock}
+                          onChange={(e) =>
+                            setEditForm((f) => ({ ...f, stock: e.target.value }))
+                          }
+                        />
+                      </td>
+                      <td>—</td>
+                      <td>
+                        <div className="tech-notify-actions">
+                          <button
+                            className="btn-action btn-action--green"
+                            onClick={() => saveEdit(m.id)}
+                          >
+                            💾 Lưu
+                          </button>
+                          <button
+                            className="btn-action btn-action--gray"
+                            onClick={() => setEditId(null)}
+                          >
+                            ✖ Huỷ
+                          </button>
+                        </div>
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td>
+                        <strong>{m.name}</strong>
+                      </td>
+                      <td>{m.unit}</td>
+                      <td>
+                        <span
+                          className={`wh-stock ${m.stock <= 5 ? "wh-stock--low" : ""}`}
+                        >
+                          {m.stock}
+                        </span>
+                      </td>
+                      <td>
+                        {m.stock <= 5 ? (
+                          <span className="badge badge--red">Sắp hết</span>
+                        ) : (
+                          <span className="badge badge--green">Còn hàng</span>
+                        )}
+                      </td>
+                      <td>
+                        <div className="tech-notify-actions">
+                          <button
+                            className="btn-action btn-action--orange"
+                            onClick={() => handleBuyMaterial(m)}
+                            title="Tạo đơn mua cho vật tư này"
+                          >
+                            🛒 Mua
+                          </button>
+                          <button
+                            className="btn-action btn-action--blue"
+                            onClick={() => startEdit(m)}
+                          >
+                            ✏️ Sửa
+                          </button>
+                          <button
+                            className="btn-action btn-action--danger"
+                            onClick={() => handleDeleteMaterial(m)}
+                          >
+                            🗑️ Xoá
+                          </button>
+                        </div>
+                      </td>
+                    </>
+                  )}
                 </tr>
               ))}
               {materials.length === 0 && (
-                <tr><td colSpan={5} className="empty-state">Chưa có vật tư nào.</td></tr>
+                <tr>
+                  <td colSpan={6} className="empty-state">
+                    Chưa có vật tư nào.
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
         </div>
       </AdminCard>
 
-      {/* ── 2. Kiểm kê yêu cầu SX ─────────────────────────────────────────── */}
+      {/* 2. Kiểm kê yêu cầu SX─ */}
       <AdminCard title="Kiểm kê yêu cầu sản xuất từ Kỹ thuật" icon="🔍">
         {pendingRequests.length === 0 ? (
           <p className="empty-state">Không có yêu cầu mới từ Kỹ thuật.</p>
@@ -252,25 +434,36 @@ export default function Warehouse() {
                   return (
                     <tr key={req.id}>
                       <td>{i + 1}</td>
-                      <td><strong>{req.productName}</strong></td>
+                      <td>
+                        <strong>{req.productName}</strong>
+                      </td>
                       <td>{req.productQty}</td>
                       <td>
                         <ul className="material-list-inline">
                           {checked.map((m, mi) => (
-                            <li key={mi} className={m.lacking > 0 ? "wh-lack" : "wh-ok"}>
-                              {m.materialName}: cần <strong>{m.requiredQty}</strong> {m.unit}
+                            <li
+                              key={mi}
+                              className={m.lacking > 0 ? "wh-lack" : "wh-ok"}
+                            >
+                              {m.materialName}: cần{" "}
+                              <strong>{m.requiredQty}</strong> {m.unit}
                               {" · "}tồn <strong>{m.inStock}</strong>
                               {m.lacking > 0 && (
-                                <span className="wh-lack-tag"> ⚠️ thiếu {m.lacking}</span>
+                                <span className="wh-lack-tag">
+                                  {" "}
+                                  ⚠️ thiếu {m.lacking}
+                                </span>
                               )}
                             </li>
                           ))}
                         </ul>
                       </td>
                       <td>
-                        {hasLack
-                          ? <span className="badge badge--red">Thiếu vật tư</span>
-                          : <span className="badge badge--green">Đủ hàng</span>}
+                        {hasLack ? (
+                          <span className="badge badge--red">Thiếu vật tư</span>
+                        ) : (
+                          <span className="badge badge--green">Đủ hàng</span>
+                        )}
                       </td>
                       <td>
                         {hasLack ? (
@@ -298,10 +491,12 @@ export default function Warehouse() {
         )}
       </AdminCard>
 
-      {/* ── 3. Nhập kho hàng đã mua ─────────────────────────────────────────── */}
+      {/* 3. Nhập kho hàng đã mua─ */}
       <AdminCard title="Nhập kho hàng vừa mua về" icon="📥">
         {purchasedOrders.length === 0 ? (
-          <p className="empty-state">Chưa có lô hàng nào được xác nhận mua.</p>
+          <p className="empty-state">
+            Chưa có lô hàng nào chờ nhập. Hàng mua xong sẽ tự động vào kho.
+          </p>
         ) : (
           <div className="table-wrap">
             <table className="data-table">
@@ -318,20 +513,28 @@ export default function Warehouse() {
                 {purchasedOrders.map((pr, i) => (
                   <tr key={pr.id}>
                     <td>{i + 1}</td>
-                    <td><strong>{pr.productName}</strong></td>
+                    <td>
+                      <strong>{pr.productName}</strong>
+                    </td>
                     <td>
                       <ul className="material-list-inline">
                         {pr.items.map((item, ii) => (
                           <li key={ii}>
-                            {item.materialName}: <strong>+{item.qtyToBuy} {item.unit}</strong>
+                            {item.materialName}:{" "}
+                            <strong>
+                              +{item.qtyToBuy} {item.unit}
+                            </strong>
                           </li>
                         ))}
                       </ul>
                     </td>
                     <td>{pr.createdAt}</td>
                     <td>
-                      <button className="btn-action btn-action--blue" onClick={() => handleStockIn(pr)}>
-                        📥 Nhập kho
+                      <button
+                        className="btn-action btn-action--blue"
+                        onClick={() => handleStockIn(pr)}
+                      >
+                        📥 Nhập kho ngay
                       </button>
                     </td>
                   </tr>
@@ -342,7 +545,7 @@ export default function Warehouse() {
         )}
       </AdminCard>
 
-      {/* ── 4. Tạo phiếu bàn giao cho Nhà máy ──────────────────────────────── */}
+      {/* 4. Tạo phiếu bàn giao cho Nhà máy */}
       <AdminCard title="Bàn giao vật tư cho Nhà máy" icon="🚚">
         {readyRequests.length === 0 ? (
           <p className="empty-state">Chưa có yêu cầu nào sẵn sàng sản xuất.</p>
@@ -362,17 +565,27 @@ export default function Warehouse() {
                 {readyRequests.map((req, i) => (
                   <tr key={req.id}>
                     <td>{i + 1}</td>
-                    <td><strong>{req.productName}</strong></td>
+                    <td>
+                      <strong>{req.productName}</strong>
+                    </td>
                     <td>{req.productQty}</td>
                     <td>
                       <ul className="material-list-inline">
                         {req.materials.map((m, mi) => (
-                          <li key={mi}>{m.materialName}: <strong>{m.requiredQty} {m.unit}</strong></li>
+                          <li key={mi}>
+                            {m.materialName}:{" "}
+                            <strong>
+                              {m.requiredQty} {m.unit}
+                            </strong>
+                          </li>
                         ))}
                       </ul>
                     </td>
                     <td>
-                      <button className="btn-action btn-action--purple" onClick={() => handleHandover(req)}>
+                      <button
+                        className="btn-action btn-action--purple"
+                        onClick={() => handleHandover(req)}
+                      >
                         🏭 Bàn giao NM
                       </button>
                     </td>
@@ -384,7 +597,7 @@ export default function Warehouse() {
         )}
       </AdminCard>
 
-      {/* ── 5. Nhận thành phẩm từ Nhà máy ──────────────────────────────────── */}
+      {/* 5. Nhận thành phẩm từ Nhà máy */}
       <AdminCard title="Nhận thành phẩm từ Nhà máy" icon="🎁">
         {reportedReports.length === 0 ? (
           <p className="empty-state">Chưa có thành phẩm nào chờ nhận.</p>
@@ -405,20 +618,33 @@ export default function Warehouse() {
                 {reportedReports.map((r, i) => (
                   <tr key={r.id}>
                     <td>{i + 1}</td>
-                    <td><strong>{r.productName}</strong></td>
-                    <td><span className="badge badge--green">{r.finishedQty} cái</span></td>
+                    <td>
+                      <strong>{r.productName}</strong>
+                    </td>
+                    <td>
+                      <span className="badge badge--green">
+                        {r.finishedQty} cái
+                      </span>
+                    </td>
                     <td>
                       {r.scrapItems?.length > 0 ? (
                         <ul className="material-list-inline">
                           {r.scrapItems.map((s, si) => (
-                            <li key={si}>{s.name}: {s.qty} {s.unit}</li>
+                            <li key={si}>
+                              {s.name}: {s.qty} {s.unit}
+                            </li>
                           ))}
                         </ul>
-                      ) : "Không có"}
+                      ) : (
+                        "Không có"
+                      )}
                     </td>
                     <td>{r.note || "—"}</td>
                     <td>
-                      <button className="btn-action btn-action--green" onClick={() => handleReceive(r)}>
+                      <button
+                        className="btn-action btn-action--green"
+                        onClick={() => handleReceive(r)}
+                      >
                         ✅ Nhận vào kho
                       </button>
                     </td>
@@ -430,7 +656,7 @@ export default function Warehouse() {
         )}
       </AdminCard>
 
-      {/* ── Tất cả yêu cầu SX ─────────────────────────────────────────────── */}
+      {/* Tất cả yêu cầu SX─ */}
       <AdminCard title="Toàn bộ yêu cầu sản xuất" icon="📋">
         {productionRequests.length === 0 ? (
           <p className="empty-state">Chưa có yêu cầu nào.</p>
@@ -450,10 +676,14 @@ export default function Warehouse() {
                 {productionRequests.map((r, i) => (
                   <tr key={r.id}>
                     <td>{i + 1}</td>
-                    <td><strong>{r.productName}</strong></td>
+                    <td>
+                      <strong>{r.productName}</strong>
+                    </td>
                     <td>{r.productQty}</td>
                     <td>{r.createdAt}</td>
-                    <td><StatusBadge status={r.status} /></td>
+                    <td>
+                      <StatusBadge status={r.status} />
+                    </td>
                   </tr>
                 ))}
               </tbody>

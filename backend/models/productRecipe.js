@@ -34,7 +34,8 @@ export default class ProductRecipe extends Model {
     sequelize,
     tableName: 'product_recipes',
     schema: 'public',
-    timestamps: false,
+    timestamps: true,
+    paranoid: true,
     indexes: [
       {
         name: "product_recipes_pkey",

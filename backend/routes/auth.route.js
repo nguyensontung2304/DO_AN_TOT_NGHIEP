@@ -3,34 +3,47 @@ import express from "express";
 import {
   register,
   login,
-  getUserById,
-  updateUserById,
+  updateMyProfile,
   refreshToken,
   logout,
   getMyProfile,
+  changePassword,
+  updateAvatar,
 } from "../controller/auth.controller.js";
 
 import { verifyToken } from "../middlewares/auth.middleware.js";
+import upload from "../middlewares/upload.middleware.js";
 
 const router = express.Router();
 
-// gửi data user đăng ký
+// đăng ký
 router.post("/register", register);
 
-// gửi data user đăng nhập
+// đăng nhập
 router.post("/login", login);
-
-// lấy data user đã login
-router.get("/:id", getUserById);
-
-// cập nhật thông tin user
-router.put("/login/:id", updateUserById);
 
 // refresh-token
 router.post("/refresh-token", refreshToken);
 
 // Các API dưới đây cần đăng nhập (gửi access token)
+// logout
 router.post("/logout", verifyToken, logout);
+
+// Lấy thông tin profile của user hiện tại
 router.get("/profile", verifyToken, getMyProfile);
+
+// Cập nhật thông tin profile của user hiện tại
+router.put("/profile/:id", verifyToken, updateMyProfile);
+
+// Đổi mật khẩu
+router.put("/profile/change-password", verifyToken, changePassword);
+
+// Cập nhật avatar (upload file)
+router.patch(
+  "/profile/avatar",
+  verifyToken,
+  upload.single("avatar"),
+  updateAvatar,
+);
 
 export default router;

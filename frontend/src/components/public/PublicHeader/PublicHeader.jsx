@@ -3,12 +3,14 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { clearUser } from "../../../redux/userSlice";
 import { getCartByUserId } from "../../../api/cartApi";
+import { logout } from "../../../api/authApi";
 import { ROUTES } from "../../../constants/router.js";
 
 import "./publicHeader.scss";
 
 export default function PublicHeader() {
   const currentUser = useSelector((state) => state.user.currentUser);
+  console.log("currentUser in PublicHeader:", currentUser);
   const dispatch = useDispatch();
 
   const [cartCount, setCartCount] = useState(0);
@@ -74,8 +76,17 @@ export default function PublicHeader() {
   }, []);
 
   // ĐĂNG XUẤT
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Lỗi đăng xuất:", error);
+    }
+
     localStorage.removeItem("userId");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("userRole");
 
     dispatch(clearUser());
 
@@ -131,7 +142,7 @@ export default function PublicHeader() {
           </button>
 
           {!currentUser && (
-            <Link to={ROUTES.USER.LOGIN_USER} className="pub-header__login-btn">
+            <Link to={ROUTES.USER.LOGIN} className="pub-header__login-btn">
               Đăng nhập
             </Link>
           )}
@@ -144,7 +155,17 @@ export default function PublicHeader() {
                 aria-expanded={userDropdown}
               >
                 <span className="pub-header__user-avatar">
-                  {currentUser.name?.charAt(0).toUpperCase()}
+                  {currentUser?.avatar ? (
+                    <img
+                      src={currentUser.avatar}
+                      alt="Ảnh đại diện"
+                      className="header-avatar"
+                    />
+                  ) : (
+                    <div className="pub-header__user-avatar-none">
+                      <span>{currentUser?.name?.charAt(0).toUpperCase()}</span>
+                    </div>
+                  )}
                 </span>
 
                 <span className="pub-header__user-name">
@@ -181,14 +202,6 @@ export default function PublicHeader() {
               )}
             </div>
           )}
-
-          <Link
-            to={ROUTES.USER.LOGIN_ADMIN}
-            className="pub-header__admin-btn"
-            title="Quản trị"
-          >
-            🏭
-          </Link>
 
           <button
             className="pub-header__burger"

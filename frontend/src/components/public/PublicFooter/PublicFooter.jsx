@@ -1,101 +1,26 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { getProducts } from "../../../api/productApi";
-import { ROUTES, getPath } from "../../../constants/router";
+import { Link, useNavigate } from "react-router-dom";
+import { ROUTES } from "../../../constants/router";
 import "./publicFooter.scss";
 
+// Danh mục sản phẩm trong footer — khớp với category thực trong DB
+const FOOTER_CATEGORIES = [
+  "Bàn ăn",
+  "Ghế sofa",
+  "Tủ quần áo",
+  "Kệ sách",
+  "Giường ngủ",
+];
+
 export default function PublicFooter() {
-  //  State sản phẩm theo danh mục
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [activeTab, setActiveTab] = useState(null); // danh mục đang mở
+  const navigate = useNavigate();
 
-  //  Lấy danh sách sản phẩm từ API khi mount
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await getProducts();
-        const data = Array.isArray(res.data) ? res.data : [];
-        setProducts(data);
-
-        // Lấy danh sách danh mục duy nhất
-        const cats = [...new Set(data.map((p) => p.category).filter(Boolean))];
-        setCategories(cats);
-
-        // Mặc định mở tab đầu tiên
-        if (cats.length > 0) setActiveTab(cats[0]);
-      } catch {
-        // Không hiển thị lỗi ở footer — silent fail
-      }
-    };
-    fetchProducts();
-  }, []);
-
-  //  Sản phẩm thuộc tab đang chọn (tối đa 4 sản phẩm)
-  const tabProducts = products
-    .filter((p) => p.category === activeTab)
-    .slice(0, 4);
+  const handleCategoryClick = (categoryName) => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    navigate(`${ROUTES.USER.PRODUCT_LIST}?category=${encodeURIComponent(categoryName)}`);
+  };
 
   return (
     <footer className="pub-footer">
-      {/*  PHẦN TRÊN: PRODUCT SHOWCASE THEO DANH MỤC  */}
-      {categories.length > 0 && (
-        <div className="pub-footer__showcase">
-          <div className="pub-footer__showcase-inner">
-            {/* Tiêu đề + tabs danh mục */}
-            <div className="pub-footer__showcase-header">
-              <span className="pub-footer__showcase-title">
-                🛋️ Khám phá sản phẩm
-              </span>
-              <div className="pub-footer__tabs">
-                {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    className={`pub-footer__tab ${activeTab === cat ? "active" : ""}`}
-                    onClick={() =>
-                      setActiveTab((prev) => (prev === cat ? null : cat))
-                    }
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Grid sản phẩm — chỉ hiển thị khi activeTab có sản phẩm */}
-            {activeTab && tabProducts.length > 0 && (
-              <div className="pub-footer__products">
-                {tabProducts.map((p) => (
-                  <Link
-                    key={p.id}
-                    to={getPath(ROUTES.USER.PRODUCT_DETAIL, { id: p.id })}
-                    className="pub-footer__product-card"
-                  >
-                    <div className="pub-footer__product-img">{p.emoji}</div>
-                    <div className="pub-footer__product-info">
-                      <span className="pub-footer__product-name">{p.name}</span>
-                      <span className="pub-footer__product-price">
-                        {Number(p.price).toLocaleString("vi-VN")}₫
-                      </span>
-                    </div>
-                  </Link>
-                ))}
-
-                {/* Nút xem tất cả danh mục */}
-                <Link
-                  to={ROUTES.USER.PRODUCT_LIST}
-                  className="pub-footer__product-more"
-                  state={{ category: activeTab }}
-                >
-                  <span>Xem tất cả {activeTab}</span>
-                  <span>→</span>
-                </Link>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
       {/*  PHẦN CHÍNH: 4 CỘT THÔNG TIN  */}
       <div className="pub-footer__inner">
         {/* Cột 1: Thương hiệu */}
@@ -106,26 +31,24 @@ export default function PublicFooter() {
             bàn, ghế, tủ, kệ cho mọi không gian sống.
           </p>
           <div className="pub-footer__socials">
-            <a href="#" aria-label="Facebook">
-              📘
-            </a>
-            <a href="#" aria-label="Zalo">
-              💬
-            </a>
-            <a href="#" aria-label="Youtube">
-              ▶️
-            </a>
+            <a href="#" aria-label="Facebook">📘</a>
+            <a href="#" aria-label="Zalo">💬</a>
+            <a href="#" aria-label="Youtube">▶️</a>
           </div>
         </div>
 
-        {/* Cột 2: Sản phẩm */}
+        {/* Cột 2: Sản phẩm — navigate theo category + scroll to top */}
         <div className="pub-footer__col">
           <h4>Sản phẩm</h4>
-          <Link to={ROUTES.USER.PRODUCT_LIST}>Bàn ăn</Link>
-          <Link to={ROUTES.USER.PRODUCT_LIST}>Ghế sofa</Link>
-          <Link to={ROUTES.USER.PRODUCT_LIST}>Tủ quần áo</Link>
-          <Link to={ROUTES.USER.PRODUCT_LIST}>Kệ sách</Link>
-          <Link to={ROUTES.USER.PRODUCT_LIST}>Giường ngủ</Link>
+          {FOOTER_CATEGORIES.map((cat) => (
+            <button
+              key={cat}
+              className="pub-footer__cat-link"
+              onClick={() => handleCategoryClick(cat)}
+            >
+              {cat}
+            </button>
+          ))}
         </div>
 
         {/* Cột 3: Dịch vụ */}

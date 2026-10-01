@@ -4,6 +4,9 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getProductById, getProducts, addToCart } from "../../../api";
 import { ROUTES, getPath } from "../../../constants/router";
+import { createOrUpdateRating, getMyRating } from "../../../api/ratingApi";
+import { RatingStars } from "../../../components/public/RatingStarts/RatingStarts";
+import { CommentSection } from "../../../components/public/CommentSection/CommentSection";
 import "./productDetail.scss";
 
 export default function ProductDetail() {
@@ -18,7 +21,8 @@ export default function ProductDetail() {
   const [qty, setQty] = useState(1);
 
   const currentUser = useSelector((state) => state.user.currentUser);
-
+  const [userRating, setUserRating] = useState(null);
+  const [ratingLoading, setRatingLoading] = useState(false);
   // LẤY CHI TIẾT SẢN PHẨM
   useEffect(() => {
     const getProductDetail = async () => {
@@ -30,18 +34,21 @@ export default function ProductDetail() {
         // Lấy sản phẩm hiện tại
         const response = await getProductById(id);
 
+        console.log("=====> PRODUCT DETAIL", response);
+
         setProduct(response.data);
 
         // Lấy tất cả sản phẩm
-        const productsResponse = await getProducts();
+        const productsResponse = await getProducts({
+          page: 1,
+          limit: 5,
+        });
+
+        console.log("=====> PRODUCT ALL", productsResponse);
 
         // Lọc sản phẩm liên quan
-        const relatedProducts = productsResponse.data
-          .filter(
-            (item) =>
-              item.category === response.data.category &&
-              item.id !== response.data.id,
-          )
+        const relatedProducts = (productsResponse.data.products || [])
+          .filter((item) => item.id !== response.data.id)
           .slice(0, 4);
 
         setRelated(relatedProducts);
@@ -60,7 +67,7 @@ export default function ProductDetail() {
   // THÊM VÀO GIỎ HÀNG
   const handleAddToCart = async () => {
     if (!currentUser?.id) {
-      navigate(ROUTES.USER.LOGIN_USER, {
+      navigate(ROUTES.USER.LOGIN, {
         state: {
           from: getPath(ROUTES.USER.PRODUCT_DETAIL, { id }),
         },
@@ -95,6 +102,25 @@ export default function ProductDetail() {
     }
   };
 
+  const fetchUserRating = async () => {
+    if (!currentUser?.id) return;
+
+    try {
+      const response = await getMyRating(id);
+
+      console.log("=====> GET MY RATING", response);
+
+      setUserRating(response?.data?.rating || response?.rating || null);
+    } catch (error) {
+      console.error("Lỗi tải đánh giá:", error);
+      setUserRating(null);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserRating();
+  }, [id, currentUser]);
+
   // LOADING
   if (loading) {
     return (
@@ -128,6 +154,40 @@ export default function ProductDetail() {
     ? Math.round((1 - Number(product.price) / Number(product.old_price)) * 100)
     : null;
 
+  const handleRate = async (rating) => {
+    if (!currentUser?.id) {
+      alert("Vui lòng đăng nhập để đánh giá");
+      return;
+    }
+
+    if (userRating) {
+      if (rating !== userRating) {
+        alert("Bạn đã đánh giá sản phẩm này rồi, không thể thay đổi!");
+      }
+
+      return;
+    }
+
+    if (ratingLoading) return;
+
+    try {
+      setRatingLoading(true);
+
+      await createOrUpdateRating(id, { rating });
+
+      await fetchUserRating();
+
+      // Lấy lại product để cập nhật averageRating và ratingsCount
+      const response = await getProductById(id);
+      setProduct(response.data);
+    } catch (error) {
+      console.error("Lỗi đánh giá:", error);
+
+      alert("Không thể gửi đánh giá. Vui lòng thử lại.");
+    } finally {
+      setRatingLoading(false);
+    }
+  };
   return (
     <div className="pd-page">
       {/* Breadcrumb */}
@@ -151,175 +211,284 @@ export default function ProductDetail() {
 
       {/* Main */}
       <div className="pd-main">
-        {/* Gallery */}
-        <div className="pd-gallery">
-          <div className="pd-gallery__main">
-            {product.badge && (
-              <span className="pd-gallery__badge">{product.badge}</span>
-            )}
+        {/* ẢNH + THÔNG TIN SẢN PHẨM */}
+        <section className="pd-product-top">
+          {/* BÊN TRÁI - ẢNH */}
+          <div className="pd-product-image">
+            <div className="pd-gallery__main">
+              {product.badge && (
+                <span className="pd-gallery__badge">{product.badge}</span>
+              )}
 
-            {discount && (
-              <span className="pd-gallery__discount">-{discount}%</span>
-            )}
+              {discount && (
+                <span className="pd-gallery__discount">-{discount}%</span>
+              )}
 
-            <div className="pd-gallery__emoji">{product.emoji}</div>
-          </div>
-
-          <p className="pd-gallery__hint">Hình ảnh minh họa</p>
-        </div>
-
-        {/* Info */}
-        <div className="pd-info">
-          <span className="pd-info__cat">{product.category}</span>
-
-          <h1 className="pd-info__name">{product.name}</h1>
-
-          {/* Giá */}
-          <div className="pd-info__price-row">
-            <strong className="pd-info__price">
-              {Number(product.price).toLocaleString("vi-VN")}₫
-            </strong>
-
-            {product.old_price && (
-              <>
-                <s className="pd-info__old-price">
-                  {Number(product.old_price).toLocaleString("vi-VN")}₫
-                </s>
-
-                <span className="pd-info__discount-tag">
-                  Tiết kiệm{" "}
-                  {(
-                    Number(product.old_price) - Number(product.price)
-                  ).toLocaleString("vi-VN")}
-                  ₫
-                </span>
-              </>
-            )}
-          </div>
-
-          {/* Mô tả */}
-          <p className="pd-info__desc">
-            {product.long_description || product.description}
-          </p>
-
-          {/* Thông số */}
-          {product.specs && product.specs.length > 0 && (
-            <div className="pd-specs">
-              <h3 className="pd-specs__title">Thông số kỹ thuật</h3>
-
-              <table className="pd-specs__table">
-                <tbody>
-                  {product.specs.map((spec) => (
-                    <tr key={spec.id}>
-                      <td className="pd-specs__key">{spec.spec_name}</td>
-
-                      <td className="pd-specs__val">{spec.spec_value}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {/* Nguyên vật liệu */}
-          {product.recipe && product.recipe.length > 0 && (
-            <details className="pd-recipe">
-              <summary>
-                🔩 Nguyên vật liệu sản xuất ({product.recipe.length} loại)
-              </summary>
-
-              <ul className="pd-recipe__list">
-                {product.recipe.map((item) => (
-                  <li key={item.id}>
-                    <span>{item.material_name}</span>
-
-                    <strong>
-                      {item.qty} {item.unit}
-                    </strong>
-                  </li>
-                ))}
-              </ul>
-            </details>
-          )}
-
-          {/* Actions */}
-          <div className="pd-actions">
-            {/* Quantity */}
-            <div className="pd-qty">
-              <button
-                onClick={() =>
-                  setQty((currentQty) => Math.max(1, currentQty - 1))
-                }
-              >
-                −
-              </button>
-
-              <span>{qty}</span>
-
-              <button onClick={() => setQty((currentQty) => currentQty + 1)}>
-                +
-              </button>
+              <div className="pd-gallery__emoji">{product.emoji}</div>
             </div>
 
-            {/* Thêm giỏ */}
-            {currentUser ? (
-              <button
-                className="pd-btn pd-btn--primary pd-btn--add"
-                onClick={handleAddToCart}
-              >
-                🛒 Thêm vào giỏ hàng
-              </button>
-            ) : (
-              <Link
-                to={ROUTES.USER.LOGIN_USER}
-                state={{
-                  from: getPath(ROUTES.USER.PRODUCT_DETAIL, { id: product.id }),
-                }}
-                className="pd-btn pd-btn--guest"
-              >
-                🔒 Đăng nhập để đặt hàng
-              </Link>
-            )}
+            <p className="pd-gallery__hint">Hình ảnh minh họa</p>
           </div>
 
-          {/* Mua ngay */}
-          {currentUser && (
-            <button className="pd-btn pd-btn--buy-now" onClick={handleBuyNow}>
-              ⚡ Mua ngay
-            </button>
-          )}
+          {/* BÊN PHẢI - THÔNG TIN */}
+          <div className="pd-product-info">
+            <span className="pd-info__cat">{product.category}</span>
 
-          {/* Cam kết */}
-          <div className="pd-guarantees">
-            {[
-              {
-                icon: "🛡️",
-                text: "Bảo hành chính hãng",
-              },
+            <h1 className="pd-info__name">{product.name}</h1>
 
-              {
-                icon: "🚚",
-                text: "Giao hàng & lắp đặt miễn phí",
-              },
+            {/* Giá */}
+            <div className="pd-info__price-row">
+              <strong className="pd-info__price">
+                {Number(product.price).toLocaleString("vi-VN")}₫
+              </strong>
 
-              {
-                icon: "🔄",
-                text: "Đổi trả trong 7 ngày",
-              },
+              {product.old_price && (
+                <>
+                  <s className="pd-info__old-price">
+                    {Number(product.old_price).toLocaleString("vi-VN")}₫
+                  </s>
 
-              {
-                icon: "📞",
-                text: "Hỗ trợ 24/7",
-              },
-            ].map((guarantee) => (
-              <div key={guarantee.text} className="pd-guarantees__item">
-                <span>{guarantee.icon}</span>
+                  <span className="pd-info__discount-tag">
+                    Tiết kiệm{" "}
+                    {(
+                      Number(product.old_price) - Number(product.price)
+                    ).toLocaleString("vi-VN")}
+                    ₫
+                  </span>
+                </>
+              )}
+            </div>
 
-                <p>{guarantee.text}</p>
+            {/* Mô tả ngắn */}
+            <p className="pd-info__short-desc">{product.description}</p>
+
+            {/* Actions */}
+            <div className="pd-actions">
+              {/* Số lượng */}
+              <div className="pd-qty">
+                <button
+                  onClick={() =>
+                    setQty((currentQty) => Math.max(1, currentQty - 1))
+                  }
+                >
+                  −
+                </button>
+
+                <span>{qty}</span>
+
+                <button onClick={() => setQty((currentQty) => currentQty + 1)}>
+                  +
+                </button>
               </div>
-            ))}
+
+              {/* Thêm giỏ hàng */}
+              {currentUser ? (
+                <button
+                  className="pd-btn pd-btn--primary pd-btn--add"
+                  onClick={handleAddToCart}
+                >
+                  🛒 Thêm vào giỏ hàng
+                </button>
+              ) : (
+                <Link
+                  to={ROUTES.USER.LOGIN}
+                  state={{
+                    from: getPath(ROUTES.USER.PRODUCT_DETAIL, {
+                      id: product.id,
+                    }),
+                  }}
+                  className="pd-btn pd-btn--guest"
+                >
+                  🔒 Đăng nhập để đặt hàng
+                </Link>
+              )}
+            </div>
+
+            {/* Mua ngay */}
+            {currentUser && (
+              <button className="pd-btn pd-btn--buy-now" onClick={handleBuyNow}>
+                ⚡ Mua ngay
+              </button>
+            )}
           </div>
-        </div>
+        </section>
+
+        {/* MÔ TẢ DÀI + THÔNG SỐ + NGUYÊN VẬT LIỆU */}
+        <section className="pd-product-details">
+          {/* BÊN TRÁI - MÔ TẢ DÀI */}
+          <div className="pd-long-description">
+            <h2 className="pd-section-title">Mô tả sản phẩm</h2>
+
+            {/* Mô tả dài */}
+            <p className="pd-long-description__content">
+              {product.long_description}
+            </p>
+
+            {/* Nguyên vật liệu */}
+            {product.recipe && product.recipe.length > 0 && (
+              <details className="pd-recipe">
+                <summary>
+                  🔩 Nguyên vật liệu sản xuất ({product.recipe.length} loại)
+                </summary>
+
+                <ul className="pd-recipe__list">
+                  {product.recipe.map((item) => (
+                    <li key={item.id}>
+                      <span>{item.material_name}</span>
+
+                      <strong>
+                        {item.qty} {item.unit}
+                      </strong>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            )}
+          </div>
+
+          {/* BÊN PHẢI */}
+          <div className="pd-technical">
+            {/* Thông số kỹ thuật */}
+            {product.specs && product.specs.length > 0 && (
+              <div className="pd-specs">
+                <h2 className="pd-section-title">Thông số kỹ thuật</h2>
+
+                <table className="pd-specs__table">
+                  <tbody>
+                    {product.specs.map((spec) => (
+                      <tr key={spec.id}>
+                        <td className="pd-specs__key">{spec.spec_name}</td>
+
+                        <td className="pd-specs__val">{spec.spec_value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* ĐÁNH GIÁ + BÌNH LUẬN */}
+        <section className="pd-rating-row">
+          {/* BÊN TRÁI - ĐÁNH GIÁ */}
+          <div className="pd-rating-section">
+            <div className="pd-rating-header">
+              <h2>Đánh giá sản phẩm</h2>
+            </div>
+
+            {/* Điểm trung bình */}
+            <div className="pd-rating-summary">
+              <div className="pd-rating-score">
+                <strong>{Number(product.averageRating || 0).toFixed(1)}</strong>
+
+                <span>/ 5</span>
+              </div>
+
+              <div className="pd-rating-stars">
+                <RatingStars
+                  rating={Number(product.averageRating) || 0}
+                  size={50}
+                  readonly
+                />
+
+                <span>{product.ratingsCount || 0} đánh giá</span>
+              </div>
+            </div>
+
+            {/* Người dùng đánh giá */}
+            {currentUser ? (
+              <div className="pd-user-rating">
+                <div className="pd-user-rating__header">
+                  <span className="pd-user-rating__label">
+                    Đánh giá của bạn
+                  </span>
+
+                  {userRating && (
+                    <span className="pd-user-rating__status">
+                      ✓ Đã đánh giá
+                    </span>
+                  )}
+                </div>
+
+                <div className="pd-user-rating__content">
+                  <RatingStars
+                    rating={userRating || 0}
+                    size={38}
+                    interactive
+                    onRate={handleRate}
+                    readonly={ratingLoading || !!userRating}
+                  />
+
+                  {userRating ? (
+                    <p className="pd-user-rating__note">
+                      Bạn đã đánh giá {userRating} sao cho sản phẩm này.
+                    </p>
+                  ) : (
+                    <p className="pd-user-rating__note">
+                      Nhấn vào số sao để đánh giá sản phẩm.
+                    </p>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="pd-rating-login">
+                <div className="pd-rating-login__icon">⭐</div>
+
+                <div className="pd-rating-login__content">
+                  <strong>Chia sẻ đánh giá của bạn</strong>
+
+                  <p>Đăng nhập để đánh giá sản phẩm này.</p>
+                </div>
+
+                <Link
+                  to={ROUTES.USER.LOGIN}
+                  state={{
+                    from: getPath(ROUTES.USER.PRODUCT_DETAIL, {
+                      id: product.id,
+                    }),
+                  }}
+                  className="pd-rating-login__button"
+                >
+                  Đăng nhập
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* BÊN PHẢI - BÌNH LUẬN */}
+          <div className="pd-rating-comment">
+            <CommentSection productId={id} />
+          </div>
+        </section>
+
+        {/* CAM KẾT */}
+        <section className="pd-guarantees">
+          {[
+            {
+              icon: "🛡️",
+              text: "Bảo hành chính hãng",
+            },
+            {
+              icon: "🚚",
+              text: "Giao hàng & lắp đặt miễn phí",
+            },
+            {
+              icon: "🔄",
+              text: "Đổi trả trong 7 ngày",
+            },
+            {
+              icon: "📞",
+              text: "Hỗ trợ 24/7",
+            },
+          ].map((guarantee) => (
+            <div key={guarantee.text} className="pd-guarantees__item">
+              <span>{guarantee.icon}</span>
+
+              <p>{guarantee.text}</p>
+            </div>
+          ))}
+        </section>
       </div>
 
       {/* Sản phẩm liên quan */}

@@ -75,7 +75,9 @@
 
       &.active {
         color: #c0392b;
-        &::after { width: 100%; }
+        &::after {
+          width: 100%;
+        }
       }
     }
   }
@@ -124,7 +126,9 @@
     transition: background 0.2s;
     white-space: nowrap;
 
-    &:hover { background: #0f3460; }
+    &:hover {
+      background: #0f3460;
+    }
   }
 
   &__admin-btn {
@@ -134,7 +138,9 @@
     border-radius: 8px;
     transition: background 0.15s;
 
-    &:hover { background: #f0f0f0; }
+    &:hover {
+      background: #f0f0f0;
+    }
   }
 
   // ── User menu ─────────────────────────────────────────────────────────────
@@ -151,16 +157,40 @@
     border-radius: 24px;
     padding: 5px 12px 5px 6px;
     cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
+    transition:
+      border-color 0.2s,
+      background 0.2s;
 
-    &:hover { border-color: #1a1a2e; background: #f7f7f7; }
+    &:hover {
+      border-color: #1a1a2e;
+      background: #f7f7f7;
+    }
   }
 
   &__user-avatar {
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #c0392b, #e74c3c);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eee;
+    flex-shrink: 0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+  }
+
+  &__user-avatar-none {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
     color: #fff;
     font-size: 13px;
     font-weight: 700;
@@ -199,8 +229,14 @@
     animation: dropIn 0.15s ease;
 
     @keyframes dropIn {
-      from { opacity: 0; transform: translateY(-6px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(-6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   }
 
@@ -210,8 +246,14 @@
     flex-direction: column;
     gap: 2px;
 
-    strong { font-size: 14px; color: #1a1a2e; }
-    small  { font-size: 12px; color: #999; }
+    strong {
+      font-size: 14px;
+      color: #1a1a2e;
+    }
+    small {
+      font-size: 12px;
+      color: #999;
+    }
   }
 
   &__dropdown-divider {
@@ -221,9 +263,9 @@
 
   &__dropdown-item {
     width: 100%;
-    background: none;
     border: none;
-    padding: 12px 16px;
+    text-decoration: none;
+    padding: 12px 10px;
     text-align: left;
     font-size: 14px;
     font-weight: 500;
@@ -232,11 +274,15 @@
     color: #333;
     display: block;
 
-    &:hover { background: #f7f8fa; }
+    &:hover {
+      background: #f7f8fa;
+    }
 
     &--danger {
       color: #c0392b;
-      &:hover { background: #fff0f0; }
+      &:hover {
+        background: #fff0f0;
+      }
     }
   }
 

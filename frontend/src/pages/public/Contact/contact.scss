@@ -91,16 +91,16 @@
     font-size: 22px;
     font-weight: 800;
     color: #1a1a2e;
-    margin-bottom: 28px;
     padding-bottom: 14px;
     border-bottom: 2px solid #f0f0f0;
+    margin-bottom: 10px;
   }
 
   &__item {
     display: flex;
     gap: 16px;
     margin-bottom: 24px;
-    align-items: flex-start;
+    align-items: center;
   }
 
   // Icon có nền tròn
@@ -237,7 +237,9 @@
       font-family: inherit;
       color: #1a1a2e;
       background: #fff;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
 
       &::placeholder {
         color: #bbb;
@@ -271,7 +273,10 @@
     font-weight: 700;
     cursor: pointer;
     letter-spacing: 0.3px;
-    transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+    transition:
+      opacity 0.2s,
+      transform 0.15s,
+      box-shadow 0.2s;
     box-shadow: 0 4px 14px rgba(192, 57, 43, 0.3);
 
     &:hover {
@@ -350,9 +355,23 @@
   &__placeholder {
     border-radius: 16px;
     overflow: hidden;
-    height: 420px;
+    height: 650px;
     border: 2px solid #e8e8e8;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    // Đảm bảo bản đồ Leaflet không vượt lên trên header (z-index: 100)
+    position: relative;
+    z-index: 0;
+
+    // Ép tất cả Leaflet panes nằm trong stacking context này
+    .leaflet-pane,
+    .leaflet-top,
+    .leaflet-bottom {
+      z-index: 1 !important;
+    }
+
+    .leaflet-control {
+      z-index: 2 !important;
+    }
   }
 }
 

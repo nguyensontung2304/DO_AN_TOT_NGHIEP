@@ -29,14 +29,21 @@ function StatusBadge({ status }) {
 }
 
 // ── Material row in the form ──────────────────────────────────────────────────
-function MaterialRow({ row, index, materials, onChange, onRemove }) {
+function MaterialRow({
+  row,
+  index,
+  groupIndex = -1,
+  materials,
+  onChange,
+  onRemove,
+}) {
   return (
     <div className="tech-material-row">
       <select
         value={row.materialId}
         onChange={(e) => {
           const m = materials.find((m) => m.id === Number(e.target.value));
-          onChange(index, {
+          onChange(groupIndex, index, {
             materialId: m ? m.id : "",
             materialName: m ? m.name : "",
             unit: m ? m.unit : "",
@@ -57,16 +64,83 @@ function MaterialRow({ row, index, materials, onChange, onRemove }) {
         min="1"
         placeholder="Số lượng cần"
         value={row.requiredQty}
-        onChange={(e) => onChange(index, { ...row, requiredQty: e.target.value })}
+        onChange={(e) =>
+          onChange(groupIndex, index, { ...row, requiredQty: e.target.value })
+        }
       />
 
       <span className="tech-material-unit">{row.unit || "—"}</span>
 
-      <button className="btn-icon btn-icon--danger" onClick={() => onRemove(index)} title="Xoá dòng">
+      <button
+        className="btn-icon btn-icon--danger"
+        onClick={() => onRemove(groupIndex, index)}
+        title="Xoá dòng"
+      >
         🗑️
       </button>
     </div>
   );
+}
+
+const emptyRow = { materialId: "", materialName: "", unit: "", requiredQty: "" };
+const emptyForm = { productName: "", productQty: "", note: "", rows: [{ ...emptyRow }] };
+
+// Dựng form từ đơn hàng vừa được admin xác nhận.
+// Mỗi sản phẩm có danh sách vật tư riêng nên đơn nhiều sản phẩm sẽ thành nhiều nhóm.
+function buildFormFromOrder(order, materials) {
+  const cart = order.cart || [];
+  if (cart.length === 0) return null;
+
+  const toRow = (r) => {
+    const mat = materials.find(
+      (m) =>
+        m.name.toLowerCase().trim() === r.material_name.toLowerCase().trim(),
+    );
+    return {
+      materialId: mat ? mat.id : "",
+      materialName: r.material_name,
+      unit: mat ? mat.unit : r.unit || "",
+      requiredQty: String(r.qty),
+    };
+  };
+
+  // Gom theo từng sản phẩm, bỏ sản phẩm không có vật tư nào khớp kho
+  const groups = (order.itemsWithRecipe || [])
+    .map((item) => ({
+      name: item.name,
+      qty: item.qty,
+      rows: (item.materials || []).map(toRow),
+    }))
+    .filter((g) => g.rows.length > 0);
+
+  const fallbackRows = (order.recipeRows || []).map(toRow);
+  const orderCode = String(order.id).slice(-6).toUpperCase();
+  const note = `Đơn hàng #${orderCode} — ${order.name || "Khách hàng"}`;
+
+  if (groups.length === 1) {
+    return {
+      form: {
+        productName: groups[0].name,
+        productQty: String(groups[0].qty),
+        note,
+        rows: groups[0].rows,
+      },
+      banner: `🔔 Đơn hàng #${orderCode} vừa được xác nhận — đã điền sẵn, kiểm tra lại trước khi gửi.`,
+    };
+  }
+
+  return {
+    form: {
+      productName: cart.map((i) => i.name).join(", "),
+      productQty: String(cart.reduce((s, i) => s + Number(i.qty), 0)),
+      note,
+      rows: fallbackRows.length > 0 ? fallbackRows : [{ ...emptyRow }],
+      groups,
+    },
+    banner:
+      `🔔 Đơn hàng #${orderCode} vừa được xác nhận — gồm ` +
+      `${groups.length || cart.length} sản phẩm, kiểm tra vật tư từng sản phẩm bên dưới.`,
+  };
 }
 
 export default function Technical() {
@@ -76,36 +150,89 @@ export default function Technical() {
     addProductionRequest,
     designRequests,
     provideDesign,
+    confirmedOrderDraft,
+    setConfirmedOrderDraft,
+    pendingNotifications,
+    dismissNotification,
   } = useApp();
 
   // ── Form tạo yêu cầu SX ────────────────────────────────────────────────────
-  const emptyRow = { materialId: "", materialName: "", unit: "", requiredQty: "" };
-  const [form, setForm] = useState({
-    productName: "",
-    productQty: "",
-    note: "",
-    rows: [{ ...emptyRow }],
-  });
+  const [form, setForm] = useState(emptyForm);
   const [formError, setFormError] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [autoFillBanner, setAutoFillBanner] = useState("");
 
-  const updateRow = (i, val) =>
-    setForm((f) => ({ ...f, rows: f.rows.map((r, idx) => (idx === i ? val : r)) }));
+  // Đơn hàng đã nạp vào form lần nào (tránh nạp lại khi render lại)
+  const [filledOrderId, setFilledOrderId] = useState(null);
 
-  const addRow = () =>
-    setForm((f) => ({ ...f, rows: [...f.rows, { ...emptyRow }] }));
+  // Điền form ngay khi đơn hàng mới được xác nhận.
+  // So sánh trong lúc render thay vì useEffect để tránh render dây chuyền.
+  if (
+    confirmedOrderDraft &&
+    confirmedOrderDraft.id !== filledOrderId &&
+    (confirmedOrderDraft.cart || []).length > 0
+  ) {
+    const built = buildFormFromOrder(confirmedOrderDraft, materials);
 
-  const removeRow = (i) =>
-    setForm((f) => ({ ...f, rows: f.rows.filter((_, idx) => idx !== i) }));
+    if (built) {
+      setForm(built.form);
+      setAutoFillBanner(built.banner);
+      setFilledOrderId(confirmedOrderDraft.id);
+    }
+  }
 
+  // Nạp lại 1 đơn từ bảng thông báo vào form
+  const loadOrderIntoForm = (order) => {
+    setFilledOrderId(null);
+    setFormError("");
+    setConfirmedOrderDraft(order);
+  };
+
+  // Gửi yêu cầu: nhiều sản phẩm → tạo 1 yêu cầu/sản phẩm, vật tư đi kèm riêng
   const handleSubmit = (e) => {
     e.preventDefault();
     setFormError("");
+    setAutoFillBanner("");
+
+    const groups = form.groups || [];
+
+    if (groups.length > 0) {
+      const items = groups
+        .map((g) => ({
+          productName: g.name,
+          productQty: Number(g.qty),
+          materials: g.rows
+            .filter((r) => r.materialId && Number(r.requiredQty) > 0)
+            .map((r) => ({
+              materialId: r.materialId,
+              materialName: r.materialName,
+              unit: r.unit,
+              requiredQty: Number(r.requiredQty),
+            })),
+        }))
+        .filter((it) => it.materials.length > 0);
+
+      if (items.length === 0) {
+        setFormError(
+          "Cần chọn ít nhất 1 vật tư với số lượng hợp lệ cho mỗi sản phẩm.",
+        );
+        return;
+      }
+
+      addProductionRequest({ note: form.note.trim(), items });
+      setForm(emptyForm);
+      setSubmitted(true);
+      setTimeout(() => setSubmitted(false), 3000);
+      return;
+    }
+
     if (!form.productName.trim() || !form.productQty) {
       setFormError("Vui lòng nhập tên sản phẩm và số lượng.");
       return;
     }
-    const validRows = form.rows.filter((r) => r.materialId && r.requiredQty > 0);
+    const validRows = form.rows.filter(
+      (r) => r.materialId && Number(r.requiredQty) > 0,
+    );
     if (validRows.length === 0) {
       setFormError("Cần chọn ít nhất 1 vật tư với số lượng hợp lệ.");
       return;
@@ -121,13 +248,61 @@ export default function Technical() {
         requiredQty: Number(r.requiredQty),
       })),
     });
-    setForm({ productName: "", productQty: "", note: "", rows: [{ ...emptyRow }] });
+    setForm(emptyForm);
     setSubmitted(true);
     setTimeout(() => setSubmitted(false), 3000);
   };
 
   // ── Cung cấp bản thiết kế cho nhà máy ────────────────────────────────────
   const [designNotes, setDesignNotes] = useState({});
+
+  // Sửa dòng vật tư — groupIndex = -1 nghĩa là form 1 sản phẩm
+  const updateRow = (groupIndex, i, val) =>
+    setForm((f) => {
+      if (groupIndex === -1) {
+        return {
+          ...f,
+          rows: f.rows.map((r, idx) => (idx === i ? val : r)),
+        };
+      }
+      return {
+        ...f,
+        groups: f.groups.map((g, gi) =>
+          gi === groupIndex
+            ? { ...g, rows: g.rows.map((r, idx) => (idx === i ? val : r)) }
+            : g,
+        ),
+      };
+    });
+
+  const addRow = (groupIndex) =>
+    setForm((f) => {
+      if (groupIndex === -1) {
+        return { ...f, rows: [...f.rows, { ...emptyRow }] };
+      }
+      return {
+        ...f,
+        groups: f.groups.map((g, gi) =>
+          gi === groupIndex ? { ...g, rows: [...g.rows, { ...emptyRow }] } : g,
+        ),
+      };
+    });
+
+  const removeRow = (groupIndex, i) =>
+    setForm((f) => {
+      if (groupIndex === -1) {
+        return { ...f, rows: f.rows.filter((_, idx) => idx !== i) };
+      }
+      return {
+        ...f,
+        groups: f.groups.map((g, gi) =>
+          gi === groupIndex
+            ? { ...g, rows: g.rows.filter((_, idx) => idx !== i) }
+            : g,
+        ),
+      };
+    });
+
   const pendingDesigns = designRequests.filter((r) => r.status === "pending");
   const doneDesigns    = designRequests.filter((r) => r.status === "provided");
 
@@ -138,9 +313,86 @@ export default function Technical() {
         <p className="page-sub">Tạo yêu cầu sản xuất và cung cấp bản thiết kế cho Nhà máy</p>
       </div>
 
+      {/* ── 0. Thông báo đơn hàng mới được admin xác nhận ────��─────────────── */}
+      <AdminCard
+        title={`Thông báo đơn hàng mới (${pendingNotifications.length})`}
+        icon="🔔"
+      >
+        {pendingNotifications.length === 0 ? (
+          <p className="empty-state">Chưa có đơn hàng nào mới cần xử lý.</p>
+        ) : (
+          <div className="table-wrap">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Đơn hàng</th>
+                  <th>Khách hàng</th>
+                  <th>Sản phẩm</th>
+                  <th>Thời gian</th>
+                  <th>Hành động</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pendingNotifications.map((o, ni) => (
+                  <tr key={`${o.id}-${ni}`}>
+                    <td>
+                      <strong>
+                        #{String(o.id).slice(-6).toUpperCase()}
+                      </strong>
+                    </td>
+                    <td>
+                      {o.name || "—"}
+                      <br />
+                      <small>{o.phone}</small>
+                    </td>
+                    <td>
+                      <ul className="material-list-inline">
+                        {(o.cart || []).map((c, ci) => (
+                          <li key={ci}>
+                            {c.name} <strong>× {c.qty}</strong>
+                          </li>
+                        ))}
+                      </ul>
+                    </td>
+                    <td>
+                      {o.createdAt
+                        ? new Date(o.createdAt).toLocaleString("vi-VN")
+                        : "—"}
+                    </td>
+                    <td>
+                      <div className="tech-notify-actions">
+                        <button
+                          className="btn-action btn-action--blue"
+                          onClick={() => loadOrderIntoForm(o)}
+                        >
+                          📋 Điền vào form
+                        </button>
+                        <button
+                          className="btn-action btn-action--gray"
+                          onClick={() => dismissNotification(o.id)}
+                        >
+                          ✓ Đã xem
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </AdminCard>
+
       {/* ── 1. Tạo yêu cầu SX ─────────────────────────────────────────────── */}
       <AdminCard title="Tạo yêu cầu sản xuất" icon="📋">
         <form className="tech-form" onSubmit={handleSubmit}>
+          {/* Banner auto-fill từ đơn hàng */}
+          {autoFillBanner && (
+            <div className="form-autofill-banner">
+              {autoFillBanner} — Kiểm tra và chọn vật tư bên dưới trước khi gửi.
+            </div>
+          )}
+
           <div className="form-row">
             <div className="form-group">
               <label>Tên sản phẩm đầu ra <span className="req">*</span></label>
@@ -172,30 +424,68 @@ export default function Technical() {
             />
           </div>
 
-          <div className="form-group">
-            <label>Danh sách vật tư cần dùng <span className="req">*</span></label>
-            <div className="tech-material-list">
-              <div className="tech-material-list__head">
-                <span>Vật tư</span>
-                <span>Số lượng cần</span>
-                <span>Đơn vị</span>
-                <span></span>
+          {/* Nhiều sản phẩm: mỗi sản phẩm 1 khối vật tư riêng */}
+          {form.groups?.length > 0 ? (
+            form.groups.map((g, gi) => (
+              <div className="form-group" key={gi}>
+                <h3 className="section-subtitle">
+                  🪑 {g.name} <small>(SL: {g.qty})</small>
+                </h3>
+                <div className="tech-material-list">
+                  <div className="tech-material-list__head">
+                    <span>Vật tư</span>
+                    <span>Số lượng cần</span>
+                    <span>Đơn vị</span>
+                    <span></span>
+                  </div>
+                  {g.rows.map((row, i) => (
+                    <MaterialRow
+                      key={i}
+                      row={row}
+                      index={i}
+                      groupIndex={gi}
+                      materials={materials}
+                      onChange={updateRow}
+                      onRemove={removeRow}
+                    />
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  className="btn-add-row"
+                  onClick={() => addRow(gi)}
+                >
+                  + Thêm vật tư cho {g.name}
+                </button>
               </div>
-              {form.rows.map((row, i) => (
-                <MaterialRow
-                  key={i}
-                  row={row}
-                  index={i}
-                  materials={materials}
-                  onChange={updateRow}
-                  onRemove={removeRow}
-                />
-              ))}
+            ))
+          ) : (
+            <div className="form-group">
+              <label>Danh sách vật tư cần dùng <span className="req">*</span></label>
+              <div className="tech-material-list">
+                <div className="tech-material-list__head">
+                  <span>Vật tư</span>
+                  <span>Số lượng cần</span>
+                  <span>Đơn vị</span>
+                  <span></span>
+                </div>
+                {form.rows.map((row, i) => (
+                  <MaterialRow
+                    key={i}
+                    row={row}
+                    index={i}
+                    groupIndex={-1}
+                    materials={materials}
+                    onChange={updateRow}
+                    onRemove={removeRow}
+                  />
+                ))}
+              </div>
+              <button type="button" className="btn-add-row" onClick={() => addRow(-1)}>
+                + Thêm vật tư
+              </button>
             </div>
-            <button type="button" className="btn-add-row" onClick={addRow}>
-              + Thêm vật tư
-            </button>
-          </div>
+          )}
 
           {formError && <p className="form-error">⚠️ {formError}</p>}
           {submitted && <p className="form-success">✅ Đã gửi yêu cầu tới Thủ kho!</p>}

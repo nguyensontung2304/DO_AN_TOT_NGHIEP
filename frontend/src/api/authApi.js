@@ -1,10 +1,19 @@
 import api from "./api";
 
-export const registerUser = (userData) => api.post("/auth/register", userData);
+export const register = (userData) => api.post("/auth/register", userData);
 
-export const loginUser = (credentials) => api.post("/auth/login", credentials);
+export const login = (credentials) => api.post("/auth/login", credentials);
 
-export const getUserById = (userId) => api.get(`/auth/${userId}`);
+export const logout = () => api.post("/auth/logout");
 
-export const updateUserById = (userId, userData) =>
-  api.put(`/auth/login/${userId}`, userData);
+export const getMyProfile = () => api.get("/auth/profile");
+
+export const updateMyProfile = (userId, userData) =>
+  api.put(`/auth/profile/${userId}`, userData);
+
+export const changePassword = (data) =>
+  api.put("/auth/profile/change-password", data);
+
+export const updateMyAvatar = (formData) => {
+  return api.patch("/auth/profile/avatar", formData);
+};

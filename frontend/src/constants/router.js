@@ -6,18 +6,19 @@ export const ROUTES = {
     ABOUT: "/about",
     CONTACT: "/contact",
     CART: "/cart",
-    LOGIN_USER: "/login-user",
-    LOGIN_ADMIN: "/login-admin",
+    LOGIN: "/login",
     REGISTER: "/register",
     PROFILE: "/profile",
   },
   ADMIN: {
     DASHBOARD: "/admin",
+    ORDERS: "/admin/orders",
     TECHNICAL: "/admin/technical",
     WAREHOUSE: "/admin/warehouse",
     PURCHASING: "/admin/purchasing",
     FACTORY: "/admin/factory",
     FINISHED_GOODS: "/admin/finished-goods",
+    PRODUCTS: "/admin/products",
   },
 };
 

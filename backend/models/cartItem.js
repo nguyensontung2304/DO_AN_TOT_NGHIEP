@@ -37,7 +37,8 @@ export default class CartItem extends Model {
     sequelize,
     tableName: 'cart_items',
     schema: 'public',
-    timestamps: false,
+    timestamps: true,
+    paranoid: true,
     indexes: [
       {
         name: "cart_items_pkey",

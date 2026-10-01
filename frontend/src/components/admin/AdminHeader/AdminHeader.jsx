@@ -1,4 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { clearUser } from "../../../redux/userSlice";
+import { logout } from "../../../api/authApi";
 import { useApp } from "../../../context/useApp";
 import { ROUTES } from "../../../constants/router";
 
@@ -6,21 +9,24 @@ import "./adminHeader.scss";
 
 const NAV_ITEMS = [
   { to: ROUTES.ADMIN.DASHBOARD, label: "Dashboard", icon: "📊" },
+  { to: ROUTES.ADMIN.ORDERS, label: "Đơn hàng", icon: "📋" },
   { to: ROUTES.ADMIN.TECHNICAL, label: "Kỹ thuật", icon: "⚙️" },
   { to: ROUTES.ADMIN.WAREHOUSE, label: "Thủ kho", icon: "🏭" },
   { to: ROUTES.ADMIN.PURCHASING, label: "Mua hàng", icon: "🛒" },
   { to: ROUTES.ADMIN.FACTORY, label: "Nhà máy", icon: "🔧" },
   { to: ROUTES.ADMIN.FINISHED_GOODS, label: "Thành phẩm", icon: "📦" },
+  { to: ROUTES.ADMIN.PRODUCTS, label: "Sản phẩm", icon: "🛋️" },
 ];
 
 export default function AdminHeader() {
   const {
-    logout,
+    orders,
     productionRequests,
     purchaseRequests,
     handoverOrders,
     designRequests,
   } = useApp();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const pendingPR = productionRequests.filter(
@@ -35,11 +41,28 @@ export default function AdminHeader() {
   const pendingDesign = designRequests.filter(
     (r) => r.status === "pending",
   ).length;
+  const pendingOrders = orders.filter((o) => o.status === "pending").length;
   const totalAlerts =
-    pendingPR + pendingPurchase + pendingHandover + pendingDesign;
+    pendingPR +
+    pendingPurchase +
+    pendingHandover +
+    pendingDesign +
+    pendingOrders;
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    try {
+      await logout(); // Xóa refresh_token trong DB
+    } catch (error) {
+      console.error("Lỗi đăng xuất:", error);
+    }
+
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("userId");
+    dispatch(clearUser());
+    // Thông báo cho AppContext làm mới lại state ERP
+    window.dispatchEvent(new Event("userChanged"));
     navigate(ROUTES.USER.HOME);
   };
 
@@ -76,6 +99,7 @@ export default function AdminHeader() {
         {NAV_ITEMS.map(({ to, label, icon }) => {
           // badge count per nav item
           let badge = 0;
+          if (to === ROUTES.ADMIN.ORDERS) badge = pendingOrders;
           if (to === ROUTES.ADMIN.WAREHOUSE)
             badge = pendingPR + pendingHandover;
           if (to === ROUTES.ADMIN.PURCHASING) badge = pendingPurchase;

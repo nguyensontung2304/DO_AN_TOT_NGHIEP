@@ -290,6 +290,42 @@
     }
   }
 
+  &__evaluate {
+    display: flex;
+    align-items: center;
+    line-height: 1.2;
+    margin-bottom: 3px;
+    gap: 16px;
+
+    .evaluate {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: #718096;
+
+      .icon {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+      }
+    }
+  }
+
+  &__stat {
+    strong {
+      display: block;
+      font-size: 36px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    span {
+      font-size: 14px;
+      color: #aab4d0;
+    }
+  }
+
   &__discount {
     background: #fff0ee;
     color: #c0392b;

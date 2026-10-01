@@ -10,6 +10,7 @@ import {
   removeFromCart,
   createOrder,
 } from "../../../api";
+import { useApp } from "../../../context/useApp";
 import "./cart.scss";
 
 //  Helper: đọc/ghi lịch sử đơn hàng từ localStorage
@@ -29,10 +30,15 @@ function saveLocalOrder(userId, order) {
   localStorage.setItem(ORDERS_KEY(userId), JSON.stringify([order, ...prev]));
 }
 
+function generateOrderId() {
+  return Date.now() + Math.random();
+}
+
 //  Badge trạng thái đơn hàng
 const STATUS_LABEL = {
   pending: { text: "Chờ xác nhận", cls: "order-status--pending" },
   confirmed: { text: "Đã xác nhận", cls: "order-status--confirmed" },
+  processing: { text: "Đang sản xuất", cls: "order-status--confirmed" },
   shipping: { text: "Đang giao hàng", cls: "order-status--shipping" },
   done: { text: "Hoàn thành", cls: "order-status--done" },
   cancelled: { text: "Đã hủy", cls: "order-status--cancelled" },
@@ -47,6 +53,7 @@ function OrderStatusBadge({ status = "pending" }) {
 export default function Cart() {
   const navigate = useNavigate();
   const currentUser = useSelector((state) => state.user.currentUser);
+  const { addOrder } = useApp();
 
   //  Tab hiện tại: "cart" | "orders"
   const [activeTab, setActiveTab] = useState("cart");
@@ -117,14 +124,25 @@ export default function Cart() {
       errors.name = "Vui lòng nhập họ và tên.";
       valid = false;
     }
+
     if (!form.phone.trim()) {
       errors.phone = "Vui lòng nhập số điện thoại.";
       valid = false;
     }
+
     if (!form.address.trim()) {
       errors.address = "Vui lòng nhập địa chỉ nhận hàng.";
       valid = false;
     }
+
+    if (!form.phone.trim()) {
+      errors.phone = "Vui lòng nhập số điện thoại.";
+      valid = false;
+    } else if (form.phone.length !== 10) {
+      errors.phone = "Số điện thoại phải đúng 10 số.";
+      valid = false;
+    }
+
     setFormErrors(errors);
     return valid;
   };
@@ -169,21 +187,20 @@ export default function Cart() {
     }
     setOrdersLoading(true);
     try {
-      // Thử lấy từ API trước
+      // API là nguồn chính (đã có đầy đủ cart, createdAt, status từ DB)
       const res = await getOrdersByUserId(currentUser.id);
-      const apiOrders = Array.isArray(res.data) ? res.data : [];
-      if (apiOrders.length > 0) {
-        setOrders(apiOrders);
-      } else {
-        // Fallback: lấy từ localStorage
-        setOrders(getLocalOrders(currentUser.id));
+      if (Array.isArray(res.data)) {
+        setOrders(res.data);
+        return;
       }
-    } catch {
-      // API không hỗ trợ GET orders → dùng localStorage
-      setOrders(getLocalOrders(currentUser.id));
+    } catch (err) {
+      console.error("Lỗi lấy đơn hàng:", err);
     } finally {
       setOrdersLoading(false);
     }
+
+    // Chỉ fallback sang localStorage khi API lỗi
+    setOrders(getLocalOrders(currentUser.id));
   }, [currentUser]);
 
   // Tải đơn hàng khi chuyển sang tab đơn hàng
@@ -246,7 +263,7 @@ export default function Cart() {
   //  Đặt hàng
   const handleOrder = async () => {
     if (!currentUser) {
-      navigate(ROUTES.USER.LOGIN_USER, { state: { from: ROUTES.USER.CART } });
+      navigate(ROUTES.USER.LOGIN, { state: { from: ROUTES.USER.CART } });
       return;
     }
     if (!validateForm()) return;
@@ -262,11 +279,20 @@ export default function Cart() {
         total: cartTotal,
       });
 
-      // Tạo object đơn hàng để lưu localStorage
+      // Dùng id từ API nếu có, không thì tạo id tạm
+      const orderId =
+        res.data?.order?.id ||
+        res.data?.id ||
+        res.data?.orderId ||
+        generateOrderId();
+
+      // Tạo object đơn hàng để lưu
       const newOrder = {
-        // Dùng id từ API nếu có, không thì tạo id tạm
-        id: res.data?.id || res.data?.orderId || Date.now(),
-        createdAt: new Date().toISOString(),
+        id: orderId,
+        userId: currentUser.id,
+        userName: currentUser.name,
+        userEmail: currentUser.email,
+        createdAt: res.data?.order?.created_at || new Date().toISOString(),
         name: form.name,
         phone: form.phone,
         address: form.address,
@@ -276,8 +302,11 @@ export default function Cart() {
         status: "pending",
       };
 
-      // Lưu vào localStorage
+      // Lưu vào localStorage cá nhân (lịch sử đơn hàng người dùng)
       saveLocalOrder(currentUser.id, newOrder);
+
+      // Đẩy đơn hàng sang admin qua AppContext (shared localStorage)
+      addOrder(newOrder);
 
       // Xóa toàn bộ giỏ hàng sau khi đặt thành công
       await clearCartOnServer();
@@ -397,7 +426,7 @@ export default function Cart() {
                 <h2>Chưa đăng nhập</h2>
                 <p>Bạn cần đăng nhập để xem đơn hàng.</p>
                 <Link
-                  to={ROUTES.USER.LOGIN_USER}
+                  to={ROUTES.USER.LOGIN}
                   className="cart-btn cart-btn--primary"
                 >
                   Đăng nhập
@@ -432,7 +461,9 @@ export default function Cart() {
                 {orders.map((order, idx) => {
                   const orderId = order.id || idx + 1;
                   const isExpanded = expandedOrder === orderId;
-                  const orderItems = order.cart || order.items || [];
+                  // API trả về `cart`; localStorage cũ dùng `cart`/`items`
+                  const orderItems =
+                    order.cart || order.order_items || order.items || [];
                   const orderTotal =
                     order.total ||
                     orderItems.reduce(
@@ -737,21 +768,31 @@ export default function Cart() {
                                 <p className="field-error">{formErrors.name}</p>
                               )}
                             </div>
+
                             <div className="checkout-form__group">
                               <label>
                                 Số điện thoại <span className="req">*</span>
                               </label>
+
                               <input
                                 type="tel"
                                 value={form.phone}
-                                onChange={(e) =>
-                                  updateForm("phone", e.target.value)
-                                }
+                                onChange={(e) => {
+                                  const value = e.target.value;
+
+                                  // Chỉ cho phép nhập số
+                                  if (!/^\d*$/.test(value)) {
+                                    return;
+                                  }
+
+                                  updateForm("phone", value);
+                                }}
                                 placeholder="Nhập số điện thoại"
                                 className={
                                   formErrors.phone ? "input-error" : ""
                                 }
                               />
+
                               {formErrors.phone && (
                                 <p className="field-error">
                                   {formErrors.phone}
@@ -867,7 +908,7 @@ export default function Cart() {
                           className="cart-btn cart-btn--primary cart-btn--full"
                           onClick={() => {
                             if (!currentUser) {
-                              navigate(ROUTES.USER.LOGIN_USER, {
+                              navigate(ROUTES.USER.LOGIN, {
                                 state: { from: ROUTES.USER.CART },
                               });
                               return;

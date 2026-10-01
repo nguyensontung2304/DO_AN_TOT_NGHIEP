@@ -45,7 +45,8 @@ export default class Product extends Model {
     sequelize,
     tableName: 'products',
     schema: 'public',
-    timestamps: false,
+    timestamps: true,
+    paranoid: true,
     indexes: [
       {
         name: "products_pkey",

@@ -30,7 +30,8 @@ export default class ProductSpec extends Model {
     sequelize,
     tableName: 'product_specs',
     schema: 'public',
-    timestamps: false,
+    timestamps: true,
+    paranoid: true,
     indexes: [
       {
         name: "product_specs_pkey",

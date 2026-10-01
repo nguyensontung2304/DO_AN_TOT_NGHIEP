@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { registerUser } from "../../../api/authApi";
+import { register } from "../../../api/authApi";
 import { ROUTES } from "../../../constants/router";
 
-import "../LoginUser/LoginUser.scss";
+import "../Login/Login.scss";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ export default function Register() {
     try {
       setLoading(true);
 
-      const response = await registerUser({
+      const response = await register({
         name: form.name,
         email: form.email,
         password: form.password,
@@ -42,7 +42,7 @@ export default function Register() {
 
       window.dispatchEvent(new Event("userChanged"));
 
-      navigate(ROUTES.USER.LOGIN_USER);
+      navigate(ROUTES.USER.LOGIN);
     } catch (error) {
       setError(error.response?.data?.message || "Đăng ký thất bại");
     } finally {
@@ -126,8 +126,7 @@ export default function Register() {
         </form>
 
         <p className="login-switch">
-          Đã có tài khoản?{" "}
-          <Link to={ROUTES.USER.LOGIN_USER}>Đăng nhập ngay</Link>
+          Đã có tài khoản? <Link to={ROUTES.USER.LOGIN}>Đăng nhập ngay</Link>
         </p>
       </div>
     </div>

@@ -20,7 +20,7 @@ export default class User extends Model {
       unique: "users_email_key"
     },
     password: {
-      type: DataTypes.STRING(20),
+      type: DataTypes.STRING(255),
       allowNull: false
     },
     phone: {
@@ -30,12 +30,26 @@ export default class User extends Model {
     address: {
       type: DataTypes.STRING(100),
       allowNull: true
+    },
+    refresh_token: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    role: {
+      type: DataTypes.STRING(20),
+      allowNull: false,
+      defaultValue: "user"
+    },
+    avatar: {
+      type: DataTypes.STRING(500),
+      allowNull: true
     }
   }, {
     sequelize,
     tableName: 'users',
     schema: 'public',
-    timestamps: false,
+    timestamps: true,
+    paranoid: true,
     indexes: [
       {
         name: "users_email_key",

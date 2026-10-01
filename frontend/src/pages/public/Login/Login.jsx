@@ -1,25 +1,35 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { loginUser } from "../../../api/authApi";
+import { useSelector, useDispatch } from "react-redux";
+import { login } from "../../../api/authApi";
+import { setUser } from "../../../redux/userSlice";
 import { ROUTES } from "../../../constants/router";
-import "./LoginUser.scss";
+import "./Login.scss";
 
-export default function LoginUser() {
+export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from || ROUTES.USER.HOME;
   const currentUser = useSelector((state) => state.user.currentUser);
+  const dispatch = useDispatch();
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Quyết định chuyển hướng sau khi có user (đăng nhập thành công hoặc đã đăng nhập rồi)
   useEffect(() => {
     if (currentUser?.id) {
-      navigate(from, { replace: true });
+      if (currentUser?.role === "admin") {
+        navigate(ROUTES.ADMIN.DASHBOARD, { replace: true });
+      } else if (from.startsWith("/admin")) {
+        // user thường không bao giờ được truy cập trang admin
+        navigate(ROUTES.USER.HOME, { replace: true });
+      } else {
+        navigate(from, { replace: true });
+      }
     }
-  }, [currentUser?.id, from, navigate]);
+  }, [currentUser?.id, currentUser?.role, from, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,7 +37,7 @@ export default function LoginUser() {
     setLoading(true);
 
     try {
-      const response = await loginUser({
+      const response = await login({
         email: form.email,
         password: form.password,
       });
@@ -35,10 +45,16 @@ export default function LoginUser() {
       const user = response.data.user;
 
       localStorage.setItem("userId", JSON.stringify(user.id));
+      localStorage.setItem("accessToken", response.data.accessToken);
+      localStorage.setItem("refreshToken", response.data.refreshToken);
+      localStorage.setItem("userRole", user.role || "user");
 
+      dispatch(setUser(user));
+
+      // Thông báo cho AppContext load ERP data (nếu là admin)
       window.dispatchEvent(new Event("userChanged"));
 
-      navigate(from, { replace: true });
+      // Điều hướng được xử lý bởi useEffect trên dựa trên role
     } catch (error) {
       setError(error.response?.data?.message || "Đăng nhập thất bại");
     } finally {
@@ -100,18 +116,6 @@ export default function LoginUser() {
         <p className="login-switch">
           Chưa có tài khoản?{" "}
           <Link to={ROUTES.USER.REGISTER}>Đăng ký miễn phí</Link>
-        </p>
-
-        <div className="login-divider">
-          <span>hoặc</span>
-        </div>
-
-        <Link to={ROUTES.USER.LOGIN_ADMIN} className="login-admin-link">
-          🏭 Đăng nhập quản trị (Admin)
-        </Link>
-
-        <p className="login-hint">
-          Demo: <strong>demo@email.com</strong> / <strong>demo123</strong>
         </p>
       </div>
     </div>

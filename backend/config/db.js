@@ -1,17 +1,3 @@
-// import pg from "pg";
-
-// const { Pool } = pg;
-
-// const pool = new Pool({
-//   host: "localhost",
-//   port: 5432,
-//   user: "postgres",
-//   password: "postgres",
-//   database: "doantotnghiep_db",
-// });
-
-// export default pool;
-
 import { Sequelize } from "sequelize";
 
 // Thông tin kết nối đọc từ file .env
@@ -27,6 +13,8 @@ const sequelize = new Sequelize(
     define: {
       freezeTableName: true,
       timestamps: false,
+      // created_at / updated_at / deleted_at trong DB viết snake_case
+      underscored: true,
     },
   },
 );

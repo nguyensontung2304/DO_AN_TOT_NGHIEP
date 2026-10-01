@@ -379,6 +379,29 @@
       color: #fff;
     }
   }
+  &--gray {
+    background: #e9ecef;
+    color: #495057;
+    &:hover:not(:disabled) {
+      background: #adb5bd;
+      color: #fff;
+    }
+  }
+  &--danger {
+    background: #f8d7da;
+    color: #721c24;
+    &:hover:not(:disabled) {
+      background: #dc3545;
+      color: #fff;
+    }
+  }
+}
+
+// Nhóm nút hành động nằm cạnh nhau trong 1 ô bảng
+.tech-notify-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .form-error {
@@ -417,4 +440,17 @@
 // ── Technical page wrapper ───────────────────────────────────────────────────
 .technical-page {
   // inherits admin-layout styles
+}
+
+// ── Auto-fill banner ─────────────────────────────────────────────────────────
+.form-autofill-banner {
+  background: #eff6ff;
+  border: 1px solid #93c5fd;
+  border-left: 4px solid #3b82f6;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #1d4ed8;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 16px;
 }
