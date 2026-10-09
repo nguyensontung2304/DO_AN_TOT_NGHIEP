@@ -38,8 +38,8 @@ export default class OrderItem extends Model {
       type: DataTypes.BIGINT,
       allowNull: false
     },
-    emoji: {
-      type: DataTypes.STRING(20),
+    image: {
+      type: DataTypes.TEXT,
       allowNull: true
     }
   }, {

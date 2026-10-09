@@ -2,9 +2,10 @@ import express from "express";
 
 import {
   createOrder,
+  getOrdersByUserId,
+  cancelOrder,
   getAllOrders,
   getOrderById,
-  getOrdersByUserId,
   updateOrderStatus,
 } from "../controller/order.controller.js";
 
@@ -15,6 +16,8 @@ const router = express.Router();
 router.post("/", verifyToken, createOrder); // user tạo đơn
 
 router.get("/user/:userId", verifyToken, getOrdersByUserId); // user xem đơn mình
+
+router.put("/:id/cancel", verifyToken, cancelOrder); // user hủy đơn mình
 
 router.get("/", verifyToken, checkAdmin, getAllOrders); // admin xem tất cả
 

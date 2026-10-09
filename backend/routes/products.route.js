@@ -9,16 +9,37 @@ import {
 } from "../controller/products.controller.js";
 
 import { verifyToken, checkAdmin } from "../middlewares/auth.middleware.js";
+import uploadImageProduct from "../middlewares/uploadImageProduct.middleware.js";
 
 const router = express.Router();
 
-// Public — lấy danh sách và chi tiết sản phẩm
+// ====================== PUBLIC ======================
+// Lấy danh sách sản phẩm
 router.get("/", getProducts);
+
+// Lấy chi tiết sản phẩm
 router.get("/:id", getProductDetail);
 
-// Admin only — CRUD
-router.post("/", verifyToken, checkAdmin, createProduct);
-router.put("/:id", verifyToken, checkAdmin, updateProduct);
+// ====================== ADMIN ======================
+// Thêm sản phẩm + upload ảnh
+router.post(
+  "/",
+  verifyToken,
+  checkAdmin,
+  uploadImageProduct.single("image"),
+  createProduct,
+);
+
+// Cập nhật sản phẩm + có thể upload ảnh mới
+router.put(
+  "/:id",
+  verifyToken,
+  checkAdmin,
+  uploadImageProduct.single("image"),
+  updateProduct,
+);
+
+// Xóa sản phẩm
 router.delete("/:id", verifyToken, checkAdmin, deleteProduct);
 
 export default router;

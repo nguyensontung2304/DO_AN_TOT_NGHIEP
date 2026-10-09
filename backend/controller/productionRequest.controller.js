@@ -1,4 +1,5 @@
 import models from "../models/index.js";
+import { asArray, getTimestamp } from "../utils/format.js";
 const { ProductionRequest } = models;
 
 const mapProductionRequest = (r) => ({
@@ -7,9 +8,9 @@ const mapProductionRequest = (r) => ({
   productName: r.product_name,
   productQty: r.product_qty,
   note: r.note,
-  materials: r.materials || [],
+  materials: asArray(r.materials),
   status: r.status,
-  createdAt: r.created_at,
+  createdAt: getTimestamp(r),
 });
 
 export const getAllProductionRequests = async (req, res) => {
@@ -32,7 +33,16 @@ export const createProductionRequest = async (req, res) => {
         note: note || null,
         materials: it.materials || [],
       })),
+      { returning: true },
     );
+    const ids = created.map((r) => r.id).filter(Boolean);
+    if (ids.length > 0) {
+      const rows = await ProductionRequest.findAll({
+        where: { id: ids },
+        order: [["id", "DESC"]],
+      });
+      return res.status(201).json(rows.map(mapProductionRequest));
+    }
     return res.status(201).json(created.map(mapProductionRequest));
   }
 

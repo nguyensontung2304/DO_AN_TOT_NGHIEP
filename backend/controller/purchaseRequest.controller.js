@@ -1,13 +1,14 @@
 import models from "../models/index.js";
+import { asArray, getTimestamp } from "../utils/format.js";
 const { PurchaseRequest } = models;
 
 const mapPR = (r) => ({
   id: r.id,
   productionRequestId: r.production_request_id,
   productName: r.product_name,
-  items: r.items || [],
+  items: asArray(r.items),
   status: r.status,
-  createdAt: r.created_at,
+  createdAt: getTimestamp(r),
 });
 
 export const getAllPurchaseRequests = async (req, res) => {

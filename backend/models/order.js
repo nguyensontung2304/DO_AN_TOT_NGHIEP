@@ -42,6 +42,10 @@ export default class Order extends Model {
       type: DataTypes.STRING(20),
       allowNull: false,
       defaultValue: "pending"
+    },
+    code: {
+      type: DataTypes.STRING(8),
+      allowNull: true
     }
   }, {
     sequelize,

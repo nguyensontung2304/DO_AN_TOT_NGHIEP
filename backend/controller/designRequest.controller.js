@@ -1,4 +1,5 @@
 import models from "../models/index.js";
+import { getTimestamp } from "../utils/format.js";
 const { DesignRequest } = models;
 
 const mapDR = (r) => ({
@@ -8,7 +9,7 @@ const mapDR = (r) => ({
   note: r.note,
   status: r.status,
   designNote: r.design_note,
-  createdAt: r.created_at,
+  createdAt: getTimestamp(r),
 });
 
 export const getAllDesignRequests = async (req, res) => {

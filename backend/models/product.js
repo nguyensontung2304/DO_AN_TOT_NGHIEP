@@ -13,10 +13,6 @@ export default class Product extends Model {
       type: DataTypes.STRING(255),
       allowNull: false
     },
-    category: {
-      type: DataTypes.STRING(100),
-      allowNull: false
-    },
     price: {
       type: DataTypes.BIGINT,
       allowNull: false
@@ -25,8 +21,8 @@ export default class Product extends Model {
       type: DataTypes.BIGINT,
       allowNull: true
     },
-    emoji: {
-      type: DataTypes.STRING(20),
+    image: {
+      type: DataTypes.TEXT,
       allowNull: true
     },
     badge: {
@@ -40,6 +36,14 @@ export default class Product extends Model {
     long_description: {
       type: DataTypes.TEXT,
       allowNull: true
+    },
+    category_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'categories',
+        key: 'id'
+      }
     }
   }, {
     sequelize,

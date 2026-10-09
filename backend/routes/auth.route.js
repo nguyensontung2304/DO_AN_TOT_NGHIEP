@@ -12,7 +12,7 @@ import {
 } from "../controller/auth.controller.js";
 
 import { verifyToken } from "../middlewares/auth.middleware.js";
-import upload from "../middlewares/upload.middleware.js";
+import upload from "../middlewares/uploadAvatar.middleware.js";
 
 const router = express.Router();
 
@@ -32,11 +32,11 @@ router.post("/logout", verifyToken, logout);
 // Lấy thông tin profile của user hiện tại
 router.get("/profile", verifyToken, getMyProfile);
 
+// Đổi mật khẩu (phải đặt TRƯỚC /profile/:id để không bị shadow)
+router.put("/profile/change-password", verifyToken, changePassword);
+
 // Cập nhật thông tin profile của user hiện tại
 router.put("/profile/:id", verifyToken, updateMyProfile);
-
-// Đổi mật khẩu
-router.put("/profile/change-password", verifyToken, changePassword);
 
 // Cập nhật avatar (upload file)
 router.patch(

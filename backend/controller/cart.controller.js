@@ -1,168 +1,5 @@
-// import pool from "../config/db.js";
-
-// // LẤY GIỎ HÀNG THEO USER
-// export const getCart = async (req, res) => {
-//   try {
-//     const { userId } = req.params;
-
-//     const result = await pool.query(
-//       `
-//       SELECT
-//         cart_items.id,
-//         cart_items.product_id AS "productId",
-//         cart_items.qty,
-
-//         products.name,
-//         products.price,
-//         products.emoji
-
-//       FROM cart_items
-
-//       JOIN products
-//         ON cart_items.product_id = products.id
-
-//       WHERE cart_items.user_id = $1
-
-//       ORDER BY cart_items.id DESC
-//       `,
-//       [userId],
-//     );
-
-//     res.status(200).json(result.rows);
-//   } catch (error) {
-//     console.error("Lỗi lấy giỏ hàng:", error);
-
-//     res.status(500).json({
-//       message: "Không thể lấy giỏ hàng",
-//     });
-//   }
-// };
-
-// // THÊM SẢN PHẨM VÀO GIỎ
-// export const addToCart = async (req, res) => {
-//   try {
-//     const { userId, productId } = req.body;
-
-//     if (!userId || !productId) {
-//       return res.status(400).json({
-//         message: "Thiếu userId hoặc productId",
-//       });
-//     }
-
-//     const result = await pool.query(
-//       `
-//       INSERT INTO cart_items (
-//         user_id,
-//         product_id,
-//         qty
-//       )
-
-//       VALUES ($1, $2, 1)
-
-//       ON CONFLICT (user_id, product_id)
-
-//       DO UPDATE SET
-//         qty = cart_items.qty + 1
-
-//       RETURNING *
-//       `,
-//       [userId, productId],
-//     );
-
-//     res.status(201).json({
-//       message: "Thêm sản phẩm vào giỏ hàng thành công",
-//       cartItem: result.rows[0],
-//     });
-//   } catch (error) {
-//     console.error("Lỗi thêm giỏ hàng:", error);
-
-//     res.status(500).json({
-//       message: "Không thể thêm sản phẩm vào giỏ hàng",
-//     });
-//   }
-// };
-
-// // CẬP NHẬT SỐ LƯỢNG
-// export const updateCartQty = async (req, res) => {
-//   try {
-//     const { userId, productId, qty } = req.body;
-
-//     if (!userId || !productId || qty === undefined) {
-//       return res.status(400).json({
-//         message: "Thiếu dữ liệu cập nhật",
-//       });
-//     }
-
-//     if (qty <= 0) {
-//       await pool.query(
-//         `
-//         DELETE FROM cart_items
-//         WHERE user_id = $1
-//         AND product_id = $2
-//         `,
-//         [userId, productId],
-//       );
-
-//       return res.status(200).json({
-//         message: "Đã xóa sản phẩm vì số lượng bằng 0",
-//       });
-//     }
-
-//     const result = await pool.query(
-//       `
-//       UPDATE cart_items
-
-//       SET qty = $1
-
-//       WHERE user_id = $2
-//       AND product_id = $3
-
-//       RETURNING *
-//       `,
-//       [qty, userId, productId],
-//     );
-
-//     res.status(200).json({
-//       message: "Cập nhật số lượng thành công",
-//       cartItem: result.rows[0],
-//     });
-//   } catch (error) {
-//     console.error("Lỗi cập nhật giỏ hàng:", error);
-
-//     res.status(500).json({
-//       message: "Không thể cập nhật giỏ hàng",
-//     });
-//   }
-// };
-
-// // XÓA SẢN PHẨM
-// export const removeFromCart = async (req, res) => {
-//   try {
-//     const { userId, productId } = req.params;
-
-//     await pool.query(
-//       `
-//       DELETE FROM cart_items
-
-//       WHERE user_id = $1
-//       AND product_id = $2
-//       `,
-//       [userId, productId],
-//     );
-
-//     res.status(200).json({
-//       message: "Đã xóa sản phẩm khỏi giỏ hàng",
-//     });
-//   } catch (error) {
-//     console.error("Lỗi xóa sản phẩm:", error);
-
-//     res.status(500).json({
-//       message: "Không thể xóa sản phẩm",
-//     });
-//   }
-// };
-
 import models from "../models/index.js";
+import { getImageUrl } from "../utils/format.js";
 
 const { CartItem, Product } = models;
 
@@ -179,7 +16,7 @@ export const getCart = async (req, res) => {
       {
         model: Product,
         as: "product",
-        attributes: ["name", "price", "emoji"],
+        attributes: ["name", "price", "image"],
       },
     ],
 
@@ -193,7 +30,7 @@ export const getCart = async (req, res) => {
     qty: item.qty,
     name: item.product?.name,
     price: item.product?.price,
-    emoji: item.product?.emoji,
+    image: getImageUrl(item.product?.image),
   }));
 
   return res.status(200).json(cart);
@@ -219,22 +56,43 @@ export const addToCart = async (req, res) => {
     });
   }
 
-  // Tìm xem sản phẩm đã có trong giỏ chưa
+  // Tìm xem sản phẩm đã có trong giỏ chưa.
+  //
+  // PHẢI truyền `paranoid: false` để tìm cả dòng đã bị xoá mềm.
+  // CartItem bật paranoid, nên findOne bình thường không thấy dòng đã xoá.
+  // Khi đó code đi vào nhánh create() và insert dòng mới cùng (user_id,
+  // product_id) -> đụng ràng buộc unique "cart_items_user_id_product_id_key"
+  // và trả về 500. Đây chính là lỗi "xoá khỏi giỏ rồi thêm lại thì báo Lỗi server".
   const cartItem = await CartItem.findOne({
     where: {
       user_id: userId,
       product_id: productId,
     },
+    paranoid: false,
   });
 
-  // Nếu đã có -> tăng qty
   if (cartItem) {
-    cartItem.qty += 1;
+    // Đã có trong giỏ -> tăng qty
+    if (!cartItem.deletedAt) {
+      cartItem.qty += 1;
 
+      await cartItem.save();
+
+      return res.status(200).json({
+        message: "Tăng số lượng sản phẩm trong giỏ hàng thành công",
+        cartItem,
+      });
+    }
+
+    // Đã bị xoá mềm -> hồi sinh dòng cũ với qty = 1
+    // (không cộng vào qty cũ, vì người dùng đã chủ động xoá sản phẩm đó)
+    cartItem.qty = 1;
+
+    await cartItem.restore();
     await cartItem.save();
 
     return res.status(200).json({
-      message: "Tăng số lượng sản phẩm trong giỏ hàng thành công",
+      message: "Thêm sản phẩm vào giỏ hàng thành công",
       cartItem,
     });
   }

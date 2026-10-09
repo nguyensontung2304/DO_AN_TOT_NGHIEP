@@ -1,4 +1,5 @@
 import models from "../models/index.js";
+import { asArray, getTimestamp } from "../utils/format.js";
 const { HandoverOrder } = models;
 
 const mapHO = (r) => ({
@@ -6,9 +7,9 @@ const mapHO = (r) => ({
   productionRequestId: r.production_request_id,
   productName: r.product_name,
   productQty: r.product_qty,
-  materials: r.materials || [],
+  materials: asArray(r.materials),
   status: r.status,
-  createdAt: r.created_at,
+  createdAt: getTimestamp(r),
 });
 
 export const getAllHandoverOrders = async (req, res) => {

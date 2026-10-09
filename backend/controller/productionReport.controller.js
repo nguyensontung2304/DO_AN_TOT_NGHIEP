@@ -1,4 +1,5 @@
 import models from "../models/index.js";
+import { asArray, getTimestamp } from "../utils/format.js";
 const { ProductionReport } = models;
 
 const mapPR = (r) => ({
@@ -6,10 +7,10 @@ const mapPR = (r) => ({
   handoverOrderId: r.handover_order_id,
   productName: r.product_name,
   finishedQty: r.finished_qty,
-  scrapItems: r.scrap_items,
+  scrapItems: asArray(r.scrap_items),
   note: r.note,
   status: r.status,
-  createdAt: r.created_at,
+  createdAt: getTimestamp(r),
 });
 
 export const getAllProductionReports = async (req, res) => {

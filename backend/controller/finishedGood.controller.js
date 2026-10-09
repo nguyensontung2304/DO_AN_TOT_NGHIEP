@@ -1,4 +1,5 @@
 import models from "../models/index.js";
+import { getTimestamp } from "../utils/format.js";
 const { FinishedGood } = models;
 
 const mapFG = (r) => ({
@@ -6,7 +7,7 @@ const mapFG = (r) => ({
   name: r.name,
   qty: r.qty,
   unit: r.unit,
-  receivedAt: r.received_at,
+  receivedAt: getTimestamp(r, "receivedAt") ?? getTimestamp(r),
 });
 
 export const getAllFinishedGoods = async (req, res) => {

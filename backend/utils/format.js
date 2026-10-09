@@ -6,7 +6,7 @@
 export function getImageUrl(image) {
   if (image && image.startsWith("/uploads/")) {
     return `${process.env.BASE_URL}${image}`;
-    // http://localhost:3000/uploads/xxx.jpg
+    // http://localhost:5000/uploads/xxx.jpg
   }
   return image;
 }
@@ -16,7 +16,12 @@ export function formatProduct(product) {
     id: product.id,
     name: product.name,
     price: Number(product.price),
+    old_price:
+      product.old_price !== null && product.old_price !== undefined
+        ? Number(product.old_price)
+        : null,
     image: getImageUrl(product.image),
+    badge: product.badge || null,
     description: product.description,
     categoryId: Number(product.category_id),
     categoryName: product.category?.name,
@@ -44,6 +49,42 @@ export function formatMessage(message) {
     senderId: message.sender_id,
     fromAdmin: message.sender_id !== message.user_id,
     content: message.content,
-    createdAt: message.createdAt,
+    createdAt: message.createdAt ?? message.created_at,
+  };
+}
+
+// Sequelize underscored: JS dùng createdAt, cột DB là created_at
+export function getTimestamp(row, field = "createdAt") {
+  if (!row) return null;
+  const snake = field.replace(/[A-Z]/g, (c) => `_${c.toLowerCase()}`);
+  return row[field] ?? row[snake] ?? null;
+}
+
+export function asArray(value) {
+  if (Array.isArray(value)) return value;
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
+export function formatAddress(address) {
+  return {
+    id: address.id,
+    label: address.label,
+    fullName: address.full_name,
+    phone: address.phone,
+    provinceCode: address.province_code,
+    provinceName: address.province_name,
+    wardCode: address.ward_code,
+    wardName: address.ward_name,
+    addressLine: address.address_line,
+    fullAddress: `${address.address_line}, ${address.ward_name}, ${address.province_name}`,
+    isDefault: address.is_default,
   };
 }
