@@ -85,7 +85,7 @@ app.use("/admin/chat", adminChatRoute);
 // ====================== Tỉnh/thành và phường/xã theo địa danh mới ======================
 app.use("/locations", locationRoute);
 
-app.use("/profile/addresses", addressRoute); // Sổ địa chỉ riêng của user
+app.use("/profile/address", addressRoute); // Sổ địa chỉ riêng của user
 
 // Middleware xử lý lỗi phải nằm sau routes
 app.use(errorHandler);
