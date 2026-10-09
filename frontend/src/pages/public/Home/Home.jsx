@@ -1,11 +1,30 @@
+import {
+  Sofa,
+  TreePine,
+  Palette,
+  Truck,
+  Trophy,
+  BadgeDollarSign,
+  ShieldCheck,
+  ArrowRight,
+  ShoppingCart,
+  LockKeyhole,
+  Check,
+  Clock3,
+  AlertCircle,
+} from "lucide-react";
+
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { getProducts, addToCart } from "../../../api";
+
+import { getProducts, getCategories, addToCart } from "../../../api";
+
 import { ROUTES, getPath } from "../../../constants/router";
+
 import "./home.scss";
 
-// ProductCard
+// PRODUCT CARD
 function ProductCard({ product }) {
   const currentUser = useSelector((state) => state.user.currentUser);
 
@@ -37,25 +56,29 @@ function ProductCard({ product }) {
   };
 
   return (
-    <div className="product-card">
+    <div className="home-products-inner-category-list-product">
       {product.badge && (
-        <span className="product-card__badge">{product.badge}</span>
+        <span className="home-products-inner-category-list-product-badge">
+          {product.badge}
+        </span>
       )}
 
       <Link
         to={getPath(ROUTES.USER.PRODUCT_DETAIL, {
           id: product.id,
         })}
-        className="product-card__img"
+        className="home-products-inner-category-list-product-image"
         aria-label={`Xem chi tiết ${product.name}`}
       >
-        {product.emoji}
+        <img src={product.image} alt={product.name} />
       </Link>
 
-      <div className="product-card__body">
-        <span className="product-card__cat">{product.category}</span>
+      <div className="home-products-inner-category-list-product-body">
+        <span className="home-products-inner-category-list-product-body-category">
+          {product.categoryName}
+        </span>
 
-        <h3 className="product-card__name">
+        <h3 className="home-products-inner-category-list-product-body-name">
           <Link
             to={getPath(ROUTES.USER.PRODUCT_DETAIL, {
               id: product.id,
@@ -65,16 +88,18 @@ function ProductCard({ product }) {
           </Link>
         </h3>
 
-        <p className="product-card__desc">{product.description}</p>
+        <p className="home-products-inner-category-list-product-body-description">
+          {product.description}
+        </p>
 
-        <div className="product-card__price">
+        <div className="home-products-inner-category-list-product-body-price">
           <strong>{Number(product.price).toLocaleString("vi-VN")}₫</strong>
 
           {product.old_price && (
             <>
               <s>{Number(product.old_price).toLocaleString("vi-VN")}₫</s>
 
-              <span className="product-card__discount">
+              <span className="home-products-inner-category-list-product-body-price-discount">
                 -
                 {Math.round(
                   (1 - Number(product.price) / Number(product.old_price)) * 100,
@@ -85,59 +110,75 @@ function ProductCard({ product }) {
           )}
         </div>
 
-        <div className="product-card__evaluate">
-          <span className="evaluate">
+        <div className="home-products-inner-category-list-product-body-evaluate">
+          <span className="home-products-inner-category-list-product-body-evaluate-item">
             <svg
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
-              className="icon"
+              className="home-products-inner-category-list-product-body-evaluate-item-icon"
             >
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>
+
             {product.commentsCount || 0}
           </span>
-          <span className="evaluate">
+
+          <span className="home-products-inner-category-list-product-body-evaluate-item">
             <svg
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
-              className="icon"
+              className="home-products-inner-category-list-product-body-evaluate-item-icon"
             >
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              <path d="m12 3 2.75 5.57 6.15.9-4.45 4.33 1.05 6.12L12 17.03l-5.5 2.89 1.05-6.12L3.1 9.47l6.15-.9L12 3Z" />
             </svg>
+
             {product.ratingsCount || 0}
           </span>
         </div>
 
-        <div className="product-card__btns">
+        <div className="home-products-inner-category-list-product-body-buttons">
           <Link
             to={getPath(ROUTES.USER.PRODUCT_DETAIL, {
               id: product.id,
             })}
-            className="product-card__detail-btn"
+            className="home-products-inner-category-list-product-body-buttons-detail"
           >
             Chi tiết
           </Link>
 
           {currentUser ? (
             <button
-              className={`product-card__btn ${
-                added ? "product-card__btn--added" : ""
+              className={`home-products-inner-category-list-product-body-buttons-cart ${
+                added
+                  ? "home-products-inner-category-list-product-body-buttons-cart-added"
+                  : ""
               }`}
               onClick={handleAdd}
             >
-              {added ? "✅ Đã thêm!" : "🛒 Thêm giỏ"}
+              {added ? (
+                <>
+                  <Check size={15} />
+                  Đã thêm
+                </>
+              ) : (
+                <>
+                  <ShoppingCart size={15} />
+                  Thêm giỏ
+                </>
+              )}
             </button>
           ) : (
             <Link
               to={ROUTES.USER.LOGIN}
-              className="product-card__btn product-card__btn--guest"
+              className="home-products-inner-category-list-product-body-buttons-cart home-products-inner-category-list-product-body-buttons-cart-guest"
               state={{ from: ROUTES.USER.HOME }}
             >
-              🔒 Đăng nhập
+              <LockKeyhole size={15} />
+              Đăng nhập
             </Link>
           )}
         </div>
@@ -146,32 +187,41 @@ function ProductCard({ product }) {
   );
 }
 
-// CategorySection — hiển thị 4 sản phẩm của 1 danh mục
+// CATEGORY SECTION
 function CategorySection({ categoryName, products, onViewMore }) {
+  console.log(products);
+
   const displayed = products.slice(0, 4);
+
   return (
-    <div className="home__cat-section">
-      <div className="home__cat-section__head">
-        <h2 className="home__cat-section__title">{categoryName}</h2>
+    <div className="home-products-inner-category">
+      <div className="home-products-inner-category-header">
+        <h2 className="home-products-inner-category-header-title">
+          {categoryName}
+        </h2>
+
         <button
-          className="home__cat-viewmore"
+          className="home-products-inner-category-header-button"
           onClick={() => onViewMore(categoryName)}
         >
-          Xem thêm →
+          Xem thêm
+          <ArrowRight size={15} />
         </button>
       </div>
-      <div className="products-grid">
-        {displayed.map((p) => (
-          <ProductCard key={p.id} product={p} />
+
+      <div className="home-products-inner-category-list">
+        {displayed.map((product) => (
+          <ProductCard key={product.id} product={product} />
         ))}
       </div>
     </div>
   );
 }
 
-// Home
+// HOME
 export default function Home() {
   const navigate = useNavigate();
+
   const [allProducts, setAllProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -181,174 +231,305 @@ export default function Home() {
     const fetchAll = async () => {
       try {
         setLoading(true);
-        // Lấy tất cả sản phẩm (limit lớn để lấy đủ cho 7 category × 4 sp)
-        const res = await getProducts({ limit: 200 });
-        const data = res.data;
-        setAllProducts(Array.isArray(data.products) ? data.products : []);
-        setCategories(Array.isArray(data.categories) ? data.categories : []);
+
+        const [productsRes, categoriesRes] = await Promise.all([
+          getProducts({
+            limit: 200,
+          }),
+          getCategories(),
+        ]);
+
+        const productData = productsRes.data;
+        const categoryData = categoriesRes.data;
+
+        console.log("Products:", productData);
+        console.log("Categories:", categoryData);
+
+        setAllProducts(
+          Array.isArray(productData.products) ? productData.products : [],
+        );
+
+        setCategories(Array.isArray(categoryData) ? categoryData : []);
       } catch {
         setError("Không thể tải sản phẩm");
       } finally {
         setLoading(false);
       }
     };
+
     fetchAll();
   }, []);
 
-  // Nhóm sản phẩm theo category
-  const grouped = categories.reduce((acc, cat) => {
-    acc[cat.name] = allProducts.filter((p) => p.category === cat.name);
+  const grouped = categories.reduce((acc, category) => {
+    acc[category.id] = allProducts.filter(
+      (product) => product.categoryId === category.id,
+    );
+
     return acc;
   }, {});
 
-  // Chỉ lấy 7 category đầu tiên
   const displayedCategories = categories.slice(0, 7);
 
   const handleViewMore = (categoryName) => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
     navigate(
-      `${ROUTES.USER.PRODUCT_LIST}?category=${encodeURIComponent(categoryName)}`,
+      `${ROUTES.USER.PRODUCT_LIST}?category=${encodeURIComponent(
+        categoryName,
+      )}`,
     );
   };
 
-  // Render
   return (
     <div className="home">
+      {/* INTRO BANNER */}
+      <section className="home-banner">
+        <div className="home-banner-overlay">
+          <div className="home-banner-overlay-content">
+            <span className="home-banner-overlay-content-brand">
+              NỘI THẤT{" "}
+              <em className="home-banner-overlay-content-brand-name">VIỆT</em>
+            </span>
+
+            <h1 className="home-banner-overlay-content-title">
+              Không gian sống đẹp hơn mỗi ngày
+            </h1>
+
+            <p className="home-banner-overlay-content-description">
+              Nội thất chất lượng – Thiết kế tinh tế – Kiến tạo tổ ấm Việt
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* HERO */}
-      <section className="home__hero">
-        <div className="home__hero-content">
-          <span className="home__hero-tag">
-            ✨ Nội thất cao cấp — trực tiếp từ xưởng
+      <section className="home-hero">
+        <div className="home-hero-content">
+          <span className="home-hero-content-tag">
+            Nội thất cao cấp — trực tiếp từ xưởng
           </span>
 
-          <h1>
+          <h1 className="home-hero-content-title">
             Không gian sống
             <br />
             <span>đẹp hơn mỗi ngày</span>
           </h1>
 
-          <p>
+          <p className="home-hero-content-description">
             32 mẫu bàn, ghế, tủ, kệ, sofa được thiết kế tinh tế — chất lượng bền
             vững, giao hàng lắp đặt tận nhà.
           </p>
 
-          <div className="home__hero-btns">
-            <Link to={ROUTES.USER.PRODUCT_LIST} className="btn btn--primary">
+          <div className="home-hero-content-buttons">
+            <Link
+              to={ROUTES.USER.PRODUCT_LIST}
+              className="home-hero-content-buttons-primary"
+            >
               Xem sản phẩm
+              <ArrowRight size={18} />
             </Link>
 
-            <Link to={ROUTES.USER.CONTACT} className="btn btn--outline">
+            <Link
+              to={ROUTES.USER.CONTACT}
+              className="home-hero-content-buttons-outline"
+            >
               Tư vấn miễn phí
             </Link>
           </div>
         </div>
 
-        <div className="home__hero-visual">
+        <div className="home-hero-visual">
           {[
-            { icon: "🛋️", label: "Sofa cao cấp" },
-            { icon: "🪵", label: "Gỗ tự nhiên" },
-            { icon: "🎨", label: "Thiết kế độc quyền" },
-            { icon: "🚚", label: "Giao lắp tận nhà" },
-          ].map((c) => (
-            <div key={c.label} className="home__hero-card">
-              <span>{c.icon}</span>
-              <p>{c.label}</p>
-            </div>
-          ))}
+            {
+              icon: Sofa,
+              label: "Sofa cao cấp",
+              span: "Êm ái & Sang trọng",
+            },
+            {
+              icon: TreePine,
+              label: "Gỗ tự nhiên",
+              span: "100% Gỗ thật",
+            },
+            {
+              icon: Palette,
+              label: "Thiết kế độc quyền",
+              span: "Mẫu mã duy nhất",
+            },
+            {
+              icon: Truck,
+              label: "Giao lắp tận nhà",
+              span: "Miễn phí vận chuyển",
+            },
+          ].map((item, index) => {
+            const Icon = item.icon;
+
+            return (
+              <div
+                key={index}
+                className={`home-hero-visual-card home-hero-visual-card-${index}`}
+              >
+                <div className="home-hero-visual-card-icon">
+                  <Icon size={28} strokeWidth={1.8} />
+                </div>
+
+                <p className="home-hero-visual-card-title">{item.label}</p>
+
+                <span className="home-hero-visual-card-description">
+                  {item.span}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </section>
 
       {/* STATS */}
-      <section className="home__stats">
-        <div className="home__stats-inner">
+      <section className="home-stats">
+        <div className="home-stats-inner">
           {[
-            { value: "32+", label: "Mẫu sản phẩm" },
-            { value: "10.000+", label: "Khách hàng hài lòng" },
-            { value: "15 năm", label: "Kinh nghiệm" },
-            { value: "100%", label: "Bảo hành chính hãng" },
-          ].map((s) => (
-            <div key={s.label} className="home__stat">
-              <strong>{s.value}</strong>
-              <span>{s.label}</span>
+            {
+              value: "32+",
+              label: "Mẫu sản phẩm",
+            },
+            {
+              value: "10.000+",
+              label: "Khách hàng hài lòng",
+            },
+            {
+              value: "15 năm",
+              label: "Kinh nghiệm",
+            },
+            {
+              value: "100%",
+              label: "Bảo hành chính hãng",
+            },
+          ].map((stat) => (
+            <div key={stat.label} className="home-stats-inner-item">
+              <strong className="home-stats-inner-item-value">
+                {stat.value}
+              </strong>
+
+              <span className="home-stats-inner-item-label">{stat.label}</span>
             </div>
           ))}
         </div>
       </section>
 
-      {/* CATEGORY SECTIONS */}
-      <section className="home__products-section" id="products">
-        <div className="home__products-inner">
-          <h2 className="home__section-title">
-            Khám phá sản phẩm theo danh mục
-          </h2>
+      {/* PRODUCTS */}
+      <section className="home-products" id="products">
+        <div className="home-products-inner">
+          <div className="home-products-inner-heading">
+            <span className="home-products-inner-heading-eyebrow">
+              BỘ SƯU TẬP CHO KHÔNG GIAN SỐNG
+            </span>
+
+            <h2 className="home-products-inner-heading-title">
+              Khám phá sản phẩm theo danh mục
+            </h2>
+          </div>
 
           {loading ? (
-            <div className="products-empty">
-              <span>⏳</span>
+            <div className="home-products-inner-status">
+              <Clock3 size={42} />
               <p>Đang tải sản phẩm...</p>
             </div>
           ) : error ? (
-            <div className="products-empty">
-              <span>⚠️</span>
+            <div className="home-products-inner-status">
+              <AlertCircle size={42} />
               <p>{error}</p>
             </div>
           ) : (
-            displayedCategories.map((cat) => (
-              <CategorySection
-                key={cat.name}
-                categoryName={cat.name}
-                products={grouped[cat.name] || []}
-                onViewMore={handleViewMore}
-              />
-            ))
+            <div className="home-products-inner-categories">
+              {displayedCategories.map((category) => (
+                <CategorySection
+                  key={category.id}
+                  categoryName={category.name}
+                  products={grouped[category.id] || []}
+                  onViewMore={handleViewMore}
+                />
+              ))}
+            </div>
           )}
         </div>
       </section>
 
       {/* FEATURES */}
-      <section className="home__features-section">
-        <div className="home__products-inner">
-          <h2 className="home__section-title">Tại sao chọn Nội Thất Việt?</h2>
-          <div className="home__features">
+      <section className="home-features">
+        <div className="home-features-inner">
+          <div className="home-features-inner-heading">
+            <span className="home-features-inner-heading-eyebrow">
+              ĐIỂM TỰA CHO NGÔI NHÀ HOÀN MỸ
+            </span>
+
+            <h2 className="home-features-inner-heading-title">
+              Tại sao chọn Nội Thất Việt?
+            </h2>
+          </div>
+
+          <div className="home-features-inner-list">
             {[
               {
-                icon: "🏆",
+                icon: Trophy,
                 title: "Chất lượng cao cấp",
                 desc: "Nguyên liệu gỗ tự nhiên và kim loại cao cấp đạt tiêu chuẩn quốc tế.",
               },
               {
-                icon: "💰",
+                icon: BadgeDollarSign,
                 title: "Giá cả hợp lý",
                 desc: "Trực tiếp từ xưởng sản xuất, không qua trung gian — tiết kiệm 20–40%.",
               },
               {
-                icon: "🚚",
+                icon: Truck,
                 title: "Giao hàng toàn quốc",
                 desc: "Lắp đặt tận nhà miễn phí trong 50km từ TP. HCM.",
               },
               {
-                icon: "🛡️",
+                icon: ShieldCheck,
                 title: "Bảo hành 5 năm",
                 desc: "Cam kết bảo hành chính hãng 5 năm cho tất cả sản phẩm.",
               },
-            ].map((f) => (
-              <div key={f.title} className="home__feature">
-                <span>{f.icon}</span>
-                <h3>{f.title}</h3>
-                <p>{f.desc}</p>
-              </div>
-            ))}
+            ].map((feature, index) => {
+              const Icon = feature.icon;
+
+              return (
+                <div
+                  key={feature.title}
+                  className={`home-features-inner-list-item home-features-inner-list-item-${index}`}
+                >
+                  <div className="home-features-inner-list-item-icon">
+                    <Icon size={28} strokeWidth={1.8} />
+                  </div>
+
+                  <h3 className="home-features-inner-list-item-title">
+                    {feature.title}
+                  </h3>
+
+                  <p className="home-features-inner-list-item-description">
+                    {feature.desc}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="home__cta">
-        <div className="home__cta-inner">
-          <h2>Bạn cần tư vấn thiết kế nội thất?</h2>
-          <p>Đội ngũ chuyên gia sẵn sàng hỗ trợ 7 ngày/tuần.</p>
-          <Link to={ROUTES.USER.CONTACT} className="btn btn--white">
+      <section className="home-cta">
+        <div className="home-cta-inner">
+          <span className="home-cta-inner-eyebrow">
+            ĐỘI NGŨ NỘI THẤT VIỆT LUÔN SẴN SÀNG
+          </span>
+
+          <h2 className="home-cta-inner-title">
+            Bạn cần tư vấn thiết kế nội thất?
+          </h2>
+
+          <p className="home-cta-inner-description">
+            Đội ngũ chuyên gia sẵn sàng hỗ trợ 7 ngày/tuần.
+          </p>
+
+          <Link to={ROUTES.USER.CONTACT} className="home-cta-inner-button">
             Liên hệ ngay
+            <ArrowRight size={18} className="home-cta-inner-button-icon" />
           </Link>
         </div>
       </section>

@@ -1,0 +1,85 @@
+// ── Buttons ────────────────────────────────────────────────────────────────────
+.cart-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  border-radius: 9px;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &--primary {
+    background: #c0392b;
+    color: #fff;
+    border-color: #c0392b;
+
+    &:hover {
+      background: #a93226;
+      border-color: #a93226;
+      transform: translateY(-1px);
+    }
+  }
+
+  &--outline {
+    background: transparent;
+    color: #c0392b;
+    border-color: #c0392b;
+
+    &:hover {
+      background: #c0392b;
+      color: #fff;
+    }
+  }
+
+  &--full {
+    width: 100%;
+  }
+}
+
+// ── Empty state ────────────────────────────────────────────────────────────────
+.cart-empty {
+  text-align: center;
+  padding: 80px 24px;
+  max-width: 400px;
+  margin: 0 auto;
+
+  span {
+    font-size: 72px;
+    display: block;
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1a1a2e;
+    margin-bottom: 10px;
+  }
+
+  p {
+    color: #888;
+    margin-bottom: 28px;
+    font-size: 15px;
+  }
+}
+
+// ── Tiêu đề khối ───────────────────────────────────────────────────────────────
+.cart-section-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cart-count {
+  font-size: 14px;
+  font-weight: 500;
+  color: #888;
+}

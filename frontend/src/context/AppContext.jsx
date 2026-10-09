@@ -16,7 +16,10 @@ import {
   deleteProductionRequest as apiDeleteProductionRequest,
 } from "../api/productionRequestApi";
 
-import { updateOrderStatus as apiUpdateOrderStatus } from "../api/orderApi";
+import {
+  updateOrderStatus as apiUpdateOrderStatus,
+  getAllOrders,
+} from "../api/orderApi";
 
 import {
   getPurchaseRequests,
@@ -55,6 +58,8 @@ export const AppContext = createContext(null);
 
 const ADMIN_ORDERS_KEY = "admin_orders";
 const NOTIFY_KEY = "technical_notifications";
+// Thông báo toàn cục cho tất cả bước trong quy trình ERP
+const GLOBAL_NOTIFY_KEY = "erp_global_notifications";
 
 function getLocalOrders() {
   try {
@@ -69,8 +74,142 @@ function saveLocalOrders(orders) {
   localStorage.setItem(ADMIN_ORDERS_KEY, JSON.stringify(orders));
 }
 
+// ── Các bước trong quy trình sản xuất (dùng để tạo global notifications) ──
+const STEP_LABEL = {
+  order_confirmed: {
+    label: "Đơn hàng được xác nhận",
+    dept: "Kỹ thuật",
+    color: "blue",
+  },
+  production_created: {
+    label: "Yêu cầu sản xuất được tạo",
+    dept: "Thủ kho",
+    color: "purple",
+  },
+  purchasing_created: {
+    label: "Yêu cầu mua hàng được tạo",
+    dept: "Mua hàng",
+    color: "orange",
+  },
+  goods_stocked: {
+    label: "Vật tư đã nhập kho",
+    dept: "Thủ kho",
+    color: "teal",
+  },
+  handover_created: {
+    label: "Phiếu bàn giao cho Nhà máy",
+    dept: "Nhà máy",
+    color: "purple",
+  },
+  production_reported: {
+    label: "Báo cáo sản xuất từ Nhà máy",
+    dept: "Thủ kho",
+    color: "green",
+  },
+  finished_received: {
+    label: "Thành phẩm đã nhập kho",
+    dept: "Thành phẩm",
+    color: "green",
+  },
+  design_requested: {
+    label: "Nhà máy yêu cầu bản thiết kế",
+    dept: "Kỹ thuật",
+    color: "purple",
+  },
+  design_provided: {
+    label: "Kỹ thuật đã gửi bản thiết kế",
+    dept: "Nhà máy",
+    color: "blue",
+  },
+  order_delivered: {
+    label: "Đơn hàng đã bàn giao cho khách",
+    dept: "Đơn hàng",
+    color: "green",
+  },
+};
+
+const FG_HANDED_KEY = "fg_handed_over";
+
+function getHandedOverIds() {
+  try {
+    const raw = localStorage.getItem(FG_HANDED_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveHandedOverIds(ids) {
+  localStorage.setItem(FG_HANDED_KEY, JSON.stringify(ids));
+}
+
+function asList(value) {
+  if (Array.isArray(value)) return value;
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
+function normalizeProductionRequest(item) {
+  if (!item) return item;
+  return {
+    ...item,
+    materials: asList(item.materials),
+    createdAt: item.createdAt || item.created_at || new Date().toISOString(),
+  };
+}
+
 export function AppProvider({ children }) {
   const [materials, setMaterials] = useState([]);
+
+  // ── Global ERP step notifications (hiển thị trên AdminHeader) ────────────
+  const [globalNotifications, setGlobalNotifications] = useState(() => {
+    try {
+      const raw = localStorage.getItem(GLOBAL_NOTIFY_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const pushGlobalNotify = (type, meta = {}) => {
+    const step = STEP_LABEL[type];
+    if (!step) return;
+    const note = {
+      id: `${type}-${Date.now()}`,
+      type,
+      label: step.label,
+      dept: step.dept,
+      color: step.color,
+      meta,
+      time: new Date().toISOString(),
+      read: false,
+    };
+    setGlobalNotifications((prev) => {
+      const next = [note, ...prev].slice(0, 50); // giữ tối đa 50
+      localStorage.setItem(GLOBAL_NOTIFY_KEY, JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const markAllGlobalRead = () => {
+    setGlobalNotifications((prev) => {
+      const next = prev.map((n) => ({ ...n, read: true }));
+      localStorage.setItem(GLOBAL_NOTIFY_KEY, JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const clearGlobalNotifications = () => {
+    setGlobalNotifications([]);
+    localStorage.removeItem(GLOBAL_NOTIFY_KEY);
+  };
 
   const addMaterial = async (material) => {
     try {
@@ -107,7 +246,18 @@ export function AppProvider({ children }) {
   const addProductionRequest = async (req) => {
     try {
       const res = await apiCreateProductionRequest(req);
-      setProductionRequests((prev) => [...res.data, ...prev]);
+      // res.data có thể là 1 object hoặc mảng objects
+      const newItems = (Array.isArray(res.data) ? res.data : [res.data]).map(
+        normalizeProductionRequest,
+      );
+      setProductionRequests((prev) => [...newItems, ...prev]);
+      // Thông báo cho Thủ kho
+      newItems.forEach((item) => {
+        pushGlobalNotify("production_created", {
+          productName: item.productName,
+          productQty: item.productQty,
+        });
+      });
       return res.data;
     } catch (error) {
       console.error("Lỗi tạo yêu cầu sản xuất:", error);
@@ -119,11 +269,17 @@ export function AppProvider({ children }) {
         productName: it.productName,
         productQty: it.productQty,
         note: it.note ?? req.note,
-        materials: it.materials || [],
+        materials: asList(it.materials),
         status: "pending",
-        createdAt: new Date().toLocaleString("vi-VN"),
+        createdAt: new Date().toISOString(),
       }));
       setProductionRequests((prev) => [...fallback, ...prev]);
+      fallback.forEach((item) => {
+        pushGlobalNotify("production_created", {
+          productName: item.productName,
+          productQty: item.productQty,
+        });
+      });
       return fallback;
     }
   };
@@ -158,6 +314,9 @@ export function AppProvider({ children }) {
     try {
       const res = await createPurchaseRequest(req);
       setPurchaseRequests((prev) => [res.data, ...prev]);
+      pushGlobalNotify("purchasing_created", {
+        productName: res.data.productName,
+      });
       return res.data;
     } catch (error) {
       console.error("Lỗi tạo yêu cầu mua hàng:", error);
@@ -191,6 +350,7 @@ export function AppProvider({ children }) {
       prev.map((r) => (r.id === id ? { ...r, status: "stocked" } : r)),
     );
     apiUpdatePurchaseRequestStatus(id, "stocked").catch(() => null);
+    pushGlobalNotify("goods_stocked", { productName: pr.productName });
   };
 
   const deletePurchaseRequest = async (id) => {
@@ -205,6 +365,9 @@ export function AppProvider({ children }) {
     try {
       const res = await apiCreateHandoverOrder(order);
       setHandoverOrders((prev) => [res.data, ...prev]);
+      pushGlobalNotify("handover_created", {
+        productName: res.data.productName,
+      });
       return res.data;
     } catch (error) {
       console.error("Lỗi tạo phiếu bàn giao:", error);
@@ -212,9 +375,10 @@ export function AppProvider({ children }) {
         ...order,
         id: Date.now() + Math.random(),
         status: "pending",
-        createdAt: new Date().toLocaleString("vi-VN"),
+        createdAt: new Date().toISOString(),
       };
       setHandoverOrders((prev) => [fallback, ...prev]);
+      pushGlobalNotify("handover_created", { productName: order.productName });
       return fallback;
     }
   };
@@ -238,6 +402,9 @@ export function AppProvider({ children }) {
     try {
       const res = await apiCreateDesignRequest(req);
       setDesignRequests((prev) => [res.data, ...prev]);
+      pushGlobalNotify("design_requested", {
+        productName: res.data.productName,
+      });
     } catch {
       setDesignRequests((prev) => [
         ...prev,
@@ -252,11 +419,17 @@ export function AppProvider({ children }) {
   };
 
   const provideDesign = (id, designNote) => {
-    setDesignRequests((prev) =>
-      prev.map((r) =>
+    setDesignRequests((prev) => {
+      const current = prev.find((r) => r.id === id);
+      if (current) {
+        pushGlobalNotify("design_provided", {
+          productName: current.productName,
+        });
+      }
+      return prev.map((r) =>
         r.id === id ? { ...r, status: "provided", designNote } : r,
-      ),
-    );
+      );
+    });
     apiProvideDesign(id, designNote).catch(() => null);
   };
 
@@ -267,6 +440,9 @@ export function AppProvider({ children }) {
     try {
       const res = await apiCreateProductionReport(report);
       setProductionReports((prev) => [res.data, ...prev]);
+      pushGlobalNotify("production_reported", {
+        productName: res.data.productName,
+      });
     } catch {
       setProductionReports((prev) => [
         ...prev,
@@ -274,9 +450,12 @@ export function AppProvider({ children }) {
           ...report,
           id: Date.now() + Math.random(),
           status: "reported",
-          createdAt: new Date().toLocaleString("vi-VN"),
+          createdAt: new Date().toISOString(),
         },
       ]);
+      pushGlobalNotify("production_reported", {
+        productName: report.productName,
+      });
     }
   };
 
@@ -290,8 +469,8 @@ export function AppProvider({ children }) {
   // Kho thành phẩm
   const [finishedGoods, setFinishedGoods] = useState([]);
 
-  const receiveFinishedGoods = async (items) => {
-    // Cộng dồn vào kho thành phẩm (backend tự gộp theo tên)
+  const receiveFinishedGoods = async (items, handoverOrderId = null) => {
+    // Cộng dồn vào kho thành phẩm
     setFinishedGoods((prev) => {
       const updated = [...prev];
       items.forEach((item) => {
@@ -302,12 +481,39 @@ export function AppProvider({ children }) {
           updated.push({
             ...item,
             id: Date.now() + Math.random(),
-            receivedAt: new Date().toLocaleString("vi-VN"),
+            receivedAt: new Date().toISOString(),
           });
         }
       });
       return updated;
     });
+
+    const doneIds = new Set();
+    if (handoverOrderId) {
+      const ho = handoverOrders.find((o) => o.id === handoverOrderId);
+      if (ho?.productionRequestId) doneIds.add(ho.productionRequestId);
+    }
+    items.forEach((item) => {
+      productionRequests.forEach((r) => {
+        if (
+          r.productName === item.name &&
+          [
+            "in_production",
+            "ready",
+            "purchasing",
+            "pending",
+            "checked",
+          ].includes(r.status)
+        ) {
+          doneIds.add(r.id);
+        }
+      });
+      pushGlobalNotify("finished_received", {
+        productName: item.name,
+        qty: item.qty,
+      });
+    });
+    doneIds.forEach((id) => updateProductionRequestStatus(id, "done"));
 
     await Promise.all(
       items.map((item) =>
@@ -390,13 +596,57 @@ export function AppProvider({ children }) {
         if (order) {
           setConfirmedOrderDraft(order);
           notifyTechnical(order);
+          pushGlobalNotify("order_confirmed", {
+            orderId: id,
+            name: order.name,
+          });
         }
+        return prev;
+      });
+    }
+
+    if (status === "done" || status === "shipping") {
+      setOrders((prev) => {
+        const order = prev.find((o) => o.id === id);
+        if (order)
+          pushGlobalNotify("order_delivered", {
+            orderId: id,
+            name: order.name,
+          });
         return prev;
       });
     }
 
     // Đồng bộ trạng thái sang DB
     apiUpdateOrderStatus(id, status).catch(() => null);
+  };
+
+  // Bàn giao thành phẩm cho khách → đơn trên FE hiện "Hoàn thành — đang giao"
+  const deliverToCustomer = (finishedGood) => {
+    const name =
+      typeof finishedGood === "string" ? finishedGood : finishedGood?.name;
+    const fgId = typeof finishedGood === "object" ? finishedGood?.id : null;
+    if (!name) return null;
+
+    const matchOrder = orders.find(
+      (o) =>
+        ["processing", "confirmed", "pending"].includes(o.status) &&
+        (o.cart || []).some(
+          (c) =>
+            (c.name || "").toLowerCase().trim() === name.toLowerCase().trim(),
+        ),
+    );
+    if (matchOrder) {
+      updateOrderStatus(matchOrder.id, "shipping");
+    }
+    if (fgId != null) {
+      setFinishedGoods((prev) =>
+        prev.map((g) => (g.id === fgId ? { ...g, handedOver: true } : g)),
+      );
+      const ids = [...new Set([...getHandedOverIds(), fgId])];
+      saveHandedOverIds(ids);
+    }
+    return matchOrder;
   };
 
   const assignOrderToProduction = (orderId, productionRequestId) => {
@@ -431,7 +681,7 @@ export function AppProvider({ children }) {
       }
 
       try {
-        const [m, pr, pur, ho, dr, rep, fg] = await Promise.all([
+        const [m, pr, pur, ho, dr, rep, fg, ord] = await Promise.all([
           getMaterials(),
           getProductionRequests(),
           getPurchaseRequests(),
@@ -439,14 +689,37 @@ export function AppProvider({ children }) {
           getDesignRequests(),
           getProductionReports(),
           getFinishedGoods(),
+          getAllOrders(),
         ]);
         setMaterials(m.data || []);
-        setProductionRequests(pr.data || []);
-        setPurchaseRequests(pur.data || []);
-        setHandoverOrders(ho.data || []);
+        setProductionRequests((pr.data || []).map(normalizeProductionRequest));
+        setPurchaseRequests(
+          (pur.data || []).map((r) => ({ ...r, items: asList(r.items) })),
+        );
+        setHandoverOrders(
+          (ho.data || []).map((r) => ({
+            ...r,
+            materials: asList(r.materials),
+          })),
+        );
         setDesignRequests(dr.data || []);
-        setProductionReports(rep.data || []);
-        setFinishedGoods(fg.data || []);
+        setProductionReports(
+          (rep.data || []).map((r) => ({
+            ...r,
+            scrapItems: asList(r.scrapItems),
+          })),
+        );
+        const handed = getHandedOverIds();
+        setFinishedGoods(
+          (fg.data || []).map((g) => ({
+            ...g,
+            handedOver: handed.includes(g.id),
+          })),
+        );
+        if (Array.isArray(ord.data)) {
+          setOrders(ord.data);
+          saveLocalOrders(ord.data);
+        }
       } catch (e) {
         console.error("Lỗi tải dữ liệu ERP:", e);
       }
@@ -516,12 +789,18 @@ export function AppProvider({ children }) {
         addOrder,
         updateOrderStatus,
         assignOrderToProduction,
+        deliverToCustomer,
         confirmedOrderDraft,
         clearConfirmedOrderDraft,
         setConfirmedOrderDraft,
         pendingNotifications,
         notifyTechnical,
         dismissNotification,
+        // global ERP step notifications
+        globalNotifications,
+        pushGlobalNotify,
+        markAllGlobalRead,
+        clearGlobalNotifications,
       }}
     >
       {children}

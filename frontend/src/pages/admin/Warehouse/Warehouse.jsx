@@ -1,4 +1,20 @@
 import { useState } from "react";
+import {
+  Warehouse as WarehouseIcon,
+  Package,
+  Search,
+  Download,
+  Truck,
+  Gift,
+  ClipboardList,
+  ShoppingCart,
+  Pencil,
+  Trash2,
+  Save,
+  X,
+  CheckCircle,
+} from "lucide-react";
+import { formatDate } from "../../../utils/formatDate";
 import { useApp } from "../../../context/useApp";
 import "../Technical/technical.scss";
 import "./warehouse.scss";
@@ -16,9 +32,11 @@ function StatusBadge({ status }) {
   return <span className={`badge ${s.cls}`}>{s.label}</span>;
 }
 
-function AdminCard({ title, icon, children }) {
+function AdminCard({ title, icon, children, gradient }) {
   return (
-    <div className="admin-card">
+    <div
+      className={`admin-card${gradient ? ` admin-card--gradient-${gradient}` : ""}`}
+    >
       <div className="admin-card__header">
         <span>{icon}</span>
         <h2>{title}</h2>
@@ -98,7 +116,9 @@ export default function Warehouse() {
 
   // Mua thẳng 1 vật tư đang thiếu (click vào dòng vật tư)
   const handleBuyMaterial = (m) => {
-    const target = Number(window.prompt(`Cần mua bao nhiêu ${m.unit} ${m.name}?`, "10"));
+    const target = Number(
+      window.prompt(`Cần mua bao nhiêu ${m.unit} ${m.name}?`, "10"),
+    );
     if (!target || target <= 0) return;
 
     addPurchaseRequest({
@@ -114,7 +134,9 @@ export default function Warehouse() {
         },
       ],
     });
-    flash(`🛒 Đã tạo đơn mua ${target} ${m.unit} ${m.name} — chuyển sang bộ phận Mua hàng`);
+    flash(
+      `🛒 Đã tạo đơn mua ${target} ${m.unit} ${m.name} — chuyển sang bộ phận Mua hàng`,
+    );
   };
 
   const handleAddMaterial = (e) => {
@@ -137,7 +159,7 @@ export default function Warehouse() {
 
   // Tính thiếu/đủ cho từng yêu cầu
   const checkStock = (req) =>
-    req.materials.map((m) => {
+    (req.materials || []).map((m) => {
       const mat = materials.find((x) => x.id === m.materialId);
       const inStock = mat ? mat.stock : 0;
       const lacking = Math.max(0, m.requiredQty - inStock);
@@ -189,7 +211,7 @@ export default function Warehouse() {
       productionRequestId: req.id,
       productName: req.productName,
       productQty: req.productQty,
-      materials: req.materials.map((m) => ({
+      materials: (req.materials || []).map((m) => ({
         materialId: m.materialId,
         materialName: m.materialName,
         unit: m.unit,
@@ -197,7 +219,7 @@ export default function Warehouse() {
       })),
     });
     // trừ kho
-    req.materials.forEach((m) =>
+    (req.materials || []).forEach((m) =>
       updateMaterialStock(m.materialId, -m.requiredQty),
     );
     updateProductionRequestStatus(req.id, "in_production");
@@ -209,9 +231,10 @@ export default function Warehouse() {
   );
 
   const handleReceive = (report) => {
-    receiveFinishedGoods([
-      { name: report.productName, qty: report.finishedQty, unit: "cái" },
-    ]);
+    receiveFinishedGoods(
+      [{ name: report.productName, qty: report.finishedQty, unit: "cái" }],
+      report.handoverOrderId,
+    );
     updateProductionReportStatus(report.id, "delivered");
     const ho = handoverOrders.find((o) => o.id === report.handoverOrderId);
     if (ho) updateHandoverOrderStatus(ho.id, "done");
@@ -220,7 +243,14 @@ export default function Warehouse() {
   return (
     <div className="warehouse-page">
       <div className="page-header">
-        <h1>🏭 Thủ kho</h1>
+        <h1>
+          <WarehouseIcon
+            size={24}
+            strokeWidth={2}
+            style={{ verticalAlign: "middle", marginRight: 8 }}
+          />
+          Thủ kho
+        </h1>
         <p className="page-sub">
           Kiểm kê, nhập kho, bàn giao và nhận thành phẩm
         </p>
@@ -228,7 +258,7 @@ export default function Warehouse() {
 
       {/* Tổng quan tồn kho */}
       <div className="wh-summary">
-        <div className="wh-summary__card">
+        <div className="wh-summary__card wh-summary__card--purple">
           <strong>{materials.length}</strong>
           <span>Loại vật tư</span>
         </div>
@@ -247,7 +277,11 @@ export default function Warehouse() {
       </div>
 
       {/* 1. Kho vật tư  */}
-      <AdminCard title="Kho vật tư" icon="📦">
+      <AdminCard
+        title="Kho vật tư"
+        icon={<Package size={18} strokeWidth={2} />}
+        gradient="blue"
+      >
         <form className="wh-mat-form" onSubmit={handleAddMaterial}>
           <input
             placeholder="Tên vật tư"
@@ -329,7 +363,10 @@ export default function Warehouse() {
                           type="number"
                           value={editForm.stock}
                           onChange={(e) =>
-                            setEditForm((f) => ({ ...f, stock: e.target.value }))
+                            setEditForm((f) => ({
+                              ...f,
+                              stock: e.target.value,
+                            }))
                           }
                         />
                       </td>
@@ -340,13 +377,23 @@ export default function Warehouse() {
                             className="btn-action btn-action--green"
                             onClick={() => saveEdit(m.id)}
                           >
-                            💾 Lưu
+                            <Save
+                              size={13}
+                              strokeWidth={2}
+                              style={{ marginRight: 4 }}
+                            />
+                            Lưu
                           </button>
                           <button
                             className="btn-action btn-action--gray"
                             onClick={() => setEditId(null)}
                           >
-                            ✖ Huỷ
+                            <X
+                              size={13}
+                              strokeWidth={2}
+                              style={{ marginRight: 4 }}
+                            />
+                            Huỷ
                           </button>
                         </div>
                       </td>
@@ -378,19 +425,34 @@ export default function Warehouse() {
                             onClick={() => handleBuyMaterial(m)}
                             title="Tạo đơn mua cho vật tư này"
                           >
-                            🛒 Mua
+                            <ShoppingCart
+                              size={13}
+                              strokeWidth={2}
+                              style={{ marginRight: 4 }}
+                            />
+                            Mua
                           </button>
                           <button
                             className="btn-action btn-action--blue"
                             onClick={() => startEdit(m)}
                           >
-                            ✏️ Sửa
+                            <Pencil
+                              size={13}
+                              strokeWidth={2}
+                              style={{ marginRight: 4 }}
+                            />
+                            Sửa
                           </button>
                           <button
                             className="btn-action btn-action--danger"
                             onClick={() => handleDeleteMaterial(m)}
                           >
-                            🗑️ Xoá
+                            <Trash2
+                              size={13}
+                              strokeWidth={2}
+                              style={{ marginRight: 4 }}
+                            />
+                            Xoá
                           </button>
                         </div>
                       </td>
@@ -411,7 +473,11 @@ export default function Warehouse() {
       </AdminCard>
 
       {/* 2. Kiểm kê yêu cầu SX─ */}
-      <AdminCard title="Kiểm kê yêu cầu sản xuất từ Kỹ thuật" icon="🔍">
+      <AdminCard
+        title="Kiểm kê yêu cầu sản xuất từ Kỹ thuật"
+        icon={<Search size={18} strokeWidth={2} />}
+        gradient="teal"
+      >
         {pendingRequests.length === 0 ? (
           <p className="empty-state">Không có yêu cầu mới từ Kỹ thuật.</p>
         ) : (
@@ -471,14 +537,24 @@ export default function Warehouse() {
                             className="btn-action btn-action--orange"
                             onClick={() => handleSendToPurchasing(req)}
                           >
-                            🛒 Gửi mua hàng
+                            <ShoppingCart
+                              size={13}
+                              strokeWidth={2}
+                              style={{ marginRight: 4 }}
+                            />
+                            Gửi mua hàng
                           </button>
                         ) : (
                           <button
                             className="btn-action btn-action--green"
                             onClick={() => handleSendToPurchasing(req)}
                           >
-                            ✅ Đủ — Sẵn sàng SX
+                            <CheckCircle
+                              size={13}
+                              strokeWidth={2}
+                              style={{ marginRight: 4 }}
+                            />
+                            Đủ — Sẵn sàng SX
                           </button>
                         )}
                       </td>
@@ -492,7 +568,11 @@ export default function Warehouse() {
       </AdminCard>
 
       {/* 3. Nhập kho hàng đã mua─ */}
-      <AdminCard title="Nhập kho hàng vừa mua về" icon="📥">
+      <AdminCard
+        title="Nhập kho hàng vừa mua về"
+        icon={<Download size={18} strokeWidth={2} />}
+        gradient="orange"
+      >
         {purchasedOrders.length === 0 ? (
           <p className="empty-state">
             Chưa có lô hàng nào chờ nhập. Hàng mua xong sẽ tự động vào kho.
@@ -528,13 +608,18 @@ export default function Warehouse() {
                         ))}
                       </ul>
                     </td>
-                    <td>{pr.createdAt}</td>
+                    <td>{formatDate(pr.createdAt)}</td>
                     <td>
                       <button
                         className="btn-action btn-action--blue"
                         onClick={() => handleStockIn(pr)}
                       >
-                        📥 Nhập kho ngay
+                        <Download
+                          size={13}
+                          strokeWidth={2}
+                          style={{ marginRight: 4 }}
+                        />
+                        Nhập kho ngay
                       </button>
                     </td>
                   </tr>
@@ -546,7 +631,11 @@ export default function Warehouse() {
       </AdminCard>
 
       {/* 4. Tạo phiếu bàn giao cho Nhà máy */}
-      <AdminCard title="Bàn giao vật tư cho Nhà máy" icon="🚚">
+      <AdminCard
+        title="Bàn giao vật tư cho Nhà máy"
+        icon={<Truck size={18} strokeWidth={2} />}
+        gradient="purple"
+      >
         {readyRequests.length === 0 ? (
           <p className="empty-state">Chưa có yêu cầu nào sẵn sàng sản xuất.</p>
         ) : (
@@ -571,7 +660,7 @@ export default function Warehouse() {
                     <td>{req.productQty}</td>
                     <td>
                       <ul className="material-list-inline">
-                        {req.materials.map((m, mi) => (
+                        {(req.materials || []).map((m, mi) => (
                           <li key={mi}>
                             {m.materialName}:{" "}
                             <strong>
@@ -586,7 +675,12 @@ export default function Warehouse() {
                         className="btn-action btn-action--purple"
                         onClick={() => handleHandover(req)}
                       >
-                        🏭 Bàn giao NM
+                        <Truck
+                          size={13}
+                          strokeWidth={2}
+                          style={{ marginRight: 4 }}
+                        />
+                        Bàn giao NM
                       </button>
                     </td>
                   </tr>
@@ -598,7 +692,11 @@ export default function Warehouse() {
       </AdminCard>
 
       {/* 5. Nhận thành phẩm từ Nhà máy */}
-      <AdminCard title="Nhận thành phẩm từ Nhà máy" icon="🎁">
+      <AdminCard
+        title="Nhận thành phẩm từ Nhà máy"
+        icon={<Gift size={18} strokeWidth={2} />}
+        gradient="green"
+      >
         {reportedReports.length === 0 ? (
           <p className="empty-state">Chưa có thành phẩm nào chờ nhận.</p>
         ) : (
@@ -645,7 +743,12 @@ export default function Warehouse() {
                         className="btn-action btn-action--green"
                         onClick={() => handleReceive(r)}
                       >
-                        ✅ Nhận vào kho
+                        <CheckCircle
+                          size={13}
+                          strokeWidth={2}
+                          style={{ marginRight: 4 }}
+                        />
+                        Nhận vào kho
                       </button>
                     </td>
                   </tr>
@@ -657,7 +760,11 @@ export default function Warehouse() {
       </AdminCard>
 
       {/* Tất cả yêu cầu SX─ */}
-      <AdminCard title="Toàn bộ yêu cầu sản xuất" icon="📋">
+      <AdminCard
+        title="Toàn bộ yêu cầu sản xuất"
+        icon={<ClipboardList size={18} strokeWidth={2} />}
+        gradient="blue"
+      >
         {productionRequests.length === 0 ? (
           <p className="empty-state">Chưa có yêu cầu nào.</p>
         ) : (
@@ -680,7 +787,7 @@ export default function Warehouse() {
                       <strong>{r.productName}</strong>
                     </td>
                     <td>{r.productQty}</td>
-                    <td>{r.createdAt}</td>
+                    <td>{formatDate(r.createdAt)}</td>
                     <td>
                       <StatusBadge status={r.status} />
                     </td>

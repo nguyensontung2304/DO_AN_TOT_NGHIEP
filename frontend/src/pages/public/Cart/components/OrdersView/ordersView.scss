@@ -1,0 +1,497 @@
+// ==================================================
+// ORDERS PANEL
+// ==================================================
+
+.orders-panel {
+  min-height: 300px;
+}
+
+.orders-list {
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+
+    &-title {
+      margin: 0;
+      color: #1a1a2e;
+      font-size: 20px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+  }
+
+  &__count {
+    padding: 3px 10px;
+    background: #f0f0f0;
+    border-radius: 12px;
+    color: #888;
+    font-size: 13px;
+    font-weight: 600;
+  }
+}
+
+// ==================================================
+// ORDER CARD
+// ==================================================
+
+.order-card {
+  margin-bottom: 14px;
+  overflow: hidden;
+  background: #fff;
+  border: 1.5px solid #ebebeb;
+  border-radius: 14px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    border-color: #ddd;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  &__id {
+    color: #1a1a2e;
+    font-size: 25px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+  }
+
+  &__date {
+    color: #aaa;
+    font-size: 12px;
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-left: auto;
+  }
+
+  &__total {
+    color: #c0392b;
+    font-size: 16px;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  &__toggle {
+    width: 24px;
+    flex-shrink: 0;
+    color: #bbb;
+    font-size: 11px;
+    text-align: center;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+    background: #fafafa;
+    border-top: 1.5px solid #f0f0f0;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px 16px;
+    background: #fff;
+    border: 1px solid #f0f0f0;
+    border-radius: 10px;
+
+    &-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+
+      span {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        font-weight: 600;
+        color: #1a1a2e;
+      }
+
+      strong {
+        color: #1a1a2e;
+        font-weight: 600;
+        text-align: right;
+        overflow-wrap: anywhere;
+      }
+    }
+  }
+
+  &__items {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+
+    &-title {
+      margin: 0 0 10px;
+      color: #555;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__item-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    overflow: hidden;
+    background: linear-gradient(135deg, #fff0ee, #fff5f5);
+    border-radius: 8px;
+    font-size: 24px;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__item-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    color: #1a1a2e;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__item-qty {
+    flex-shrink: 0;
+    color: #888;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  &__item-price {
+    flex-shrink: 0;
+    color: #1a1a2e;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  &__cancel {
+    align-self: flex-start;
+    padding: 7px 12px;
+    margin-top: 6px;
+    background: transparent;
+    border: 1px solid #e74c3c;
+    border-radius: 7px;
+    color: #e74c3c;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease;
+
+    &:hover {
+      background: #e74c3c;
+      border-color: #e74c3c;
+      color: #fff;
+    }
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 2px solid #ebebeb;
+
+    span {
+      color: #555;
+      font-size: 14px;
+    }
+
+    strong {
+      color: #c0392b;
+      font-size: 20px;
+      font-weight: 800;
+    }
+  }
+}
+
+// ==================================================
+// ORDER STATUS
+// ==================================================
+
+.order-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  &--pending {
+    background: #fff8e1;
+    border: 1px solid #f9ca24;
+    color: #e67e22;
+  }
+
+  &--confirmed {
+    background: #e8f5e9;
+    border: 1px solid #a8dfc0;
+    color: #27ae60;
+  }
+
+  &--shipping {
+    background: #e8f4fd;
+    border: 1px solid #85c1e9;
+    color: #2980b9;
+  }
+
+  &--done {
+    background: #eafaf1;
+    border: 1px solid #76d7a0;
+    color: #1e8449;
+  }
+
+  &--cancelled {
+    background: #fdecea;
+    border: 1px solid #f5b7b1;
+    color: #c0392b;
+  }
+}
+
+// ==================================================
+// RESPONSIVE
+// ==================================================
+
+@media (max-width: 900px) {
+  .order-card {
+    &__head {
+      padding: 15px 18px;
+    }
+
+    &__body {
+      padding: 18px;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .orders-list {
+    &__header {
+      margin-bottom: 16px;
+      gap: 10px;
+
+      &-title {
+        font-size: 16px;
+      }
+    }
+
+    &__count {
+      padding: 3px 8px;
+      font-size: 12px;
+    }
+  }
+
+  .order-card {
+    margin-bottom: 12px;
+    border-radius: 12px;
+
+    &__head {
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 14px 16px;
+    }
+
+    &__right {
+      width: 100%;
+      justify-content: space-between;
+      gap: 10px;
+      margin-left: 0;
+    }
+
+    &__total {
+      font-size: 15px;
+    }
+
+    &__body {
+      gap: 14px;
+      padding: 16px;
+    }
+
+    &__info {
+      padding: 12px 14px;
+
+      &-row {
+        font-size: 12px;
+
+        span:first-child {
+          min-width: 90px;
+        }
+      }
+    }
+
+    &__item {
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    &__item-name {
+      min-width: calc(100% - 46px);
+      font-size: 13px;
+    }
+
+    &__item-qty {
+      margin-left: 46px;
+      font-size: 12px;
+    }
+
+    &__item-price {
+      font-size: 13px;
+    }
+
+    &__cancel {
+      font-size: 11px;
+    }
+
+    &__footer {
+      span {
+        font-size: 13px;
+      }
+
+      strong {
+        font-size: 18px;
+      }
+    }
+  }
+
+  .order-status {
+    padding: 4px 9px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .orders-list {
+    &__header {
+      &-title {
+        font-size: 15px;
+      }
+    }
+
+    &__count {
+      font-size: 11px;
+    }
+  }
+
+  .order-card {
+    &__head {
+      padding: 13px 14px;
+    }
+
+    &__id {
+      font-size: 13px;
+    }
+
+    &__date {
+      font-size: 11px;
+    }
+
+    &__body {
+      padding: 14px;
+    }
+
+    &__info {
+      padding: 11px 12px;
+
+      &-row {
+        flex-direction: column;
+        gap: 2px;
+
+        span:first-child {
+          min-width: auto;
+        }
+
+        strong {
+          width: 100%;
+          text-align: left;
+        }
+      }
+    }
+
+    &__item {
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr);
+      gap: 8px 10px;
+    }
+
+    &__item-image {
+      grid-row: span 2;
+    }
+
+    &__item-name {
+      min-width: 0;
+    }
+
+    &__item-qty {
+      margin-left: 0;
+    }
+
+    &__item-price {
+      grid-column: 2;
+    }
+
+    &__cancel {
+      grid-column: 2;
+      justify-self: start;
+    }
+
+    &__footer {
+      strong {
+        font-size: 17px;
+      }
+    }
+  }
+}

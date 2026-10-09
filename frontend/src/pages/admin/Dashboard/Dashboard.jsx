@@ -1,14 +1,35 @@
 import { Link } from "react-router-dom";
+import {
+  Package,
+  ClipboardList,
+  ShoppingCart,
+  Warehouse,
+  Gift,
+  Zap,
+  Banknote,
+  // RefreshCw,
+  // Settings,
+  // Wrench,
+  // Download,
+  // Truck,
+  AlertTriangle,
+  BarChart2,
+  Clock,
+  Ruler,
+  // Check,
+} from "lucide-react";
 import { useApp } from "../../../context/useApp";
+import { formatDate } from "../../../utils/formatDate";
 import { ROUTES } from "../../../constants/router";
-
 import "../Technical/technical.scss";
 import "./dashboard.scss";
 
-function StatCard({ icon, value, label, color, to }) {
+function StatCard({ icon: Icon, value, label, color, to }) {
   const inner = (
     <div className={`dash-stat dash-stat--${color}`}>
-      <span className="dash-stat__icon">{icon}</span>
+      <span className="dash-stat__icon">
+        <Icon size={30} strokeWidth={1.6} />
+      </span>
       <div>
         <strong>{value}</strong>
         <p>{label}</p>
@@ -24,17 +45,21 @@ function StatCard({ icon, value, label, color, to }) {
   );
 }
 
-function FlowStep({ num, icon, label, active, done }) {
-  return (
-    <div
-      className={`flow-step ${active ? "flow-step--active" : ""} ${done ? "flow-step--done" : ""}`}
-    >
-      <div className="flow-step__circle">{done ? "✓" : num}</div>
-      <span className="flow-step__icon">{icon}</span>
-      <span className="flow-step__label">{label}</span>
-    </div>
-  );
-}
+// function FlowStep({ num, icon: Icon, label, active, done }) {
+//   return (
+//     <div
+//       className={`flow-step ${active ? "flow-step--active" : ""} ${done ? "flow-step--done" : ""}`}
+//     >
+//       <div className="flow-step__circle">
+//         {done ? <Check size={14} strokeWidth={2.5} /> : num}
+//       </div>
+//       <span className="flow-step__icon">
+//         <Icon size={20} strokeWidth={1.8} />
+//       </span>
+//       <span className="flow-step__label">{label}</span>
+//     </div>
+//   );
+// }
 
 export default function Dashboard() {
   const {
@@ -51,31 +76,25 @@ export default function Dashboard() {
   const pending = productionRequests.filter(
     (r) => r.status === "pending",
   ).length;
-
   const inProd = productionRequests.filter(
     (r) => r.status === "in_production",
   ).length;
-
   const purPending = purchaseRequests.filter(
     (r) => r.status === "pending",
   ).length;
-
-  const designPending = designRequests.filter(
+  const designPend = designRequests.filter(
     (r) => r.status === "pending",
   ).length;
-
-  const reportPending = productionReports.filter(
+  const reportPend = productionReports.filter(
     (r) => r.status === "reported",
   ).length;
-
-  const totalFinished = finishedGoods.reduce((s, g) => s + g.qty, 0);
-
+  const totalFin = finishedGoods.reduce((s, g) => s + g.qty, 0);
   const lowStock = materials.filter((m) => m.stock <= 5).length;
-
   const pendingOrders = orders.filter((o) => o.status === "pending").length;
   const totalOrderValue = orders.reduce((s, o) => s + Number(o.total || 0), 0);
 
   const recentRequests = [...productionRequests].reverse().slice(0, 5);
+  const recentOrders = [...orders].reverse().slice(0, 5);
 
   const statusLabel = {
     pending: "Chờ thủ kho",
@@ -85,7 +104,6 @@ export default function Dashboard() {
     in_production: "Đang sản xuất",
     done: "Hoàn thành",
   };
-
   const statusCls = {
     pending: "badge--yellow",
     checked: "badge--blue",
@@ -94,45 +112,56 @@ export default function Dashboard() {
     in_production: "badge--purple",
     done: "badge--green",
   };
-
   const orderStatusLabel = {
     pending: "Chờ xác nhận",
     confirmed: "Đã xác nhận",
     processing: "Đang sản xuất",
+    shipping: "Hoàn thành — đang giao",
     done: "Hoàn thành",
     cancelled: "Đã hủy",
   };
-
   const orderStatusCls = {
     pending: "badge--yellow",
     confirmed: "badge--blue",
     processing: "badge--purple",
+    shipping: "badge--blue",
     done: "badge--green",
     cancelled: "badge--red",
   };
 
-  const recentOrders = [...orders].reverse().slice(0, 5);
-
   return (
     <div className="dashboard-page">
       <div className="page-header">
-        <h1>📊 Dashboard</h1>
+        <h1>
+          <BarChart2
+            size={26}
+            strokeWidth={2}
+            style={{ verticalAlign: "middle", marginRight: 8 }}
+          />
+          Dashboard
+        </h1>
         <p className="page-sub">Tổng quan hệ thống quản lý sản xuất</p>
       </div>
 
       {/* Alerts */}
       {(pending > 0 ||
         purPending > 0 ||
-        designPending > 0 ||
-        reportPending > 0 ||
-        lowStock > 0) && (
+        designPend > 0 ||
+        reportPend > 0 ||
+        lowStock > 0 ||
+        pendingOrders > 0) && (
         <div className="dash-alerts">
           {pending > 0 && (
             <Link
               to={ROUTES.ADMIN.WAREHOUSE}
               className="dash-alert dash-alert--yellow"
             >
-              ⚠️ {pending} yêu cầu SX chờ Thủ kho kiểm kê
+              <AlertTriangle
+                size={14}
+                strokeWidth={2}
+                style={{ marginRight: 6 }}
+              />
+              {pending} yêu cầu SX chờ Thủ kho kiểm kê
             </Link>
           )}
           {purPending > 0 && (
@@ -140,23 +169,30 @@ export default function Dashboard() {
               to={ROUTES.ADMIN.PURCHASING}
               className="dash-alert dash-alert--orange"
             >
-              🛒 {purPending} đơn mua hàng chờ xử lý
+              <ShoppingCart
+                size={14}
+                strokeWidth={2}
+                style={{ marginRight: 6 }}
+              />
+              {purPending} đơn mua hàng chờ xử lý
             </Link>
           )}
-          {designPending > 0 && (
+          {designPend > 0 && (
             <Link
               to={ROUTES.ADMIN.TECHNICAL}
               className="dash-alert dash-alert--blue"
             >
-              📐 {designPending} yêu cầu bản thiết kế chờ Kỹ thuật
+              <Ruler size={14} strokeWidth={2} style={{ marginRight: 6 }} />
+              {designPend} yêu cầu bản thiết kế chờ Kỹ thuật
             </Link>
           )}
-          {reportPending > 0 && (
+          {reportPend > 0 && (
             <Link
               to={ROUTES.ADMIN.WAREHOUSE}
               className="dash-alert dash-alert--purple"
             >
-              📦 {reportPending} lô thành phẩm chờ Thủ kho nhận
+              <Package size={14} strokeWidth={2} style={{ marginRight: 6 }} />
+              {reportPend} lô thành phẩm chờ Thủ kho nhận
             </Link>
           )}
           {lowStock > 0 && (
@@ -164,7 +200,12 @@ export default function Dashboard() {
               to={ROUTES.ADMIN.WAREHOUSE}
               className="dash-alert dash-alert--red"
             >
-              🔴 {lowStock} loại vật tư sắp hết tồn kho
+              <AlertTriangle
+                size={14}
+                strokeWidth={2}
+                style={{ marginRight: 6 }}
+              />
+              {lowStock} loại vật tư sắp hết tồn kho
             </Link>
           )}
           {pendingOrders > 0 && (
@@ -172,7 +213,12 @@ export default function Dashboard() {
               to={ROUTES.ADMIN.ORDERS}
               className="dash-alert dash-alert--yellow"
             >
-              📋 {pendingOrders} đơn hàng chờ xác nhận
+              <ClipboardList
+                size={14}
+                strokeWidth={2}
+                style={{ marginRight: 6 }}
+              />
+              {pendingOrders} đơn hàng chờ xác nhận
             </Link>
           )}
         </div>
@@ -181,76 +227,77 @@ export default function Dashboard() {
       {/* Stats */}
       <div className="dash-stats">
         <StatCard
-          icon="📦"
+          icon={Package}
           value={materials.length}
           label="Loại vật tư"
           color="blue"
           to={ROUTES.ADMIN.WAREHOUSE}
         />
         <StatCard
-          icon="📋"
+          icon={ClipboardList}
           value={productionRequests.length}
           label="Tổng yêu cầu SX"
           color="purple"
           to={ROUTES.ADMIN.WAREHOUSE}
         />
         <StatCard
-          icon="🛒"
+          icon={ShoppingCart}
           value={purchaseRequests.length}
           label="Đơn mua hàng"
           color="orange"
           to={ROUTES.ADMIN.PURCHASING}
         />
         <StatCard
-          icon="🏭"
+          icon={Warehouse}
           value={handoverOrders.length}
           label="Phiếu bàn giao"
-          color="teal"
+          color="magenta"
           to={ROUTES.ADMIN.FACTORY}
         />
         <StatCard
-          icon="🎁"
-          value={totalFinished}
+          icon={Gift}
+          value={totalFin}
           label="Tổng thành phẩm"
           color="green"
           to={ROUTES.ADMIN.FINISHED_GOODS}
         />
         <StatCard
-          icon="⚡"
+          icon={Zap}
           value={inProd}
           label="Đang sản xuất"
           color="yellow"
           to={ROUTES.ADMIN.FACTORY}
         />
-
         <StatCard
-          icon="📋"
+          icon={ClipboardList}
           value={orders.length}
           label="Tổng đơn hàng"
-          color="blue"
+          color="cyan"
           to={ROUTES.ADMIN.ORDERS}
         />
-
         <StatCard
-          icon="💰"
+          icon={Banknote}
           value={totalOrderValue.toLocaleString("vi-VN") + "₫"}
           label="Doanh thu"
-          color="green"
+          color="pink"
           to={ROUTES.ADMIN.ORDERS}
         />
       </div>
 
       {/* Flow diagram */}
-      <div className="admin-card" style={{ marginBottom: "28px" }}>
+      {/* <div
+        className="admin-card admin-card--gradient-purple"
+        style={{ marginBottom: "28px" }}
+      >
         <div className="admin-card__header">
-          <span>🔄</span>
+          <RefreshCw size={18} strokeWidth={2} />
           <h2>Quy trình sản xuất</h2>
         </div>
         <div className="admin-card__body">
           <div className="flow-diagram">
             <FlowStep
               num={1}
-              icon="⚙️"
+              icon={Settings}
               label="Kỹ thuật tạo yêu cầu"
               done={productionRequests.length > 0}
               active={false}
@@ -258,7 +305,7 @@ export default function Dashboard() {
             <div className="flow-arrow">→</div>
             <FlowStep
               num={2}
-              icon="🏭"
+              icon={Warehouse}
               label="Thủ kho kiểm kê"
               done={productionRequests.some((r) => r.status !== "pending")}
               active={pending > 0}
@@ -266,7 +313,7 @@ export default function Dashboard() {
             <div className="flow-arrow">→</div>
             <FlowStep
               num={3}
-              icon="🛒"
+              icon={ShoppingCart}
               label="Mua hàng"
               done={purchaseRequests.some((r) => r.status !== "pending")}
               active={purPending > 0}
@@ -274,7 +321,7 @@ export default function Dashboard() {
             <div className="flow-arrow">→</div>
             <FlowStep
               num={4}
-              icon="📥"
+              icon={Download}
               label="Nhập kho"
               done={purchaseRequests.some((r) => r.status === "stocked")}
               active={false}
@@ -282,7 +329,7 @@ export default function Dashboard() {
             <div className="flow-arrow">→</div>
             <FlowStep
               num={5}
-              icon="🚚"
+              icon={Truck}
               label="Bàn giao NM"
               done={handoverOrders.length > 0}
               active={false}
@@ -290,7 +337,7 @@ export default function Dashboard() {
             <div className="flow-arrow">→</div>
             <FlowStep
               num={6}
-              icon="🔧"
+              icon={Wrench}
               label="Sản xuất"
               done={productionReports.length > 0}
               active={inProd > 0}
@@ -298,20 +345,20 @@ export default function Dashboard() {
             <div className="flow-arrow">→</div>
             <FlowStep
               num={7}
-              icon="📦"
+              icon={Package}
               label="Nhận thành phẩm"
-              done={totalFinished > 0}
-              active={reportPending > 0}
+              done={totalFin > 0}
+              active={reportPend > 0}
             />
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="dash-bottom">
         {/* Yêu cầu SX gần nhất */}
-        <div className="admin-card">
+        <div className="admin-card admin-card--gradient-blue">
           <div className="admin-card__header">
-            <span>🕐</span>
+            <Clock size={18} strokeWidth={2} />
             <h2>Yêu cầu sản xuất gần nhất</h2>
           </div>
           <div className="admin-card__body">
@@ -335,7 +382,7 @@ export default function Dashboard() {
                           <strong>{r.productName}</strong>
                         </td>
                         <td>{r.productQty}</td>
-                        <td>{r.createdAt}</td>
+                        <td>{formatDate(r.createdAt)}</td>
                         <td>
                           <span
                             className={`badge ${statusCls[r.status] || "badge--gray"}`}
@@ -353,9 +400,9 @@ export default function Dashboard() {
         </div>
 
         {/* Đơn hàng gần nhất */}
-        <div className="admin-card">
+        <div className="admin-card admin-card--gradient-green">
           <div className="admin-card__header">
-            <span>📋</span>
+            <ClipboardList size={18} strokeWidth={2} />
             <h2>Đơn hàng gần nhất</h2>
           </div>
           <div className="admin-card__body">
@@ -374,44 +421,28 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {recentOrders.map((o) => {
-                      const itemCount = (o.cart || []).length;
-                      const itemNames = (o.cart || [])
-                        .map((i) => i.name)
-                        .join(", ");
-                      return (
-                        <tr key={o.id}>
-                          <td>
-                            <strong>{o.name}</strong>
-                          </td>
-                          <td>
-                            <small>
-                              {itemCount} SP: {itemNames}
-                            </small>
-                          </td>
-                          <td>{Number(o.total).toLocaleString("vi-VN")}₫</td>
-                          <td>
-                            {o.createdAt
-                              ? new Date(o.createdAt).toLocaleDateString(
-                                  "vi-VN",
-                                  {
-                                    day: "2-digit",
-                                    month: "2-digit",
-                                    year: "numeric",
-                                  },
-                                )
-                              : "—"}
-                          </td>
-                          <td>
-                            <span
-                              className={`badge ${orderStatusCls[o.status] || "badge--gray"}`}
-                            >
-                              {orderStatusLabel[o.status] || o.status}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
+                    {recentOrders.map((o) => (
+                      <tr key={o.id}>
+                        <td>
+                          <strong>{o.name}</strong>
+                        </td>
+                        <td>
+                          <small>
+                            {(o.cart || []).length} SP:{" "}
+                            {(o.cart || []).map((i) => i.name).join(", ")}
+                          </small>
+                        </td>
+                        <td>{Number(o.total).toLocaleString("vi-VN")}₫</td>
+                        <td>{formatDate(o.createdAt)}</td>
+                        <td>
+                          <span
+                            className={`badge ${orderStatusCls[o.status] || "badge--gray"}`}
+                          >
+                            {orderStatusLabel[o.status] || o.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -420,9 +451,9 @@ export default function Dashboard() {
         </div>
 
         {/* Quick links */}
-        <div className="admin-card">
+        {/* <div className="admin-card admin-card--gradient-orange">
           <div className="admin-card__header">
-            <span>⚡</span>
+            <Zap size={18} strokeWidth={2} />
             <h2>Truy cập nhanh</h2>
           </div>
           <div className="admin-card__body">
@@ -430,52 +461,54 @@ export default function Dashboard() {
               {[
                 {
                   to: ROUTES.ADMIN.ORDERS,
-                  icon: "📋",
+                  Icon: ClipboardList,
                   label: "Đơn hàng",
                   sub: "Quản lý đơn hàng KH",
                 },
                 {
                   to: ROUTES.ADMIN.TECHNICAL,
-                  icon: "⚙️",
+                  Icon: Settings,
                   label: "Kỹ thuật",
                   sub: "Tạo yêu cầu SX",
                 },
                 {
                   to: ROUTES.ADMIN.WAREHOUSE,
-                  icon: "🏭",
+                  Icon: Warehouse,
                   label: "Thủ kho",
                   sub: "Kiểm kê & nhập kho",
                 },
                 {
                   to: ROUTES.ADMIN.PURCHASING,
-                  icon: "🛒",
+                  Icon: ShoppingCart,
                   label: "Mua hàng",
                   sub: "Xử lý đơn mua",
                 },
                 {
                   to: ROUTES.ADMIN.FACTORY,
-                  icon: "🔧",
+                  Icon: Wrench,
                   label: "Nhà máy",
                   sub: "Quản lý sản xuất",
                 },
                 {
                   to: ROUTES.ADMIN.FINISHED_GOODS,
-                  icon: "📦",
+                  Icon: Package,
                   label: "Thành phẩm",
                   sub: "Kho thành phẩm",
                 },
-              ].map((lnk) => (
-                <Link key={lnk.to} to={lnk.to} className="dash-quick-link">
-                  <span className="dash-quick-link__icon">{lnk.icon}</span>
+              ].map(({ to, Icon, label, sub }) => (
+                <Link key={to} to={to} className="dash-quick-link">
+                  <span className="dash-quick-link__icon">
+                    <Icon size={22} strokeWidth={1.8} />
+                  </span>
                   <div>
-                    <strong>{lnk.label}</strong>
-                    <small>{lnk.sub}</small>
+                    <strong>{label}</strong>
+                    <small>{sub}</small>
                   </div>
                 </Link>
               ))}
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

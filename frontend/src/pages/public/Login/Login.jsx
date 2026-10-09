@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { login } from "../../../api/authApi";
 import { setUser } from "../../../redux/userSlice";
 import { ROUTES } from "../../../constants/router";
-import "./Login.scss";
+import "./login.scss";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -64,60 +64,100 @@ export default function Login() {
 
   return (
     <div className="login-page">
-      <div className="login-card">
-        <button
-          className="login-back"
-          onClick={() => navigate(ROUTES.USER.HOME)}
-        >
-          ← Về trang chủ
-        </button>
+      {/* BÊN TRÁI - 65% */}
+      <div className="login-brand">
+        <img
+          src="/images/brand.png"
+          alt="Nguyễn Sơn Tùng"
+          className="login-brand-image"
+        />
 
-        <div className="login-logo">
-          <span className="login-logo-icon">🛋️</span>
-          <h1>Nội Thất Việt</h1>
-          <p>Đăng nhập để đặt hàng</p>
+        <div className="login-brand-overlay">
+          <h1>
+            <strong>Nội Thất</strong>
+            <em> Việt</em>
+          </h1>
+          <p>Nâng tầm không gian, trọn vẹn nét Việt.</p>
         </div>
+      </div>
 
-        <form className="login-form" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Email</label>
-            <input
-              type="email"
-              value={form.email}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, email: e.target.value }))
-              }
-              placeholder="email@example.com"
-              autoFocus
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Mật khẩu</label>
-            <input
-              type="password"
-              value={form.password}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, password: e.target.value }))
-              }
-              placeholder="Nhập mật khẩu"
-              required
-            />
-          </div>
-
-          {error && <p className="login-error">{error}</p>}
-
-          <button className="login-btn" type="submit" disabled={loading}>
-            {loading ? "Đang đăng nhập..." : "Đăng nhập"}
+      {/* BÊN PHẢI - 35% */}
+      <div className="login-panel">
+        <div className="login-card">
+          <button
+            className="login-back"
+            onClick={() => navigate(ROUTES.USER.HOME)}
+          >
+            ← Về trang chủ
           </button>
-        </form>
 
-        <p className="login-switch">
-          Chưa có tài khoản?{" "}
-          <Link to={ROUTES.USER.REGISTER}>Đăng ký miễn phí</Link>
-        </p>
+          <div className="login-logo">
+            <div className="login-logo-image">
+              <img
+                src="/images/logo.png"
+                alt="Nguyễn Sơn Tùng"
+                className="pub-header__logo-image"
+              />
+            </div>
+
+            <span className="login-logo-text">
+              <strong>Nội Thất</strong>
+              <em> Việt</em>
+            </span>
+
+            <p>Đăng nhập để đặt hàng</p>
+          </div>
+
+          <form className="login-form" onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label>Email</label>
+
+              <input
+                type="email"
+                value={form.email}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    email: e.target.value,
+                  }))
+                }
+                placeholder="email@example.com"
+                autoFocus
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Mật khẩu</label>
+
+              <input
+                type="password"
+                value={form.password}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    password: e.target.value,
+                  }))
+                }
+                placeholder="Nhập mật khẩu"
+                required
+              />
+            </div>
+
+            {error && <p className="login-error">{error}</p>}
+
+            <button className="login-btn" type="submit" disabled={loading}>
+              {loading ? "Đang đăng nhập..." : "Đăng nhập"}
+            </button>
+          </form>
+
+          <p className="login-switch">
+            Chưa có tài khoản?{" "}
+            <Link to={ROUTES.USER.REGISTER}>Đăng ký miễn phí</Link>
+          </p>
+        </div>
       </div>
     </div>
   );
 }
+// supabase,

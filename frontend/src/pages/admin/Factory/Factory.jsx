@@ -1,4 +1,15 @@
+import {
+  Wrench,
+  Inbox,
+  Send,
+  Zap,
+  CircleCheck,
+  Ruler,
+  FileText,
+  ChartNoAxesColumn,
+} from "lucide-react";
 import { useState } from "react";
+import { formatDate } from "../../../utils/formatDate";
 import { useApp } from "../../../context/useApp";
 import "../Technical/technical.scss";
 import "./factory.scss";
@@ -17,10 +28,10 @@ function AdminCard({ title, icon, children }) {
 
 function HandoverStatusBadge({ status }) {
   const map = {
-    pending:       { label: "Chờ nhận",    cls: "badge--yellow" },
-    accepted:      { label: "Đã nhận",     cls: "badge--blue"   },
-    in_production: { label: "Đang SX",     cls: "badge--purple" },
-    done:          { label: "Hoàn thành",  cls: "badge--green"  },
+    pending: { label: "Chờ nhận", cls: "badge--yellow" },
+    accepted: { label: "Đã nhận", cls: "badge--blue" },
+    in_production: { label: "Đang SX", cls: "badge--purple" },
+    done: { label: "Hoàn thành", cls: "badge--green" },
   };
   const s = map[status] || { label: status, cls: "badge--gray" };
   return <span className={`badge ${s.cls}`}>{s.label}</span>;
@@ -47,7 +58,12 @@ function ScrapRow({ row, index, onChange, onRemove }) {
         value={row.unit}
         onChange={(e) => onChange(index, { ...row, unit: e.target.value })}
       />
-      <button className="btn-icon btn-icon--danger" onClick={() => onRemove(index)}>🗑️</button>
+      <button
+        className="btn-icon btn-icon--danger"
+        onClick={() => onRemove(index)}
+      >
+        🗑️
+      </button>
     </div>
   );
 }
@@ -63,17 +79,24 @@ export default function Factory() {
   } = useApp();
 
   // Nhận phiếu bàn giao
-  const pendingHandovers  = handoverOrders.filter((o) => o.status === "pending");
-  const acceptedHandovers = handoverOrders.filter((o) => o.status === "accepted" || o.status === "in_production");
-  const doneHandovers     = handoverOrders.filter((o) => o.status === "done");
+  const pendingHandovers = handoverOrders.filter((o) => o.status === "pending");
+  const acceptedHandovers = handoverOrders.filter(
+    (o) => o.status === "accepted" || o.status === "in_production",
+  );
+  const doneHandovers = handoverOrders.filter((o) => o.status === "done");
 
-  const handleAccept = (order) => updateHandoverOrderStatus(order.id, "accepted");
+  const handleAccept = (order) =>
+    updateHandoverOrderStatus(order.id, "accepted");
 
   // Yêu cầu bản thiết kế
   const [designForm, setDesignForm] = useState({});
   const handleRequestDesign = (order) => {
     const note = designForm[order.id] || "";
-    addDesignRequest({ handoverOrderId: order.id, productName: order.productName, note });
+    addDesignRequest({
+      handoverOrderId: order.id,
+      productName: order.productName,
+      note,
+    });
     updateHandoverOrderStatus(order.id, "in_production");
     setDesignForm((f) => ({ ...f, [order.id]: "" }));
   };
@@ -127,11 +150,11 @@ export default function Factory() {
       })),
       note: form.note.trim(),
     });
-    setReportMsgs((m) => ({ ...m, [order.id]: "✅ Đã gửi báo cáo cho Thủ kho!" }));
-    setTimeout(
-      () => setReportMsgs((m) => ({ ...m, [order.id]: "" })),
-      3000
-    );
+    setReportMsgs((m) => ({
+      ...m,
+      [order.id]: "✅ Đã gửi báo cáo cho Thủ kho!",
+    }));
+    setTimeout(() => setReportMsgs((m) => ({ ...m, [order.id]: "" })), 3000);
     updateReportForm(order.id, { finishedQty: "", note: "", scraps: [] });
   };
 
@@ -148,8 +171,13 @@ export default function Factory() {
   return (
     <div className="factory-page">
       <div className="page-header">
-        <h1>🔧 Nhà máy Sản xuất</h1>
-        <p className="page-sub">Nhận bàn giao, yêu cầu bản thiết kế, báo cáo sản xuất và bàn giao thành phẩm</p>
+        <h1>
+          <Wrench /> Nhà máy Sản xuất
+        </h1>
+        <p className="page-sub">
+          Nhận bàn giao, yêu cầu bản thiết kế, báo cáo sản xuất và bàn giao
+          thành phẩm
+        </p>
       </div>
 
       {/* Stats */}
@@ -166,14 +194,18 @@ export default function Factory() {
           <strong>{doneHandovers.length}</strong>
           <span>Đã hoàn thành</span>
         </div>
-        <div className="factory-summary__card">
+        <div className="factory-summary__card factory-summary__card--blue">
           <strong>{productionReports.length}</strong>
           <span>Báo cáo đã gửi</span>
         </div>
       </div>
 
       {/* ── 1. Phiếu bàn giao chờ nhận ─────────────────────────────────────── */}
-      <AdminCard title="Phiếu bàn giao từ Thủ kho" icon="📬">
+      <AdminCard
+        title="Phiếu bàn giao từ Thủ kho"
+        icon={<Inbox size={18} strokeWidth={2} />}
+        gradient="blue"
+      >
         {pendingHandovers.length === 0 ? (
           <p className="empty-state">Không có phiếu bàn giao mới.</p>
         ) : (
@@ -193,19 +225,29 @@ export default function Factory() {
                 {pendingHandovers.map((order, i) => (
                   <tr key={order.id}>
                     <td>{i + 1}</td>
-                    <td><strong>{order.productName}</strong></td>
+                    <td>
+                      <strong>{order.productName}</strong>
+                    </td>
                     <td>{order.productQty}</td>
                     <td>
                       <ul className="material-list-inline">
-                        {order.materials.map((m, mi) => (
-                          <li key={mi}>{m.materialName}: <strong>{m.qty} {m.unit}</strong></li>
+                        {(order.materials || []).map((m, mi) => (
+                          <li key={mi}>
+                            {m.materialName}:{" "}
+                            <strong>
+                              {m.qty} {m.unit}
+                            </strong>
+                          </li>
                         ))}
                       </ul>
                     </td>
-                    <td>{order.createdAt}</td>
+                    <td>{formatDate(order.createdAt)}</td>
                     <td>
-                      <button className="btn-action btn-action--blue" onClick={() => handleAccept(order)}>
-                        📬 Xác nhận nhận
+                      <button
+                        className="btn-action btn-action--blue"
+                        onClick={() => handleAccept(order)}
+                      >
+                        <Inbox size={15} strokeWidth={2} /> Xác nhận nhận
                       </button>
                     </td>
                   </tr>
@@ -217,13 +259,17 @@ export default function Factory() {
       </AdminCard>
 
       {/* ── 2. Đang sản xuất ────────────────────────────────────────────────── */}
-      <AdminCard title="Đang sản xuất" icon="⚡">
+      <AdminCard
+        title="Đang sản xuất"
+        icon={<Zap size={18} strokeWidth={2} />}
+        gradient="yellow"
+      >
         {acceptedHandovers.length === 0 ? (
           <p className="empty-state">Không có đơn hàng đang sản xuất.</p>
         ) : (
           acceptedHandovers.map((order) => {
             const design = designByHandover[order.id];
-            const form   = getReportForm(order.id);
+            const form = getReportForm(order.id);
             const reported = hasReport(order.id);
 
             return (
@@ -237,36 +283,49 @@ export default function Factory() {
                 {/* Yêu cầu bản thiết kế */}
                 {!design && (
                   <div className="factory-design-request">
-                    <p className="factory-section-label">📐 Yêu cầu bản thiết kế từ Kỹ thuật</p>
+                    <p className="factory-section-label">
+                      <Ruler /> Yêu cầu bản thiết kế từ Kỹ thuật
+                    </p>
                     <div className="factory-design-row">
                       <textarea
                         rows={2}
                         placeholder="Ghi chú yêu cầu (thông số kỹ thuật, kích thước...)"
                         value={designForm[order.id] || ""}
                         onChange={(e) =>
-                          setDesignForm((f) => ({ ...f, [order.id]: e.target.value }))
+                          setDesignForm((f) => ({
+                            ...f,
+                            [order.id]: e.target.value,
+                          }))
                         }
                       />
                       <button
                         className="btn-action btn-action--orange"
                         onClick={() => handleRequestDesign(order)}
                       >
-                        📤 Gửi yêu cầu bản vẽ
+                        <Send size={18} strokeWidth={2} /> Gửi yêu cầu bản vẽ
                       </button>
                     </div>
                   </div>
                 )}
 
                 {design && (
-                  <div className={`factory-design-info ${design.status === "provided" ? "factory-design-info--done" : ""}`}>
+                  <div
+                    className={`factory-design-info ${design.status === "provided" ? "factory-design-info--done" : ""}`}
+                  >
                     <p className="factory-section-label">
-                      📐 Bản thiết kế:{" "}
-                      {design.status === "provided"
-                        ? <span className="badge badge--green">Đã nhận</span>
-                        : <span className="badge badge--yellow">Chờ Kỹ thuật cung cấp</span>}
+                      <Ruler /> Bản thiết kế:{" "}
+                      {design.status === "provided" ? (
+                        <span className="badge badge--green">Đã nhận</span>
+                      ) : (
+                        <span className="badge badge--yellow">
+                          Chờ Kỹ thuật cung cấp
+                        </span>
+                      )}
                     </p>
                     {design.status === "provided" && (
-                      <p className="factory-design-note">📄 {design.designNote}</p>
+                      <p className="factory-design-note">
+                        <FileText /> {design.designNote}
+                      </p>
                     )}
                   </div>
                 )}
@@ -274,17 +333,24 @@ export default function Factory() {
                 {/* Báo cáo sản xuất */}
                 {!reported ? (
                   <div className="factory-report-form">
-                    <p className="factory-section-label">📊 Báo cáo kết quả sản xuất</p>
+                    <p className="factory-section-label">
+                      <ChartNoAxesColumn /> Báo cáo kết quả sản xuất
+                    </p>
                     <div className="form-row">
                       <div className="form-group">
-                        <label>Số lượng hoàn thành <span className="req">*</span></label>
+                        <label>
+                          Số lượng hoàn thành <span className="req">*</span>
+                        </label>
                         <input
                           type="number"
                           min="1"
                           placeholder="VD: 9"
                           value={form.finishedQty}
                           onChange={(e) =>
-                            updateReportForm(order.id, { ...form, finishedQty: e.target.value })
+                            updateReportForm(order.id, {
+                              ...form,
+                              finishedQty: e.target.value,
+                            })
                           }
                         />
                       </div>
@@ -294,7 +360,10 @@ export default function Factory() {
                           placeholder="Ghi chú quá trình SX..."
                           value={form.note}
                           onChange={(e) =>
-                            updateReportForm(order.id, { ...form, note: e.target.value })
+                            updateReportForm(order.id, {
+                              ...form,
+                              note: e.target.value,
+                            })
                           }
                         />
                       </div>
@@ -316,7 +385,9 @@ export default function Factory() {
                             key={i}
                             row={s}
                             index={i}
-                            onChange={(idx, val) => updateScrap(order.id, idx, val)}
+                            onChange={(idx, val) =>
+                              updateScrap(order.id, idx, val)
+                            }
                             onRemove={(idx) => removeScrap(order.id, idx)}
                           />
                         ))}
@@ -336,15 +407,18 @@ export default function Factory() {
 
                     <button
                       className="btn-submit"
-                      disabled={!form.finishedQty || Number(form.finishedQty) <= 0}
+                      disabled={
+                        !form.finishedQty || Number(form.finishedQty) <= 0
+                      }
                       onClick={() => handleSubmitReport(order)}
                     >
-                      📤 Gửi báo cáo cho Thủ kho
+                      <Send size={18} strokeWidth={2} /> Gửi báo cáo cho Thủ kho
                     </button>
                   </div>
                 ) : (
                   <p className="form-success" style={{ marginTop: "16px" }}>
-                    ✅ Đã gửi báo cáo sản xuất — chờ Thủ kho nhận thành phẩm.
+                    <CircleCheck /> Đã gửi báo cáo sản xuất — chờ Thủ kho nhận
+                    thành phẩm.
                   </p>
                 )}
               </div>
@@ -355,7 +429,11 @@ export default function Factory() {
 
       {/* ── 3. Lịch sử đã hoàn thành ────────────────────────────────────────── */}
       {doneHandovers.length > 0 && (
-        <AdminCard title="Lịch sử sản xuất hoàn thành" icon="✅">
+        <AdminCard
+          title="Lịch sử sản xuất hoàn thành"
+          icon={<CircleCheck size={18} strokeWidth={2} />}
+          gradient="green"
+        >
           <div className="table-wrap">
             <table className="data-table">
               <thead>
@@ -371,10 +449,14 @@ export default function Factory() {
                 {doneHandovers.map((o, i) => (
                   <tr key={o.id}>
                     <td>{i + 1}</td>
-                    <td><strong>{o.productName}</strong></td>
+                    <td>
+                      <strong>{o.productName}</strong>
+                    </td>
                     <td>{o.productQty}</td>
-                    <td>{o.createdAt}</td>
-                    <td><HandoverStatusBadge status={o.status} /></td>
+                    <td>{formatDate(o.createdAt)}</td>
+                    <td>
+                      <HandoverStatusBadge status={o.status} />
+                    </td>
                   </tr>
                 ))}
               </tbody>

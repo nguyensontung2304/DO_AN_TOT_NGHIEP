@@ -24,6 +24,13 @@
     color: #1a1a2e;
     flex-shrink: 0;
 
+    &-image {
+      width: 32px;
+      height: 32px;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
     &-icon {
       font-size: 28px;
     }
@@ -34,7 +41,6 @@
     }
 
     em {
-      font-style: normal;
       font-weight: 500;
       color: #555;
     }

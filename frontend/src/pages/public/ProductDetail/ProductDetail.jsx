@@ -20,9 +20,18 @@ export default function ProductDetail() {
   const [error, setError] = useState("");
   const [qty, setQty] = useState(1);
 
+  console.log(product);
+  console.log(related);
+
   const currentUser = useSelector((state) => state.user.currentUser);
   const [userRating, setUserRating] = useState(null);
   const [ratingLoading, setRatingLoading] = useState(false);
+  const [activeFeedbackTab, setActiveFeedbackTab] = useState("rating");
+
+  // Trạng thái nút thêm giỏ: đang gửi / vừa thêm xong / báo lỗi
+  const [adding, setAdding] = useState(false);
+  const [added, setAdded] = useState(false);
+  const [addError, setAddError] = useState("");
   // LẤY CHI TIẾT SẢN PHẨM
   useEffect(() => {
     const getProductDetail = async () => {
@@ -36,19 +45,24 @@ export default function ProductDetail() {
 
         console.log("=====> PRODUCT DETAIL", response);
 
-        setProduct(response.data);
+        const currentProduct = response.data;
 
-        // Lấy tất cả sản phẩm
+        setProduct(currentProduct);
+
+        // Lấy sản phẩm cùng danh mục.
+        // Phải truyền `categoryName`, nếu không sẽ lấy sản phẩm của mọi danh mục
+        // rồi mới lọc ở frontend -> mục "cùng danh mục" hiện sai nội dung.
         const productsResponse = await getProducts({
+          category: currentProduct.categoryName,
           page: 1,
           limit: 5,
         });
 
         console.log("=====> PRODUCT ALL", productsResponse);
 
-        // Lọc sản phẩm liên quan
+        // Loại sản phẩm đang xem khỏi danh sách liên quan
         const relatedProducts = (productsResponse.data.products || [])
-          .filter((item) => item.id !== response.data.id)
+          .filter((item) => item.id !== currentProduct.id)
           .slice(0, 4);
 
         setRelated(relatedProducts);
@@ -77,19 +91,37 @@ export default function ProductDetail() {
     }
 
     try {
+      setAdding(true);
+      setAddError("");
+
       await addToCart({
         userId: currentUser.id,
         productId: product.id,
         qty: qty,
       });
 
+      // Báo cho PublicHeader đổi số trên icon giỏ hàng
       window.dispatchEvent(new Event("cartUpdated"));
+
+      setAdded(true);
+
+      setTimeout(() => {
+        setAdded(false);
+      }, 1800);
 
       return true;
     } catch (error) {
       console.error("Lỗi thêm giỏ hàng:", error.response?.data || error);
 
+      setAddError(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Không thêm được vào giỏ hàng, vui lòng thử lại.",
+      );
+
       return false;
+    } finally {
+      setAdding(false);
     }
   };
 
@@ -201,7 +233,7 @@ export default function ProductDetail() {
 
           <span>›</span>
 
-          <span>{product.category}</span>
+          <span>{product.categoryName}</span>
 
           <span>›</span>
 
@@ -224,7 +256,13 @@ export default function ProductDetail() {
                 <span className="pd-gallery__discount">-{discount}%</span>
               )}
 
-              <div className="pd-gallery__emoji">{product.emoji}</div>
+              <div className="pd-gallery__image">
+                {product.image ? (
+                  <img src={product.image} alt={product.name} />
+                ) : (
+                  <span>Không có ảnh</span>
+                )}
+              </div>
             </div>
 
             <p className="pd-gallery__hint">Hình ảnh minh họa</p>
@@ -232,7 +270,7 @@ export default function ProductDetail() {
 
           {/* BÊN PHẢI - THÔNG TIN */}
           <div className="pd-product-info">
-            <span className="pd-info__cat">{product.category}</span>
+            <span className="pd-info__cat">{product.categoryName}</span>
 
             <h1 className="pd-info__name">{product.name}</h1>
 
@@ -284,10 +322,17 @@ export default function ProductDetail() {
               {/* Thêm giỏ hàng */}
               {currentUser ? (
                 <button
-                  className="pd-btn pd-btn--primary pd-btn--add"
+                  className={`pd-btn pd-btn--primary pd-btn--add ${
+                    added ? "pd-btn--added" : ""
+                  }`}
                   onClick={handleAddToCart}
+                  disabled={adding}
                 >
-                  🛒 Thêm vào giỏ hàng
+                  {adding
+                    ? "⏳ Đang thêm..."
+                    : added
+                      ? `✅ Đã thêm ${qty} vào giỏ`
+                      : "🛒 Thêm vào giỏ hàng"}
                 </button>
               ) : (
                 <Link
@@ -306,10 +351,17 @@ export default function ProductDetail() {
 
             {/* Mua ngay */}
             {currentUser && (
-              <button className="pd-btn pd-btn--buy-now" onClick={handleBuyNow}>
+              <button
+                className="pd-btn pd-btn--buy-now"
+                onClick={handleBuyNow}
+                disabled={adding}
+              >
                 ⚡ Mua ngay
               </button>
             )}
+
+            {/* Báo lỗi khi thêm giỏ hàng thất bại */}
+            {addError && <p className="pd-add-error">{addError}</p>}
           </div>
         </section>
 
@@ -319,12 +371,145 @@ export default function ProductDetail() {
           <div className="pd-long-description">
             <h2 className="pd-section-title">Mô tả sản phẩm</h2>
 
-            {/* Mô tả dài */}
             <p className="pd-long-description__content">
               {product.long_description}
             </p>
 
-            {/* Nguyên vật liệu */}
+            {/* Bình luận và đánh giá nằm dưới mô tả dài */}
+            <div className="pd-feedback">
+              <div
+                className="pd-feedback__tabs"
+                role="tablist"
+                aria-label="Bình luận và đánh giá"
+              >
+                <button
+                  type="button"
+                  className={`pd-feedback__tab ${activeFeedbackTab === "comment" ? "is-active" : ""}`}
+                  role="tab"
+                  aria-selected={activeFeedbackTab === "comment"}
+                  onClick={() => setActiveFeedbackTab("comment")}
+                >
+                  Bình luận
+                </button>
+                <button
+                  type="button"
+                  className={`pd-feedback__tab ${activeFeedbackTab === "rating" ? "is-active" : ""}`}
+                  role="tab"
+                  aria-selected={activeFeedbackTab === "rating"}
+                  onClick={() => setActiveFeedbackTab("rating")}
+                >
+                  Đánh giá sao
+                </button>
+              </div>
+
+              <div className="pd-feedback__panel" role="tabpanel">
+                {activeFeedbackTab === "comment" ? (
+                  <CommentSection productId={id} />
+                ) : (
+                  <div className="pd-rating-section">
+                    <div className="pd-rating-header">
+                      <h2>Đánh giá sản phẩm</h2>
+                    </div>
+
+                    {/* Điểm trung bình */}
+                    <div className="pd-rating-summary">
+                      <div className="pd-rating-score">
+                        <strong>
+                          {Number(product.averageRating || 0).toFixed(1)}
+                        </strong>
+                        <span>/ 5</span>
+                      </div>
+
+                      <div className="pd-rating-stars">
+                        <RatingStars
+                          rating={Number(product.averageRating) || 0}
+                          size={50}
+                          readonly
+                        />
+                        <span>{product.ratingsCount || 0} đánh giá</span>
+                      </div>
+                    </div>
+
+                    {/* Người dùng đánh giá */}
+                    {currentUser ? (
+                      <div className="pd-user-rating">
+                        <div className="pd-user-rating__header">
+                          <span className="pd-user-rating__label">
+                            Đánh giá của bạn
+                          </span>
+                          {userRating && (
+                            <span className="pd-user-rating__status">
+                              ✓ Đã đánh giá
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="pd-user-rating__content">
+                          <RatingStars
+                            rating={userRating || 0}
+                            size={38}
+                            interactive
+                            onRate={handleRate}
+                            readonly={ratingLoading || !!userRating}
+                          />
+
+                          {userRating ? (
+                            <p className="pd-user-rating__note">
+                              Bạn đã đánh giá {userRating} sao cho sản phẩm này.
+                            </p>
+                          ) : (
+                            <p className="pd-user-rating__note">
+                              Nhấn vào số sao để đánh giá sản phẩm.
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="pd-rating-login">
+                        <div className="pd-rating-login__icon">⭐</div>
+                        <div className="pd-rating-login__content">
+                          <strong>Chia sẻ đánh giá của bạn</strong>
+                          <p>Đăng nhập để đánh giá sản phẩm này.</p>
+                        </div>
+
+                        <Link
+                          to={ROUTES.USER.LOGIN}
+                          state={{
+                            from: getPath(ROUTES.USER.PRODUCT_DETAIL, {
+                              id: product.id,
+                            }),
+                          }}
+                          className="pd-rating-login__button"
+                        >
+                          Đăng nhập
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* BÊN PHẢI - THÔNG SỐ + NGUYÊN VẬT LIỆU */}
+          <div className="pd-technical">
+            {product.specs && product.specs.length > 0 && (
+              <div className="pd-specs">
+                <h2 className="pd-section-title">Thông số kỹ thuật</h2>
+
+                <table className="pd-specs__table">
+                  <tbody>
+                    {product.specs.map((spec) => (
+                      <tr key={spec.id}>
+                        <td className="pd-specs__key">{spec.spec_name}</td>
+                        <td className="pd-specs__val">{spec.spec_value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
             {product.recipe && product.recipe.length > 0 && (
               <details className="pd-recipe">
                 <summary>
@@ -335,7 +520,6 @@ export default function ProductDetail() {
                   {product.recipe.map((item) => (
                     <li key={item.id}>
                       <span>{item.material_name}</span>
-
                       <strong>
                         {item.qty} {item.unit}
                       </strong>
@@ -344,121 +528,6 @@ export default function ProductDetail() {
                 </ul>
               </details>
             )}
-          </div>
-
-          {/* BÊN PHẢI */}
-          <div className="pd-technical">
-            {/* Thông số kỹ thuật */}
-            {product.specs && product.specs.length > 0 && (
-              <div className="pd-specs">
-                <h2 className="pd-section-title">Thông số kỹ thuật</h2>
-
-                <table className="pd-specs__table">
-                  <tbody>
-                    {product.specs.map((spec) => (
-                      <tr key={spec.id}>
-                        <td className="pd-specs__key">{spec.spec_name}</td>
-
-                        <td className="pd-specs__val">{spec.spec_value}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* ĐÁNH GIÁ + BÌNH LUẬN */}
-        <section className="pd-rating-row">
-          {/* BÊN TRÁI - ĐÁNH GIÁ */}
-          <div className="pd-rating-section">
-            <div className="pd-rating-header">
-              <h2>Đánh giá sản phẩm</h2>
-            </div>
-
-            {/* Điểm trung bình */}
-            <div className="pd-rating-summary">
-              <div className="pd-rating-score">
-                <strong>{Number(product.averageRating || 0).toFixed(1)}</strong>
-
-                <span>/ 5</span>
-              </div>
-
-              <div className="pd-rating-stars">
-                <RatingStars
-                  rating={Number(product.averageRating) || 0}
-                  size={50}
-                  readonly
-                />
-
-                <span>{product.ratingsCount || 0} đánh giá</span>
-              </div>
-            </div>
-
-            {/* Người dùng đánh giá */}
-            {currentUser ? (
-              <div className="pd-user-rating">
-                <div className="pd-user-rating__header">
-                  <span className="pd-user-rating__label">
-                    Đánh giá của bạn
-                  </span>
-
-                  {userRating && (
-                    <span className="pd-user-rating__status">
-                      ✓ Đã đánh giá
-                    </span>
-                  )}
-                </div>
-
-                <div className="pd-user-rating__content">
-                  <RatingStars
-                    rating={userRating || 0}
-                    size={38}
-                    interactive
-                    onRate={handleRate}
-                    readonly={ratingLoading || !!userRating}
-                  />
-
-                  {userRating ? (
-                    <p className="pd-user-rating__note">
-                      Bạn đã đánh giá {userRating} sao cho sản phẩm này.
-                    </p>
-                  ) : (
-                    <p className="pd-user-rating__note">
-                      Nhấn vào số sao để đánh giá sản phẩm.
-                    </p>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="pd-rating-login">
-                <div className="pd-rating-login__icon">⭐</div>
-
-                <div className="pd-rating-login__content">
-                  <strong>Chia sẻ đánh giá của bạn</strong>
-
-                  <p>Đăng nhập để đánh giá sản phẩm này.</p>
-                </div>
-
-                <Link
-                  to={ROUTES.USER.LOGIN}
-                  state={{
-                    from: getPath(ROUTES.USER.PRODUCT_DETAIL, {
-                      id: product.id,
-                    }),
-                  }}
-                  className="pd-rating-login__button"
-                >
-                  Đăng nhập
-                </Link>
-              </div>
-            )}
-          </div>
-
-          {/* BÊN PHẢI - BÌNH LUẬN */}
-          <div className="pd-rating-comment">
-            <CommentSection productId={id} />
           </div>
         </section>
 
@@ -508,11 +577,13 @@ export default function ProductDetail() {
                     <span className="pd-related-card__badge">{item.badge}</span>
                   )}
 
-                  <div className="pd-related-card__img">{item.emoji}</div>
+                  <div className="pd-related-card__img">
+                    <img src={item.image} alt="" />
+                  </div>
 
                   <div className="pd-related-card__body">
                     <span className="pd-related-card__cat">
-                      {item.category}
+                      {item.categoryName}
                     </span>
 
                     <h3 className="pd-related-card__name">{item.name}</h3>

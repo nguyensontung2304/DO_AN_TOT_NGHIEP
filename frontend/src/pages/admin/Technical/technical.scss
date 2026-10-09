@@ -54,8 +54,7 @@
 
   &__header {
     display: flex;
-    align-items: center;
-    gap: 12px;
+    gap: 7px;
     padding: 18px 24px;
     border-bottom: 1px solid #f0f0f0;
     background: #fafafa;
@@ -128,7 +127,7 @@
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 15px;
 
   th {
     background: #f0f2f5;
@@ -333,6 +332,8 @@
   cursor: pointer;
   transition: all 0.15s;
   white-space: nowrap;
+  display: flex;
+  gap: 6px;
 
   &:disabled {
     opacity: 0.45;

@@ -1,4 +1,5 @@
-.fg-page {}
+.fg-page {
+}
 
 .fg-summary {
   display: grid;
@@ -16,11 +17,90 @@
     padding: 20px 24px;
     text-align: center;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    border-left: 4px solid #6495ed;
 
-    &--green  { border-color: #27ae60; }
-    &--blue   { border-color: #3498db; }
-    &--purple { border-color: #9b59b6; }
+    &--yellow {
+      background:
+        radial-gradient(
+          ellipse 90% 110% at 0% 0%,
+          #d6e4ff 0%,
+          #f0f5ff 40%,
+          transparent 70%
+        ),
+        radial-gradient(
+          ellipse 90% 110% at 100% 100%,
+          #d6e4ff 0%,
+          #f0f5ff 40%,
+          transparent 70%
+        ),
+        #ffffff;
+
+      svg {
+        color: #2563eb;
+      }
+    }
+
+    &--blue {
+      background:
+        radial-gradient(
+          ellipse 90% 110% at 0% 0%,
+          #efdbff 0%,
+          #f9f0ff 40%,
+          transparent 70%
+        ),
+        radial-gradient(
+          ellipse 90% 110% at 100% 100%,
+          #efdbff 0%,
+          #f9f0ff 40%,
+          transparent 70%
+        ),
+        #ffffff;
+
+      svg {
+        color: #7c3aed;
+      }
+    }
+
+    &--purple {
+      background:
+        radial-gradient(
+          ellipse 90% 110% at 0% 0%,
+          #ffe7ba 0%,
+          #fff7e6 40%,
+          transparent 70%
+        ),
+        radial-gradient(
+          ellipse 90% 110% at 100% 100%,
+          #ffe7ba 0%,
+          #fff7e6 40%,
+          transparent 70%
+        ),
+        #ffffff;
+
+      svg {
+        color: #10b981;
+      }
+    }
+
+    &--green {
+      background:
+        radial-gradient(
+          ellipse 90% 110% at 0% 0%,
+          #ffd6e7 0%,
+          #fff0f6 40%,
+          transparent 70%
+        ),
+        radial-gradient(
+          ellipse 90% 110% at 100% 100%,
+          #ffd6e7 0%,
+          #fff0f6 40%,
+          transparent 70%
+        ),
+        #ffffff;
+
+      svg {
+        color: #10b981;
+      }
+    }
 
     strong {
       display: block;
@@ -31,11 +111,19 @@
       margin-bottom: 6px;
     }
 
-    span { font-size: 13px; color: #888; }
+    span {
+      font-size: 13px;
+      color: #888;
+    }
   }
 }
 
-.fg-qty {
+.fg-status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+
   font-size: 18px;
   font-weight: 800;
   color: #27ae60;

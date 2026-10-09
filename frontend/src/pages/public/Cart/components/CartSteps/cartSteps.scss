@@ -1,0 +1,57 @@
+// ── Steps ──────────────────────────────────────────────────────────────────────
+.cart-steps {
+  display: flex;
+  align-items: center;
+  margin-bottom: 36px;
+  gap: 0;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #bbb;
+    white-space: nowrap;
+
+    span {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #e0e0e0;
+      color: #888;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    &.active {
+      color: #c0392b;
+
+      span {
+        background: #c0392b;
+        color: #fff;
+      }
+    }
+
+    &.done {
+      color: #27ae60;
+
+      span {
+        background: #27ae60;
+        color: #fff;
+      }
+    }
+  }
+
+  &__line {
+    flex: 1;
+    height: 2px;
+    background: #e0e0e0;
+    margin: 0 12px;
+    min-width: 20px;
+  }
+}

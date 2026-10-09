@@ -1,22 +1,49 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFacebook, faYoutube } from "@fortawesome/free-brands-svg-icons";
+import { faComment } from "@fortawesome/free-solid-svg-icons";
+import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { getProducts } from "../../../api";
 import { ROUTES } from "../../../constants/router";
 import "./publicFooter.scss";
 
-// Danh mục sản phẩm trong footer — khớp với category thực trong DB
-const FOOTER_CATEGORIES = [
-  "Bàn ăn",
-  "Ghế sofa",
-  "Tủ quần áo",
-  "Kệ sách",
-  "Giường ngủ",
-];
+// Số danh mục hiển thị ở footer
+const MAX_CATEGORIES = 6;
 
 export default function PublicFooter() {
   const navigate = useNavigate();
 
+  // Danh mục lấy động từ API.
+  // Trước đây danh sách này viết cứng trong file, nên khi đổi tên danh mục ở DB
+  // thì link footer dẫn tới trang không có sản phẩm nào.
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const res = await getProducts({ limit: 1 });
+        const data = res.data;
+
+        if (!cancelled) {
+          setCategories(Array.isArray(data?.categories) ? data.categories : []);
+        }
+      } catch (error) {
+        console.error("Lỗi lấy danh mục cho footer:", error);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const handleCategoryClick = (categoryName) => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    navigate(`${ROUTES.USER.PRODUCT_LIST}?category=${encodeURIComponent(categoryName)}`);
+    navigate(
+      `${ROUTES.USER.PRODUCT_LIST}?category=${encodeURIComponent(categoryName)}`,
+    );
   };
 
   return (
@@ -25,28 +52,46 @@ export default function PublicFooter() {
       <div className="pub-footer__inner">
         {/* Cột 1: Thương hiệu */}
         <div className="pub-footer__brand">
-          <span className="pub-footer__logo">🛋️ Nội Thất Việt</span>
+          <div className="pub-footer__logo">
+            <img
+              src="/images/logo.png"
+              alt="Nguyễn Sơn Tùng"
+              className="pub-footer__logo-image"
+            />
+            <span className="pub-footer__logo-text">
+              <strong>Nội Thất</strong>
+              <em> Việt</em>
+            </span>
+          </div>
           <p>
             Chuyên cung cấp nội thất cao cấp —<br />
             bàn, ghế, tủ, kệ cho mọi không gian sống.
           </p>
           <div className="pub-footer__socials">
-            <a href="#" aria-label="Facebook">📘</a>
-            <a href="#" aria-label="Zalo">💬</a>
-            <a href="#" aria-label="Youtube">▶️</a>
+            <a href="#" aria-label="Facebook">
+              <FontAwesomeIcon icon={faFacebook} />
+            </a>
+
+            <a href="#" aria-label="Zalo">
+              <FontAwesomeIcon icon={faComment} />
+            </a>
+
+            <a href="#" aria-label="Youtube">
+              <FontAwesomeIcon icon={faYoutube} />
+            </a>
           </div>
         </div>
 
         {/* Cột 2: Sản phẩm — navigate theo category + scroll to top */}
         <div className="pub-footer__col">
           <h4>Sản phẩm</h4>
-          {FOOTER_CATEGORIES.map((cat) => (
+          {categories.slice(0, MAX_CATEGORIES).map((cat) => (
             <button
-              key={cat}
+              key={cat.name}
               className="pub-footer__cat-link"
-              onClick={() => handleCategoryClick(cat)}
+              onClick={() => handleCategoryClick(cat.name)}
             >
-              {cat}
+              {cat.name}
             </button>
           ))}
         </div>
@@ -63,10 +108,25 @@ export default function PublicFooter() {
         {/* Cột 4: Liên hệ */}
         <div className="pub-footer__col">
           <h4>Liên hệ</h4>
-          <p>📍 34/16 Đường Bắc Đẩu, TP. Đà Nẵng</p>
-          <p>📞 0795 789 458</p>
-          <p>✉️ nguyensontung@gmail.com</p>
-          <p>⏰ T2–T7: 8h00 – 20h00</p>
+          <div className="pub-footer__col-contact">
+            <MapPin size={18} strokeWidth={2} />
+            34/16 Đường Bắc Đẩu, TP. Đà Nẵng
+          </div>
+
+          <div className="pub-footer__col-contact">
+            <Phone size={18} strokeWidth={2} />
+            0795 789 458
+          </div>
+
+          <div className="pub-footer__col-contact">
+            <Mail size={18} strokeWidth={2} />
+            nguyensontung@gmail.com
+          </div>
+
+          <div className="pub-footer__col-contact">
+            <Clock size={18} strokeWidth={2} />
+            T2–T7: 8h00 – 20h00
+          </div>
         </div>
       </div>
 

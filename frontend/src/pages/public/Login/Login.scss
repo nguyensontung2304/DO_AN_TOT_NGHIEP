@@ -1,47 +1,157 @@
 .login-page {
+  display: flex;
+  background: #fff;
   min-height: 100vh;
+}
+
+/* BÊN TRÁI - BRAND */
+.login-brand {
+  width: 65%;
+  min-height: 100vh;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  overflow: hidden;
+  background: #f8f7fa;
+}
+
+.login-brand-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.login-brand::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.05),
+    rgba(0, 0, 0, 0.45)
+  );
+  z-index: 1;
+}
+
+.login-brand-overlay {
+  position: relative;
+  z-index: 2;
+  color: #fff;
+  text-align: center;
+  padding: 30px;
+  margin-bottom: 450px;
+  margin-right: 500px;
+
+  h1 {
+    margin: 0 0 10px;
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+
+    strong {
+      font-weight: 800;
+      color: #c0392b;
+    }
+
+    em {
+      font-weight: 500;
+      color: #555;
+    }
+  }
+
+  p {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 400;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* BÊN PHẢI - PANEL */
+.login-panel {
+  width: 35%;
+  display: flex;
+  justify-content: center;
+  background: #fff;
+  padding: 20px 40px 40px;
+  box-sizing: border-box;
 }
 
 .login-card {
-  background: #fff;
-  border-radius: 16px;
-  padding: 48px 40px;
   width: 100%;
   max-width: 420px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
 }
 
+/* BACK BUTTON */
+.login-back {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.15s;
+
+  &:hover {
+    color: #1a1a2e;
+  }
+}
+
+/* LOGO */
 .login-logo {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 10px;
 
-  .login-logo-icon {
-    font-size: 48px;
+  &-image {
+    width: 80px;
+    height: 80px;
     display: block;
-    margin-bottom: 12px;
+    margin: 0 auto 15px;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
   }
 
-  h1 {
-    font-size: 24px;
+  &-text {
+    font-size: 25px;
     font-weight: 700;
-    color: #1a1a2e;
-    margin-bottom: 6px;
+
+    strong {
+      font-weight: 800;
+      color: #c0392b;
+    }
+
+    em {
+      font-weight: 500;
+      color: #555;
+    }
   }
 
   p {
     font-size: 14px;
     color: #888;
+    margin: 0;
   }
 }
 
+/* FORM */
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 15px;
 }
 
 .form-group {
@@ -56,19 +166,29 @@
   }
 
   input {
+    width: 100%;
+    box-sizing: border-box;
     padding: 12px 16px;
     border: 1.5px solid #ddd;
     border-radius: 8px;
     font-size: 15px;
-    transition: border-color 0.2s;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
     outline: none;
 
     &:focus {
-      border-color: #0f3460;
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.08);
+    }
+
+    &::placeholder {
+      color: #aaa;
     }
   }
 }
 
+/* ERROR */
 .login-error {
   background: #fff0f0;
   color: #c0392b;
@@ -77,10 +197,12 @@
   padding: 10px 14px;
   font-size: 14px;
   text-align: center;
+  margin: 0;
 }
 
+/* LOGIN BUTTON */
 .login-btn {
-  background: linear-gradient(135deg, #0f3460, #1a1a2e);
+  background: linear-gradient(135deg, #9e6df4, #7c3aed);
   color: #fff;
   border: none;
   padding: 14px;
@@ -90,12 +212,15 @@
   cursor: pointer;
   transition:
     opacity 0.2s,
-    transform 0.1s;
+    transform 0.1s,
+    box-shadow 0.2s;
   margin-top: 4px;
+  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.2);
 
   &:hover:not(:disabled) {
-    opacity: 0.9;
+    opacity: 0.92;
     transform: translateY(-1px);
+    box-shadow: 0 8px 22px rgba(124, 58, 237, 0.28);
   }
 
   &:disabled {
@@ -104,43 +229,15 @@
   }
 }
 
-.login-hint {
-  text-align: center;
-  margin-top: 16px;
-  font-size: 13px;
-  color: #aaa;
-
-  strong {
-    color: #555;
-  }
-}
-
-.login-back {
-  background: none;
-  border: none;
-  color: #888;
-  font-size: 13px;
-  cursor: pointer;
-  padding: 0;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  transition: color 0.15s;
-
-  &:hover {
-    color: #1a1a2e;
-  }
-}
-
+/* SWITCH LOGIN / REGISTER */
 .login-switch {
   text-align: center;
-  margin-top: 20px;
+  margin: 20px 0 0;
   font-size: 14px;
   color: #666;
 
   a {
-    color: #0f3460;
+    color: #7c3aed;
     font-weight: 600;
     text-decoration: none;
 
@@ -150,6 +247,7 @@
   }
 }
 
+/* DIVIDER */
 .login-divider {
   position: relative;
   text-align: center;
@@ -174,6 +272,7 @@
   }
 }
 
+/* ADMIN LINK */
 .login-admin-link {
   display: block;
   text-align: center;
@@ -187,8 +286,83 @@
   transition: all 0.2s;
 
   &:hover {
-    border-color: #0f3460;
-    color: #0f3460;
-    background: #f0f4ff;
+    border-color: #7c3aed;
+    color: #7c3aed;
+    background: #f8f5ff;
+  }
+}
+
+/* TABLET */
+@media (max-width: 900px) {
+  .login-brand {
+    width: 55%;
+  }
+
+  .login-panel {
+    width: 45%;
+    padding: 30px;
+  }
+
+  .login-brand-image {
+    object-fit: cover;
+  }
+}
+
+/* MOBILE */
+@media (max-width: 600px) {
+  .login-page {
+    display: block;
+  }
+
+  .login-brand {
+    width: 100%;
+    min-height: 260px;
+    height: 260px;
+  }
+
+  .login-brand-image {
+    object-fit: cover;
+  }
+
+  .login-panel {
+    width: 100%;
+    min-height: auto;
+    padding: 32px 24px 40px;
+    align-items: flex-start;
+  }
+
+  .login-card {
+    max-width: 100%;
+  }
+
+  .login-back {
+    margin-bottom: 24px;
+  }
+
+  .login-logo {
+    margin-bottom: 28px;
+  }
+}
+
+/* MOBILE NHỎ */
+@media (max-width: 480px) {
+  .login-brand {
+    min-height: 220px;
+    height: 220px;
+  }
+
+  .login-panel {
+    padding: 28px 20px 36px;
+  }
+
+  .login-logo {
+    &-image {
+      width: 80px;
+      height: 80px;
+    }
+
+    &-text {
+      font-size: 22px;
+    }
   }
 }

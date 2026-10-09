@@ -1,5 +1,6 @@
+import { Package, ShoppingCart, LoaderCircle } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { ROUTES } from "../../../constants/router";
 
@@ -9,8 +10,17 @@ import {
   updateCartQty,
   removeFromCart,
   createOrder,
+  cancelOrder,
 } from "../../../api";
 import { useApp } from "../../../context/useApp";
+
+import CartView from "./components/CartView/CartView";
+import CartSteps from "./components/CartSteps/CartSteps";
+import CheckoutForm from "./components/CheckoutForm/CheckoutForm";
+import CartSummary from "./components/CartSummary/CartSummary";
+import OrdersView from "./components/OrdersView/OrdersView";
+import OrderSuccess from "./components/OrderSuccess/OrderSuccess";
+
 import "./cart.scss";
 
 //  Helper: đọc/ghi lịch sử đơn hàng từ localStorage
@@ -34,34 +44,36 @@ function generateOrderId() {
   return Date.now() + Math.random();
 }
 
-//  Badge trạng thái đơn hàng
-const STATUS_LABEL = {
-  pending: { text: "Chờ xác nhận", cls: "order-status--pending" },
-  confirmed: { text: "Đã xác nhận", cls: "order-status--confirmed" },
-  processing: { text: "Đang sản xuất", cls: "order-status--confirmed" },
-  shipping: { text: "Đang giao hàng", cls: "order-status--shipping" },
-  done: { text: "Hoàn thành", cls: "order-status--done" },
-  cancelled: { text: "Đã hủy", cls: "order-status--cancelled" },
-};
-
-function OrderStatusBadge({ status = "pending" }) {
-  const info = STATUS_LABEL[status] || STATUS_LABEL.pending;
-  return <span className={`order-status ${info.cls}`}>{info.text}</span>;
-}
-
 //
+// Trang giỏ hàng.
+// Giữ toàn bộ state và logic gọi API; giao diện chia cho các component con
+// theo từng phần: giỏ hàng, checkout, tổng đơn và danh sách đơn đã đặt.
+//
+// Phần đang xem nằm trên URL chứ không trong state:
+//   /cart             → giỏ hàng
+//   /cart/checkout    → thông tin đặt hàng
+//   /cart/orders      → đơn hàng của tôi
+// Nhờ vậy F5 hay gửi link cho người khác vẫn mở đúng phần, và nút back
+// của trình duyệt quay lại đúng bước trước đó.
 export default function Cart() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const currentUser = useSelector((state) => state.user.currentUser);
   const { addOrder } = useApp();
 
-  //  Tab hiện tại: "cart" | "orders"
-  const [activeTab, setActiveTab] = useState("cart");
+  //  Phần đang xem, suy ra từ URL
+  const isOrdersTab = pathname === ROUTES.USER.CART_ORDERS;
+  const step = pathname === ROUTES.USER.CART_CHECKOUT ? "checkout" : "cart";
+
+  // Màn hình xác nhận chỉ xuất hiện ngay sau khi đặt hàng,
+  // nên vẫn giữ tạm trong state chứ không nhét vào URL.
+  const [justOrdered, setJustOrdered] = useState(false);
 
   //  State giỏ hàng
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [step, setStep] = useState("cart"); // "cart" | "checkout" | "success"
+
+  console.log(cart);
 
   //  State đơn hàng
   const [orders, setOrders] = useState([]);
@@ -128,18 +140,13 @@ export default function Cart() {
     if (!form.phone.trim()) {
       errors.phone = "Vui lòng nhập số điện thoại.";
       valid = false;
+    } else if (form.phone.length !== 10) {
+      errors.phone = "Số điện thoại phải đúng 10 số.";
+      valid = false;
     }
 
     if (!form.address.trim()) {
       errors.address = "Vui lòng nhập địa chỉ nhận hàng.";
-      valid = false;
-    }
-
-    if (!form.phone.trim()) {
-      errors.phone = "Vui lòng nhập số điện thoại.";
-      valid = false;
-    } else if (form.phone.length !== 10) {
-      errors.phone = "Số điện thoại phải đúng 10 số.";
       valid = false;
     }
 
@@ -189,6 +196,8 @@ export default function Cart() {
     try {
       // API là nguồn chính (đã có đầy đủ cart, createdAt, status từ DB)
       const res = await getOrdersByUserId(currentUser.id);
+      console.log(res);
+
       if (Array.isArray(res.data)) {
         setOrders(res.data);
         return;
@@ -203,16 +212,30 @@ export default function Cart() {
     setOrders(getLocalOrders(currentUser.id));
   }, [currentUser]);
 
-  // Tải đơn hàng khi chuyển sang tab đơn hàng
+  // Tải đơn hàng khi mở tab /cart/orders
   useEffect(() => {
-    if (activeTab === "orders") loadOrders();
-  }, [activeTab, loadOrders]);
+    if (isOrdersTab) loadOrders();
+  }, [isOrdersTab, loadOrders]);
 
   //  Tính tổng tiền giỏ
   const cartTotal = cart.reduce(
     (total, item) => total + Number(item.price) * Number(item.qty),
     0,
   );
+
+  //  Xóa sản phẩm khỏi giỏ
+  const removeCartItem = async (productId) => {
+    try {
+      await removeFromCart(currentUser.id, productId);
+      setCart((prev) => prev.filter((item) => item.productId !== productId));
+
+      // Báo cho PublicHeader đổi lại số trên icon giỏ hàng
+      window.dispatchEvent(new Event("cartUpdated"));
+    } catch (err) {
+      console.error("Lỗi xóa sản phẩm:", err);
+      alert("Không thể xóa sản phẩm");
+    }
+  };
 
   //  Cập nhật qty
   const updateCartQuantity = async (productId, newQty) => {
@@ -231,20 +254,12 @@ export default function Cart() {
           item.productId === productId ? { ...item, qty: newQty } : item,
         ),
       );
+
+      // Đổi số lượng cũng phải báo header để icon giỏ hàng chạy theo
+      window.dispatchEvent(new Event("cartUpdated"));
     } catch (err) {
       console.error("Lỗi cập nhật số lượng:", err);
       alert("Không thể cập nhật số lượng");
-    }
-  };
-
-  //  Xóa sản phẩm khỏi giỏ
-  const removeCartItem = async (productId) => {
-    try {
-      await removeFromCart(currentUser.id, productId);
-      setCart((prev) => prev.filter((item) => item.productId !== productId));
-    } catch (err) {
-      console.error("Lỗi xóa sản phẩm:", err);
-      alert("Không thể xóa sản phẩm");
     }
   };
 
@@ -312,15 +327,77 @@ export default function Cart() {
       await clearCartOnServer();
 
       setCart([]);
-      setStep("success");
+      setJustOrdered(true);
     } catch (err) {
       console.error("Lỗi đặt hàng:", err.response?.data || err);
       alert(
-        err.response?.data?.message ||
-          err.response?.data?.error ||
+        err.response?.data?.error ||
+          err.response?.data?.message ||
           "Đặt hàng thất bại",
       );
     }
+  };
+
+  //  Hủy đơn hàng
+  const handleCancelOrder = async (orderId) => {
+    const confirmed = window.confirm(
+      "Bạn có chắc chắn muốn hủy đơn hàng này không?",
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const res = await cancelOrder(orderId);
+
+      // Cập nhật lại state ngay để giao diện đổi trạng thái thành "Đã hủy"
+      const updatedOrder = res.data?.order;
+
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === orderId
+            ? updatedOrder || { ...order, status: "cancelled" }
+            : order,
+        ),
+      );
+
+      // Cập nhật luôn localStorage để dữ liệu fallback không bị trạng thái cũ
+      if (currentUser?.id) {
+        const localOrders = getLocalOrders(currentUser.id);
+
+        const updatedLocalOrders = localOrders.map((order) =>
+          order.id === orderId
+            ? updatedOrder || { ...order, status: "cancelled" }
+            : order,
+        );
+
+        localStorage.setItem(
+          ORDERS_KEY(currentUser.id),
+          JSON.stringify(updatedLocalOrders),
+        );
+      }
+
+      // Đóng chi tiết đơn sau khi hủy
+      setExpandedOrder(null);
+    } catch (err) {
+      console.error("Lỗi hủy đơn hàng:", err);
+
+      alert(
+        err.response?.data?.message ||
+          err.response?.data?.error ||
+          "Không thể hủy đơn hàng.",
+      );
+    }
+  };
+
+  // Sang bước thanh toán: cần đăng nhập trước
+  const goCheckout = () => {
+    if (!currentUser) {
+      navigate(ROUTES.USER.LOGIN, {
+        state: { from: ROUTES.USER.CART_CHECKOUT },
+      });
+      return;
+    }
+    navigate(ROUTES.USER.CART_CHECKOUT);
   };
 
   //  Loading
@@ -328,7 +405,7 @@ export default function Cart() {
     return (
       <div className="cart-page">
         <div className="cart-empty">
-          <span>⏳</span>
+          <LoaderCircle size={48} strokeWidth={1.8} />
           <h2>Đang tải giỏ hàng...</h2>
         </div>
       </div>
@@ -336,36 +413,16 @@ export default function Cart() {
   }
 
   //  Đặt hàng thành công
-  if (step === "success") {
+  if (justOrdered) {
     return (
       <div className="cart-page">
-        <div className="cart-success">
-          <div className="cart-success__icon">🎉</div>
-          <h2>Đặt hàng thành công!</h2>
-          <p>
-            Cảm ơn <strong>{form.name}</strong>! Đơn hàng đã được ghi nhận.
-          </p>
-          <p className="cart-success__sub">
-            Chúng tôi sẽ liên hệ qua <strong>{form.phone}</strong> để xác nhận.
-          </p>
-          <div className="cart-success__btns">
-            <button
-              className="cart-btn cart-btn--primary"
-              onClick={() => {
-                setStep("cart");
-                setActiveTab("orders");
-              }}
-            >
-              📦 Xem đơn hàng của tôi
-            </button>
-            <Link
-              to={ROUTES.USER.PRODUCT_LIST}
-              className="cart-btn cart-btn--outline"
-            >
-              Tiếp tục mua sắm
-            </Link>
-          </div>
-        </div>
+        <OrderSuccess
+          form={form}
+          onViewOrders={() => {
+            setJustOrdered(false);
+            navigate(ROUTES.USER.CART_ORDERS);
+          }}
+        />
       </div>
     );
   }
@@ -374,18 +431,18 @@ export default function Cart() {
   return (
     <div className="cart-page">
       <div className="cart-inner">
-        {/* Breadcrumb */}
+        {/* Breadcrumb — phần cuối đổi theo URL đang mở */}
         <div className="cart-breadcrumb">
           <Link to={ROUTES.USER.HOME}>Trang chủ</Link>
           <span>›</span>
           <span>Giỏ hàng</span>
-          {activeTab === "orders" && (
+          {isOrdersTab && (
             <>
               <span>›</span>
               <span>Đơn hàng của tôi</span>
             </>
           )}
-          {activeTab === "cart" && step === "checkout" && (
+          {step === "checkout" && (
             <>
               <span>›</span>
               <span>Thanh toán</span>
@@ -393,202 +450,52 @@ export default function Cart() {
           )}
         </div>
 
-        {/*  TABS: Giỏ hàng / Đơn hàng  */}
+        {/*  TABS: mỗi tab là 1 URL riêng  */}
         <div className="cart-tabs">
-          <button
-            className={`cart-tab ${activeTab === "cart" ? "cart-tab--active" : ""}`}
-            onClick={() => {
-              setActiveTab("cart");
-              setStep("cart");
-            }}
+          <NavLink
+            to={ROUTES.USER.CART}
+            end
+            className={({ isActive }) =>
+              `cart-tab ${isActive ? "cart-tab--active" : ""}`
+            }
           >
-            🛒 Giỏ hàng
+            <ShoppingCart size={20} strokeWidth={1.8} />
+            Giỏ hàng
             {cart.length > 0 && (
               <span className="cart-tab__badge">{cart.length}</span>
             )}
-          </button>
-          <button
-            className={`cart-tab ${activeTab === "orders" ? "cart-tab--active" : ""}`}
-            onClick={() => setActiveTab("orders")}
+          </NavLink>
+          <NavLink
+            to={ROUTES.USER.CART_ORDERS}
+            className={({ isActive }) =>
+              `cart-tab ${isActive ? "cart-tab--active" : ""}`
+            }
           >
-            📦 Đơn hàng của tôi
-          </button>
+            <Package size={20} strokeWidth={1.8} /> Đơn hàng của tôi
+          </NavLink>
         </div>
 
-        {/* ════════════════════════════════════════════════════════════════
-            TAB: ĐƠN HÀNG
-        ════════════════════════════════════════════════════════════════ */}
-        {activeTab === "orders" && (
+        {/* TAB: ĐƠN HÀNG */}
+        {isOrdersTab && (
           <div className="orders-panel">
-            {!currentUser ? (
-              <div className="cart-empty">
-                <span>🔒</span>
-                <h2>Chưa đăng nhập</h2>
-                <p>Bạn cần đăng nhập để xem đơn hàng.</p>
-                <Link
-                  to={ROUTES.USER.LOGIN}
-                  className="cart-btn cart-btn--primary"
-                >
-                  Đăng nhập
-                </Link>
-              </div>
-            ) : ordersLoading ? (
-              <div className="cart-empty">
-                <span>⏳</span>
-                <h2>Đang tải đơn hàng...</h2>
-              </div>
-            ) : orders.length === 0 ? (
-              <div className="cart-empty">
-                <span>📭</span>
-                <h2>Chưa có đơn hàng nào</h2>
-                <p>Hãy mua sắm và đặt hàng để xem lịch sử tại đây.</p>
-                <Link
-                  to={ROUTES.USER.PRODUCT_LIST}
-                  className="cart-btn cart-btn--primary"
-                >
-                  Khám phá sản phẩm
-                </Link>
-              </div>
-            ) : (
-              <div className="orders-list">
-                <div className="orders-list__header">
-                  <h2>Đơn hàng của tôi</h2>
-                  <span className="orders-list__count">
-                    {orders.length} đơn
-                  </span>
-                </div>
-
-                {orders.map((order, idx) => {
-                  const orderId = order.id || idx + 1;
-                  const isExpanded = expandedOrder === orderId;
-                  // API trả về `cart`; localStorage cũ dùng `cart`/`items`
-                  const orderItems =
-                    order.cart || order.order_items || order.items || [];
-                  const orderTotal =
-                    order.total ||
-                    orderItems.reduce(
-                      (s, i) => s + Number(i.price) * Number(i.qty),
-                      0,
-                    );
-                  const createdDate = order.createdAt
-                    ? new Date(order.createdAt).toLocaleDateString("vi-VN", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
-                    : "—";
-
-                  return (
-                    <div key={orderId} className="order-card">
-                      {/* Header đơn hàng */}
-                      <div
-                        className="order-card__head"
-                        onClick={() =>
-                          setExpandedOrder(isExpanded ? null : orderId)
-                        }
-                        role="button"
-                        aria-expanded={isExpanded}
-                      >
-                        <div className="order-card__meta">
-                          <span className="order-card__id">
-                            Đơn #{String(orderId).slice(-6).toUpperCase()}
-                          </span>
-                          <span className="order-card__date">
-                            {createdDate}
-                          </span>
-                        </div>
-
-                        <div className="order-card__right">
-                          <OrderStatusBadge status={order.status} />
-                          <span className="order-card__total">
-                            {Number(orderTotal).toLocaleString("vi-VN")}₫
-                          </span>
-                          <span className="order-card__toggle">
-                            {isExpanded ? "▲" : "▼"}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Chi tiết đơn hàng (collapsible) */}
-                      {isExpanded && (
-                        <div className="order-card__body">
-                          {/* Thông tin giao hàng */}
-                          <div className="order-card__info">
-                            <div className="order-card__info-row">
-                              <span>👤 Người nhận</span>
-                              <strong>{order.name}</strong>
-                            </div>
-                            <div className="order-card__info-row">
-                              <span>📞 Điện thoại</span>
-                              <strong>{order.phone}</strong>
-                            </div>
-                            <div className="order-card__info-row">
-                              <span>📍 Địa chỉ</span>
-                              <strong>{order.address}</strong>
-                            </div>
-                            {order.note && (
-                              <div className="order-card__info-row">
-                                <span>📝 Ghi chú</span>
-                                <strong>{order.note}</strong>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Danh sách sản phẩm */}
-                          <div className="order-card__items">
-                            <p className="order-card__items-title">
-                              Sản phẩm đã đặt ({orderItems.length})
-                            </p>
-                            {orderItems.map((item, i) => (
-                              <div key={i} className="order-card__item">
-                                <span className="order-card__item-emoji">
-                                  {item.emoji}
-                                </span>
-                                <span className="order-card__item-name">
-                                  {item.name}
-                                </span>
-                                <span className="order-card__item-qty">
-                                  × {item.qty}
-                                </span>
-                                <span className="order-card__item-price">
-                                  {(
-                                    Number(item.price) * Number(item.qty)
-                                  ).toLocaleString("vi-VN")}
-                                  ₫
-                                </span>
-                                <button>Hủy đơn hàng</button>
-                              </div>
-                            ))}
-                          </div>
-
-                          {/* Tổng đơn */}
-                          <div className="order-card__footer">
-                            <span>Tổng cộng</span>
-                            <strong>
-                              {Number(orderTotal).toLocaleString("vi-VN")}₫
-                            </strong>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+            <OrdersView
+              isLoggedIn={!!currentUser}
+              loading={ordersLoading}
+              orders={orders}
+              expandedOrder={expandedOrder}
+              onToggle={setExpandedOrder}
+              onCancelOrder={handleCancelOrder}
+            />
           </div>
         )}
 
-        {/* ════════════════════════════════════════════════════════════════
-            TAB: GIỎ HÀNG
-        ════════════════════════════════════════════════════════════════ */}
-        {activeTab === "cart" && (
+        {/* TAB: GIỎ HÀNG */}
+        {!isOrdersTab && (
           <>
             {/* Giỏ hàng trống */}
             {cart.length === 0 ? (
               <div className="cart-empty">
-                <span>🛒</span>
+                <ShoppingCart size={48} strokeWidth={1.8} />
                 <h2>Giỏ hàng trống</h2>
                 <p>Bạn chưa thêm sản phẩm nào vào giỏ.</p>
                 <Link
@@ -600,338 +507,39 @@ export default function Cart() {
               </div>
             ) : (
               <>
-                {/* Thanh tiến trình 3 bước */}
-                <div className="cart-steps">
-                  <div
-                    className={`cart-steps__item ${step === "cart" ? "active" : "done"}`}
-                  >
-                    <span>1</span>
-                    Giỏ hàng
-                  </div>
-                  <div className="cart-steps__line" />
-                  <div
-                    className={`cart-steps__item ${step === "checkout" ? "active" : ""}`}
-                  >
-                    <span>2</span>
-                    Thông tin đặt hàng
-                  </div>
-                  <div className="cart-steps__line" />
-                  <div
-                    className={`cart-steps__item ${step === "success" ? "active" : ""}`}
-                  >
-                    <span>3</span>
-                    Xác nhận
-                  </div>
-                </div>
+                {/* Thanh bước nằm ngoài .cart-layout để tràn hết chiều ngang */}
+                <CartSteps currentStep={step} />
 
                 <div className="cart-layout">
                   {/*  MAIN  */}
                   <div className="cart-main">
-                    {/* BƯỚC 1: Xem giỏ hàng */}
-                    {step === "cart" && (
-                      <>
-                        <h2 className="cart-section-title">
-                          🛒 Giỏ hàng của bạn
-                          <span className="cart-count">
-                            ({cart.length} sản phẩm)
-                          </span>
-                        </h2>
-
-                        <div className="cart-items">
-                          {cart.map((item) => (
-                            <div key={item.productId} className="cart-item">
-                              <div className="cart-item__img">{item.emoji}</div>
-
-                              <div className="cart-item__info">
-                                <h3>{item.name}</h3>
-                                <p className="cart-item__price">
-                                  {Number(item.price).toLocaleString("vi-VN")}₫
-                                </p>
-                                {item.recipe && item.recipe.length > 0 && (
-                                  <details className="cart-item__recipe">
-                                    <summary>
-                                      Nguyên vật liệu cần ({item.recipe.length}{" "}
-                                      loại)
-                                    </summary>
-                                    <ul>
-                                      {item.recipe.map((r, i) => (
-                                        <li key={i}>
-                                          {r.materialName}:{" "}
-                                          <strong>
-                                            {r.qty * item.qty} {r.unit}
-                                          </strong>
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  </details>
-                                )}
-                              </div>
-
-                              <div className="cart-item__actions">
-                                <div className="cart-qty">
-                                  <button
-                                    onClick={() =>
-                                      updateCartQuantity(
-                                        item.productId,
-                                        item.qty - 1,
-                                      )
-                                    }
-                                  >
-                                    −
-                                  </button>
-                                  <span>{item.qty}</span>
-                                  <button
-                                    onClick={() =>
-                                      updateCartQuantity(
-                                        item.productId,
-                                        item.qty + 1,
-                                      )
-                                    }
-                                  >
-                                    +
-                                  </button>
-                                </div>
-                                <p className="cart-item__subtotal">
-                                  {(
-                                    Number(item.price) * Number(item.qty)
-                                  ).toLocaleString("vi-VN")}
-                                  ₫
-                                </p>
-                                <button
-                                  className="cart-item__remove"
-                                  onClick={() => removeCartItem(item.productId)}
-                                  aria-label="Xóa sản phẩm"
-                                >
-                                  🗑️
-                                </button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-
-                        <Link
-                          to={ROUTES.USER.PRODUCT_LIST}
-                          className="cart-continue"
-                        >
-                          ← Tiếp tục mua sắm
-                        </Link>
-                      </>
-                    )}
-
-                    {/* BƯỚC 2: Thông tin đặt hàng */}
-                    {step === "checkout" && (
-                      <>
-                        <h2 className="cart-section-title">
-                          📋 Thông tin đặt hàng
-                        </h2>
-
-                        {profileComplete ? (
-                          <div className="checkout-profile-banner checkout-profile-banner--filled">
-                            <span>✅</span>
-                            <span>
-                              Thông tin từ hồ sơ của bạn đã được điền sẵn. Bạn
-                              có thể chỉnh sửa nếu cần.
-                            </span>
-                          </div>
-                        ) : (
-                          <div className="checkout-profile-banner checkout-profile-banner--empty">
-                            <span>⚠️</span>
-                            <span>
-                              Bạn chưa cập nhật hồ sơ. Vui lòng điền đầy đủ
-                              thông tin bên dưới để đặt hàng.{" "}
-                              <Link
-                                to={ROUTES.USER.PROFILE}
-                                className="checkout-profile-link"
-                              >
-                                Cập nhật hồ sơ ngay
-                              </Link>
-                            </span>
-                          </div>
-                        )}
-
-                        <div className="checkout-form">
-                          <div className="checkout-form__row">
-                            <div className="checkout-form__group">
-                              <label>
-                                Họ và tên <span className="req">*</span>
-                              </label>
-                              <input
-                                type="text"
-                                value={form.name}
-                                onChange={(e) =>
-                                  updateForm("name", e.target.value)
-                                }
-                                placeholder="Nguyễn Văn A"
-                                className={formErrors.name ? "input-error" : ""}
-                              />
-                              {formErrors.name && (
-                                <p className="field-error">{formErrors.name}</p>
-                              )}
-                            </div>
-
-                            <div className="checkout-form__group">
-                              <label>
-                                Số điện thoại <span className="req">*</span>
-                              </label>
-
-                              <input
-                                type="tel"
-                                value={form.phone}
-                                onChange={(e) => {
-                                  const value = e.target.value;
-
-                                  // Chỉ cho phép nhập số
-                                  if (!/^\d*$/.test(value)) {
-                                    return;
-                                  }
-
-                                  updateForm("phone", value);
-                                }}
-                                placeholder="Nhập số điện thoại"
-                                className={
-                                  formErrors.phone ? "input-error" : ""
-                                }
-                              />
-
-                              {formErrors.phone && (
-                                <p className="field-error">
-                                  {formErrors.phone}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="checkout-form__group">
-                            <label>
-                              Địa chỉ nhận hàng <span className="req">*</span>
-                            </label>
-                            <textarea
-                              rows={3}
-                              value={form.address}
-                              onChange={(e) =>
-                                updateForm("address", e.target.value)
-                              }
-                              placeholder="Nhập địa chỉ nhận hàng"
-                              className={
-                                formErrors.address ? "input-error" : ""
-                              }
-                            />
-                            {formErrors.address && (
-                              <p className="field-error">
-                                {formErrors.address}
-                              </p>
-                            )}
-                          </div>
-
-                          <div className="checkout-form__group">
-                            <label>Ghi chú (không bắt buộc)</label>
-                            <textarea
-                              rows={3}
-                              value={form.note}
-                              onChange={(e) =>
-                                updateForm("note", e.target.value)
-                              }
-                              placeholder="Yêu cầu đặc biệt, thời gian giao hàng..."
-                            />
-                          </div>
-
-                          <div className="checkout-order-summary">
-                            <h3>Tóm tắt đơn hàng</h3>
-                            {cart.map((item) => (
-                              <div
-                                key={item.productId}
-                                className="checkout-order-row"
-                              >
-                                <span>
-                                  {item.emoji} {item.name} × {item.qty}
-                                </span>
-                                <span>
-                                  {(
-                                    Number(item.price) * Number(item.qty)
-                                  ).toLocaleString("vi-VN")}
-                                  ₫
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        <button
-                          className="cart-btn-back"
-                          onClick={() => setStep("cart")}
-                        >
-                          ← Quay lại giỏ hàng
-                        </button>
-                      </>
+                    {step === "checkout" ? (
+                      <CheckoutForm
+                        cart={cart}
+                        form={form}
+                        formErrors={formErrors}
+                        profileComplete={profileComplete}
+                        onChangeField={updateForm}
+                        onBack={() => navigate(ROUTES.USER.CART)}
+                      />
+                    ) : (
+                      <CartView
+                        cart={cart}
+                        onUpdateQty={updateCartQuantity}
+                        onRemoveItem={removeCartItem}
+                      />
                     )}
                   </div>
 
                   {/*  SIDEBAR  */}
-                  <aside className="cart-sidebar">
-                    <div className="cart-summary">
-                      <h3>Tổng đơn hàng</h3>
-
-                      <div className="cart-summary__rows">
-                        {cart.map((item) => (
-                          <div
-                            key={item.productId}
-                            className="cart-summary__row"
-                          >
-                            <span>
-                              {item.emoji} {item.name} × {item.qty}
-                            </span>
-                            <span>
-                              {(
-                                Number(item.price) * Number(item.qty)
-                              ).toLocaleString("vi-VN")}
-                              ₫
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="cart-summary__divider" />
-
-                      <div className="cart-summary__total">
-                        <span>Tổng cộng</span>
-                        <strong>{cartTotal.toLocaleString("vi-VN")}₫</strong>
-                      </div>
-
-                      <div className="cart-summary__note">
-                        🚚 Miễn phí giao hàng &amp; lắp đặt trong 50km
-                        <br />
-                        🛡️ Bảo hành 5 năm chính hãng
-                      </div>
-
-                      {step === "cart" && (
-                        <button
-                          className="cart-btn cart-btn--primary cart-btn--full"
-                          onClick={() => {
-                            if (!currentUser) {
-                              navigate(ROUTES.USER.LOGIN, {
-                                state: { from: ROUTES.USER.CART },
-                              });
-                              return;
-                            }
-                            setStep("checkout");
-                          }}
-                        >
-                          {currentUser
-                            ? "Tiến hành đặt hàng →"
-                            : "🔒 Đăng nhập để đặt hàng"}
-                        </button>
-                      )}
-
-                      {step === "checkout" && (
-                        <button
-                          className="cart-btn cart-btn--primary cart-btn--full"
-                          onClick={handleOrder}
-                        >
-                          ✅ Xác nhận đặt hàng
-                        </button>
-                      )}
-                    </div>
-                  </aside>
+                  <CartSummary
+                    cart={cart}
+                    cartTotal={cartTotal}
+                    step={step}
+                    isLoggedIn={!!currentUser}
+                    onProceedCheckout={goCheckout}
+                    onConfirmOrder={handleOrder}
+                  />
                 </div>
               </>
             )}

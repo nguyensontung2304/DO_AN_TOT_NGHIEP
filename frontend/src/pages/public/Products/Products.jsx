@@ -10,9 +10,14 @@ import "./products.scss";
 
 const PRODUCTS_PER_PAGE = 12;
 
+const ALL_CATEGORY = "Tất cả";
+const DEFAULT_SORT = "default";
+
 // PRODUCT CARD
 function ProductCard({ product }) {
   const currentUser = useSelector((state) => state.user.currentUser);
+
+  console.log(product);
 
   const [added, setAdded] = useState(false);
 
@@ -58,11 +63,15 @@ function ProductCard({ product }) {
         className="product-card__img"
         aria-label={`Xem chi tiết ${product.name}`}
       >
-        {product.emoji}
+        {product.image ? (
+          <img src={product.image} alt={product.name} />
+        ) : (
+          <span>Không có ảnh</span>
+        )}
       </Link>
 
       <div className="product-card__body">
-        <span className="product-card__cat">{product.category}</span>
+        <span className="product-card__cat">{product.categoryName}</span>
 
         <h3 className="product-card__name">
           <Link
@@ -109,7 +118,7 @@ function ProductCard({ product }) {
               strokeWidth="2"
               className="icon"
             >
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              <path d="m12 3 2.75 5.57 6.15.9-4.45 4.33 1.05 6.12L12 17.03l-5.5 2.89 1.05-6.12L3.1 9.47l6.15-.9L12 3Z" />
             </svg>
             {product.ratingsCount || 0}
           </span>
@@ -153,35 +162,35 @@ function ProductCard({ product }) {
 
 // PRODUCTS PAGE
 export default function Products() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Danh mục đang chọn — khởi tạo từ query param nếu có
-  const [activeCategory, setActiveCategory] = useState(
-    () => searchParams.get("category") || "Tất cả",
-  );
+  // ── Toàn bộ bộ lọc lấy từ query string ────────────────────────────────────
+  // URL là nguồn duy nhất: F5, copy link hay nút back đều giữ nguyên bộ lọc,
+  // và link do footer/Home tạo ra mở thẳng được danh mục tương ứng.
+  const activeCategory = searchParams.get("category") || ALL_CATEGORY;
+  const search = searchParams.get("search") || "";
+  const sortBy = searchParams.get("sort") || DEFAULT_SORT;
+  const currentPage = Math.max(1, Number(searchParams.get("page")) || 1);
 
-  // Đồng bộ khi query param thay đổi (navigate từ Home/Footer)
-  useEffect(() => {
-    const cat = searchParams.get("category");
-    if (cat) {
-      setActiveCategory(cat);
-      setCurrentPage(1);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+  // Ghi bộ lọc mới lên URL. Giá trị rỗng sẽ bị xoá khỏi query cho URL gọn.
+  const updateParams = (patch, { replace = false } = {}) => {
+    const next = new URLSearchParams(searchParams);
 
-  // Từ khóa tìm kiếm
-  const [search, setSearch] = useState("");
+    Object.entries(patch).forEach(([key, value]) => {
+      if (value === "" || value === null || value === undefined) {
+        next.delete(key);
+      } else {
+        next.set(key, String(value));
+      }
+    });
 
-  // Kiểu sắp xếp
-  const [sortBy, setSortBy] = useState("default");
-
-  // Trang hiện tại
-  const [currentPage, setCurrentPage] = useState(1);
+    // replace: gõ tìm kiếm không nhét mỗi chữ cái vào history
+    setSearchParams(next, { replace });
+  };
 
   // Tổng số sản phẩm sau khi BE lọc
   const [total, setTotal] = useState(0);
@@ -201,7 +210,7 @@ export default function Products() {
         setError("");
 
         const response = await getProducts({
-          category: activeCategory === "Tất cả" ? "" : activeCategory,
+          category: activeCategory === ALL_CATEGORY ? "" : activeCategory,
 
           search: search.trim(),
 
@@ -249,12 +258,7 @@ export default function Products() {
 
   // CHUYỂN TRANG
   const goToPage = (page) => {
-    setCurrentPage(page);
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    updateParams({ page: page === 1 ? "" : page });
   };
 
   // TẠO DANH SÁCH SỐ TRANG
@@ -323,12 +327,34 @@ export default function Products() {
   // RENDER
   return (
     <div className="products-page">
-      {/* HERO */}
-      <div className="products-page__hero">
-        <h1>Tất cả sản phẩm</h1>
+      {/* Intro Banner */}
+      <section className="product-intro">
+        <div className="product-intro__overlay">
+          <div className="product-intro__content">
+            <span>
+              NỘI THẤT <em>VIỆT</em>
+            </span>
 
-        <p>{total} mẫu nội thất chất lượng cao</p>
-      </div>
+            <h1>Sáng tạo không gian - Thổi hồn vào sản phẩm</h1>
+
+            <p>
+              Thiết kế độc đáo - Đẳng cấp - Mang đậm dấu ấn cá nhân cho từng
+              ngôi nhà.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* HERO */}
+      <section className="products-page__hero">
+        <div className="products-page__hero-inner">
+          <span>VỀ CHÚNG TÔI</span>
+
+          <h1>Tất cả sản phẩm</h1>
+
+          <p>{total} mẫu nội thất chất lượng cao</p>
+        </div>
+      </section>
 
       <div className="products-page__inner">
         {/* TOOLBAR */}
@@ -343,19 +369,18 @@ export default function Products() {
               placeholder="Tìm sản phẩm..."
               value={search}
               onChange={(e) => {
-                setSearch(e.target.value);
-
                 // Tìm kiếm mới → về trang 1
-                setCurrentPage(1);
+                updateParams(
+                  { search: e.target.value, page: "" },
+                  { replace: true },
+                );
               }}
             />
 
             {search && (
               <button
                 onClick={() => {
-                  setSearch("");
-
-                  setCurrentPage(1);
+                  updateParams({ search: "", page: "" });
                 }}
                 aria-label="Xóa"
               >
@@ -370,10 +395,11 @@ export default function Products() {
             className="products-sort"
             value={sortBy}
             onChange={(e) => {
-              setSortBy(e.target.value);
-
               // Sort mới → về trang 1
-              setCurrentPage(1);
+              updateParams({
+                sort: e.target.value === DEFAULT_SORT ? "" : e.target.value,
+                page: "",
+              });
             }}
           >
             <option value="default">Sắp xếp mặc định</option>
@@ -392,12 +418,10 @@ export default function Products() {
 
           <button
             className={`products-cat-btn ${
-              activeCategory === "Tất cả" ? "active" : ""
+              activeCategory === ALL_CATEGORY ? "active" : ""
             }`}
             onClick={() => {
-              setActiveCategory("Tất cả");
-
-              setCurrentPage(1);
+              updateParams({ category: "", page: "" });
             }}
           >
             Tất cả
@@ -413,9 +437,10 @@ export default function Products() {
                 activeCategory === category.name ? "active" : ""
               }`}
               onClick={() => {
-                setActiveCategory(category.name);
-
-                setCurrentPage(1);
+                updateParams({
+                  category: category.name === ALL_CATEGORY ? "" : category.name,
+                  page: "",
+                });
               }}
             >
               {category.name}
@@ -442,13 +467,12 @@ export default function Products() {
             <button
               className="btn-clear"
               onClick={() => {
-                setSearch("");
-
-                setActiveCategory("Tất cả");
-
-                setSortBy("default");
-
-                setCurrentPage(1);
+                updateParams({
+                  search: "",
+                  category: "",
+                  sort: "",
+                  page: "",
+                });
               }}
             >
               Xóa bộ lọc

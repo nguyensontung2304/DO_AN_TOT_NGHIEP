@@ -1,4 +1,12 @@
+import {
+  Package,
+  ChartNoAxesColumn,
+  Recycle,
+  Store,
+  Truck,
+} from "lucide-react";
 import { useApp } from "../../../context/useApp";
+import { formatDate } from "../../../utils/formatDate";
 import "../Technical/technical.scss";
 import "./finishedGoods.scss";
 
@@ -15,17 +23,23 @@ function AdminCard({ title, icon, children }) {
 }
 
 export default function FinishedGoods() {
-  const { finishedGoods, productionReports } = useApp();
+  const { finishedGoods, productionReports, deliverToCustomer } = useApp();
 
-  const totalQty   = finishedGoods.reduce((s, g) => s + g.qty, 0);
+  const totalQty = finishedGoods.reduce((s, g) => s + g.qty, 0);
   const totalTypes = finishedGoods.length;
-  const delivered  = productionReports.filter((r) => r.status === "delivered").length;
+  const delivered = productionReports.filter(
+    (r) => r.status === "delivered",
+  ).length;
 
   return (
     <div className="fg-page">
       <div className="page-header">
-        <h1>📦 Kho Thành phẩm</h1>
-        <p className="page-sub">Tổng hợp thành phẩm đã sản xuất và bàn giao từ Nhà máy</p>
+        <h1>
+          <Package /> Kho Thành phẩm
+        </h1>
+        <p className="page-sub">
+          Tổng hợp thành phẩm đã sản xuất và bàn giao từ Nhà máy
+        </p>
       </div>
 
       {/* Stats */}
@@ -38,22 +52,33 @@ export default function FinishedGoods() {
           <strong>{totalTypes}</strong>
           <span>Loại sản phẩm</span>
         </div>
-        <div className="fg-summary__card">
+        <div className="fg-summary__card fg-summary__card--yellow">
           <strong>{delivered}</strong>
           <span>Lô đã nhận</span>
         </div>
         <div className="fg-summary__card fg-summary__card--purple">
-          <strong>{productionReports.reduce((s, r) => s + (r.scrapItems?.length || 0), 0)}</strong>
+          <strong>
+            {productionReports.reduce(
+              (s, r) => s + (r.scrapItems?.length || 0),
+              0,
+            )}
+          </strong>
           <span>Loại phế liệu ghi nhận</span>
         </div>
       </div>
 
       {/* ── Tồn kho thành phẩm ──────────────────────────────────────────────── */}
-      <AdminCard title="Tồn kho thành phẩm" icon="🏪">
+      <AdminCard
+        title="Tồn kho thành phẩm"
+        icon={<Store size={18} strokeWidth={2} />}
+      >
         {finishedGoods.length === 0 ? (
           <p className="empty-state">
-            Chưa có thành phẩm nào trong kho.<br />
-            <small>Thành phẩm sẽ xuất hiện khi Thủ kho xác nhận nhận hàng từ Nhà máy.</small>
+            Chưa có thành phẩm nào trong kho.
+            <br />
+            <small>
+              Thành phẩm sẽ xuất hiện khi Thủ kho xác nhận nhận hàng từ Nhà máy.
+            </small>
           </p>
         ) : (
           <div className="table-wrap">
@@ -72,13 +97,39 @@ export default function FinishedGoods() {
                 {finishedGoods.map((g, i) => (
                   <tr key={g.id}>
                     <td>{i + 1}</td>
-                    <td><strong>{g.name}</strong></td>
+                    <td>
+                      <strong>{g.name}</strong>
+                    </td>
                     <td>{g.unit}</td>
                     <td>
                       <span className="fg-qty">{g.qty}</span>
                     </td>
-                    <td>{g.receivedAt}</td>
-                    <td><span className="badge badge--green">Trong kho</span></td>
+                    <td>{formatDate(g.receivedAt)}</td>
+                    <td>
+                      <div className="fg-status-row">
+                        {g.handedOver ? (
+                          <span className="badge badge--blue">Đã bàn giao</span>
+                        ) : (
+                          <>
+                            <span className="badge badge--green">
+                              Trong kho
+                            </span>
+                            <button
+                              type="button"
+                              className="btn-action btn-action--purple"
+                              onClick={() => deliverToCustomer(g)}
+                            >
+                              <Truck
+                                size={13}
+                                strokeWidth={2}
+                                style={{ marginRight: 4 }}
+                              />
+                              Bàn giao cho khách hàng
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -88,7 +139,10 @@ export default function FinishedGoods() {
       </AdminCard>
 
       {/* ── Lịch sử báo cáo SX ───────────────────────────────────────────────── */}
-      <AdminCard title="Lịch sử báo cáo sản xuất" icon="📊">
+      <AdminCard
+        title="Lịch sử báo cáo sản xuất"
+        icon={<ChartNoAxesColumn size={18} strokeWidth={2} />}
+      >
         {productionReports.length === 0 ? (
           <p className="empty-state">Chưa có báo cáo nào.</p>
         ) : (
@@ -109,13 +163,21 @@ export default function FinishedGoods() {
                 {productionReports.map((r, i) => (
                   <tr key={r.id}>
                     <td>{i + 1}</td>
-                    <td><strong>{r.productName}</strong></td>
-                    <td><span className="badge badge--green">{r.finishedQty} cái</span></td>
+                    <td>
+                      <strong>{r.productName}</strong>
+                    </td>
+                    <td>
+                      <span className="badge badge--green">
+                        {r.finishedQty} cái
+                      </span>
+                    </td>
                     <td>
                       {r.scrapItems?.length > 0 ? (
                         <ul className="material-list-inline">
                           {r.scrapItems.map((s, si) => (
-                            <li key={si}>{s.name}: {s.qty} {s.unit}</li>
+                            <li key={si}>
+                              {s.name}: {s.qty} {s.unit}
+                            </li>
                           ))}
                         </ul>
                       ) : (
@@ -123,11 +185,13 @@ export default function FinishedGoods() {
                       )}
                     </td>
                     <td>{r.note || "—"}</td>
-                    <td>{r.createdAt}</td>
+                    <td>{formatDate(r.createdAt)}</td>
                     <td>
-                      {r.status === "delivered"
-                        ? <span className="badge badge--green">Đã bàn giao</span>
-                        : <span className="badge badge--yellow">Chờ thủ kho</span>}
+                      {r.status === "delivered" ? (
+                        <span className="badge badge--green">Đã bàn giao</span>
+                      ) : (
+                        <span className="badge badge--yellow">Chờ thủ kho</span>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -139,7 +203,10 @@ export default function FinishedGoods() {
 
       {/* ── Phế liệu tổng hợp ───────────────────────────────────────────────── */}
       {productionReports.some((r) => r.scrapItems?.length > 0) && (
-        <AdminCard title="Tổng hợp phế liệu" icon="♻️">
+        <AdminCard
+          title="Tổng hợp phế liệu"
+          icon={<Recycle size={18} strokeWidth={2} />}
+        >
           <div className="table-wrap">
             <table className="data-table">
               <thead>
@@ -158,11 +225,13 @@ export default function FinishedGoods() {
                       ...s,
                       product: r.productName,
                       reportId: r.id + "_" + i,
-                    }))
+                    })),
                   )
                   .map((s) => (
                     <tr key={s.reportId}>
-                      <td><strong>{s.name}</strong></td>
+                      <td>
+                        <strong>{s.name}</strong>
+                      </td>
                       <td>{s.qty}</td>
                       <td>{s.unit}</td>
                       <td>{s.product}</td>

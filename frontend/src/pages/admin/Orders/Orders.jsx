@@ -1,11 +1,29 @@
 import { useState, useCallback } from "react";
+import {
+  Inbox,
+  CheckCircle,
+  Wrench,
+  Check,
+  Ban,
+  Loader2,
+  Factory,
+  User,
+  Phone,
+  MapPin,
+  Mail,
+  FileText,
+  ClipboardList,
+} from "lucide-react";
 import { useApp } from "../../../context/useApp";
 import { getProductById } from "../../../api";
 import "../Technical/technical.scss";
 import "./orders.scss";
-function AdminCard({ title, icon, children }) {
+
+function AdminCard({ title, icon, children, gradient }) {
   return (
-    <div className="admin-card">
+    <div
+      className={`admin-card${gradient ? ` admin-card--gradient-${gradient}` : ""}`}
+    >
       <div className="admin-card__header">
         <span>{icon}</span>
         <h2>{title}</h2>
@@ -17,18 +35,15 @@ function AdminCard({ title, icon, children }) {
 
 function OrderStatusBadge({ status }) {
   const map = {
-    pending: { label: "Chờ xác nhận", cls: "badge--yellow", icon: "🟡" },
-    confirmed: { label: "Đã xác nhận", cls: "badge--blue", icon: "🔵" },
-    processing: { label: "Đang sản xuất", cls: "badge--purple", icon: "🟣" },
-    done: { label: "Hoàn thành", cls: "badge--green", icon: "✅" },
-    cancelled: { label: "Đã hủy", cls: "badge--red", icon: "🔴" },
+    pending: { label: "Chờ xác nhận", cls: "badge--yellow" },
+    confirmed: { label: "Đã xác nhận", cls: "badge--blue" },
+    processing: { label: "Đang sản xuất", cls: "badge--purple" },
+    shipping: { label: "Hoàn thành — đang giao", cls: "badge--blue" },
+    done: { label: "Hoàn thành", cls: "badge--green" },
+    cancelled: { label: "Đã hủy", cls: "badge--red" },
   };
-  const s = map[status] || { label: status, cls: "badge--gray", icon: "⚪" };
-  return (
-    <span className={`badge ${s.cls}`}>
-      {s.icon} {s.label}
-    </span>
-  );
+  const s = map[status] || { label: status, cls: "badge--gray" };
+  return <span className={`badge ${s.cls}`}>{s.label}</span>;
 }
 
 export default function Orders() {
@@ -43,18 +58,18 @@ export default function Orders() {
   const pendingOrders = orders.filter((o) => o.status === "pending");
   const confirmedOrders = orders.filter((o) => o.status === "confirmed");
   const processingOrders = orders.filter((o) => o.status === "processing");
-  const doneOrders = orders.filter((o) => o.status === "done");
+  const doneOrders = orders.filter(
+    (o) => o.status === "done" || o.status === "shipping",
+  );
+
   const [loadingProduct, setLoadingProduct] = useState(null);
   const [actionMsg, setActionMsg] = useState({});
   const [confirmingId, setConfirmingId] = useState(null);
 
-  // Xác nhận đơn hàng + fetch recipe của TỪNG sản phẩm để auto-fill Technical form
   const handleConfirm = useCallback(
     async (order) => {
       setConfirmingId(order.id);
       updateOrderStatus(order.id, "confirmed");
-
-      // Lấy công thức riêng cho từng sản phẩm trong đơn
       try {
         const recipeResults = await Promise.all(
           (order.cart || []).map((item) =>
@@ -63,8 +78,6 @@ export default function Orders() {
               .catch(() => ({ item, recipe: [] })),
           ),
         );
-
-        // Mỗi sản phẩm giữ vật tư riêng, nhân số lượng với qty của sản phẩm đó
         const itemsWithRecipe = recipeResults.map(({ item, recipe }) => ({
           ...item,
           materials: recipe.map((r) => ({
@@ -73,30 +86,26 @@ export default function Orders() {
             qty: Number(r.qty) * Number(item.qty),
           })),
         }));
-
-        // Tổng hợp vật tư để hiển thị tổng quan trên banner
         const materialMap = {};
         itemsWithRecipe.forEach((item) => {
           item.materials.forEach((r) => {
             const key = r.material_name.toLowerCase().trim();
-            if (!materialMap[key]) {
+            if (!materialMap[key])
               materialMap[key] = {
                 material_name: r.material_name,
                 unit: r.unit,
                 qty: 0,
               };
-            }
             materialMap[key].qty += r.qty;
           });
         });
-
         setConfirmedOrderDraft?.({
           ...order,
           itemsWithRecipe,
           recipeRows: Object.values(materialMap),
         });
       } catch {
-        // Fetch recipe thất bại → vẫn giữ draft do updateOrderStatus đã set
+        /* keep draft from updateOrderStatus */
       } finally {
         setConfirmingId(null);
       }
@@ -107,12 +116,9 @@ export default function Orders() {
   const handleCreateProduction = useCallback(
     async (order) => {
       const items = order.cart || [];
-      if (items.length === 0) return;
-
+      if (!items.length) return;
       setLoadingProduct(order.id);
-
       try {
-        // Lấy recipe RIÊNG cho từng sản phẩm (không dùng chung cho cả đơn)
         const recipeResults = await Promise.all(
           items.map((item) =>
             getProductById(item.productId)
@@ -120,45 +126,39 @@ export default function Orders() {
               .catch(() => ({ item, recipe: [] })),
           ),
         );
-
-        // Gom vật tư trùng tên trong cùng 1 sản phẩm
         const requestItems = recipeResults
           .map(({ item, recipe }) => {
             const agg = {};
             recipe.forEach((r) => {
               const key = r.material_name.toLowerCase().trim();
-              if (!agg[key]) {
+              if (!agg[key])
                 agg[key] = {
                   materialId: null,
                   materialName: r.material_name,
                   unit: r.unit,
                   requiredQty: 0,
                 };
-              }
               const mat = materials.find(
                 (m) => m.name.toLowerCase().trim() === key,
               );
-              if (agg[key].materialId === null && mat) {
+              if (agg[key].materialId === null && mat)
                 agg[key].materialId = mat.id;
-              }
-              // Số lượng tính theo qty của sản phẩm này
               agg[key].requiredQty += Number(r.qty) * Number(item.qty);
             });
-
             return {
               productName: item.name,
               productQty: item.qty,
-              // Chỉ giữ vật tư đã tìm thấy trong kho
-              materials: Object.values(agg).filter((m) => m.materialId !== null),
+              materials: Object.values(agg).filter(
+                (m) => m.materialId !== null,
+              ),
             };
           })
-          // Bỏ qua sản phẩm không có công thức nào khớp với kho
           .filter((it) => it.materials.length > 0);
 
-        if (requestItems.length === 0) {
+        if (!requestItems.length) {
           setActionMsg((prev) => ({
             ...prev,
-            [order.id]: "❌ Không tìm thấy vật tư nào trong kho cho đơn này",
+            [order.id]: "Không tìm thấy vật tư nào trong kho cho đơn này",
           }));
           setTimeout(
             () => setActionMsg((prev) => ({ ...prev, [order.id]: "" })),
@@ -166,29 +166,24 @@ export default function Orders() {
           );
           return;
         }
-
-        // Tạo 1 yêu cầu sản xuất cho mỗi sản phẩm, mỗi yêu cầu có vật tư riêng
         await addProductionRequest({
           orderId: order.id,
           note: order.note || `Đơn hàng #${order.id}`,
           items: requestItems,
         });
-
         updateOrderStatus(order.id, "processing");
-
         setActionMsg((prev) => ({
           ...prev,
-          [order.id]: `✅ Đã tạo ${requestItems.length} yêu cầu sản xuất!`,
+          [order.id]: `Đã tạo ${requestItems.length} yêu cầu sản xuất!`,
         }));
         setTimeout(
           () => setActionMsg((prev) => ({ ...prev, [order.id]: "" })),
           3000,
         );
-      } catch (err) {
-        console.error("Lỗi tạo yêu cầu sản xuất:", err);
+      } catch {
         setActionMsg((prev) => ({
           ...prev,
-          [order.id]: "❌ Có lỗi khi tạo yêu cầu sản xuất",
+          [order.id]: "Có lỗi khi tạo yêu cầu sản xuất",
         }));
         setTimeout(
           () => setActionMsg((prev) => ({ ...prev, [order.id]: "" })),
@@ -201,36 +196,35 @@ export default function Orders() {
     [materials, addProductionRequest, updateOrderStatus],
   );
 
-  const handleComplete = (order) => {
-    updateOrderStatus(order.id, "done");
-  };
+  const handleComplete = (order) => updateOrderStatus(order.id, "done");
+  const handleCancel = (order) => updateOrderStatus(order.id, "cancelled");
 
-  const handleCancel = (order) => {
-    updateOrderStatus(order.id, "cancelled");
-  };
-
-  const formatDate = (dateStr) =>
-    new Date(dateStr).toLocaleString("vi-VN", {
+  const formatDate = (d) =>
+    new Date(d).toLocaleString("vi-VN", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
       hour: "2-digit",
       minute: "2-digit",
     });
-
-  const formatCurrency = (amount) =>
-    Number(amount).toLocaleString("vi-VN") + "₫";
+  const formatCurrency = (a) => Number(a).toLocaleString("vi-VN") + "₫";
 
   return (
     <div className="orders-page">
       <div className="page-header">
-        <h1>📋 Quản lý đơn hàng</h1>
+        <h1>
+          <ClipboardList
+            size={24}
+            strokeWidth={2}
+            style={{ verticalAlign: "middle", marginRight: 8 }}
+          />
+          Quản lý đơn hàng
+        </h1>
         <p className="page-sub">
           Danh sách đơn hàng từ khách hàng — xác nhận và tạo yêu cầu sản xuất
         </p>
       </div>
 
-      {/* Stats */}
       <div className="orders-summary">
         <div className="orders-summary__card orders-summary__card--yellow">
           <strong>{pendingOrders.length}</strong>
@@ -250,8 +244,11 @@ export default function Orders() {
         </div>
       </div>
 
-      {/* ── Đơn hàng chờ xác nhận ── */}
-      <AdminCard title="Đơn hàng mới" icon="📬">
+      <AdminCard
+        title="Đơn hàng mới"
+        icon={<Inbox size={18} strokeWidth={2} />}
+        gradient="blue"
+      >
         {pendingOrders.length === 0 ? (
           <p className="empty-state">Chưa có đơn hàng nào.</p>
         ) : (
@@ -274,9 +271,12 @@ export default function Orders() {
         )}
       </AdminCard>
 
-      {/* ── Đơn hàng đã xác nhận, chờ tạo yêu cầu SX ── */}
       {confirmedOrders.length > 0 && (
-        <AdminCard title="Đã xác nhận — chờ tạo yêu cầu sản xuất" icon="🔵">
+        <AdminCard
+          title="Đã xác nhận — chờ tạo yêu cầu sản xuất"
+          icon={<CheckCircle size={18} strokeWidth={2} />}
+          gradient="teal"
+        >
           <div className="orders-list">
             {confirmedOrders.map((order) => (
               <OrderItemCard
@@ -294,9 +294,12 @@ export default function Orders() {
         </AdminCard>
       )}
 
-      {/* ── Đơn hàng đang xử lý ── */}
       {processingOrders.length > 0 && (
-        <AdminCard title="Đang sản xuất" icon="🔧">
+        <AdminCard
+          title="Đang sản xuất"
+          icon={<Wrench size={18} strokeWidth={2} />}
+          gradient="purple"
+        >
           <div className="orders-list">
             {processingOrders.map((order) => (
               <OrderItemCard
@@ -312,9 +315,12 @@ export default function Orders() {
         </AdminCard>
       )}
 
-      {/* ── Đơn hàng hoàn thành ── */}
       {doneOrders.length > 0 && (
-        <AdminCard title="Đơn hàng hoàn thành" icon="✅">
+        <AdminCard
+          title="Đơn hàng hoàn thành"
+          icon={<CheckCircle size={18} strokeWidth={2} />}
+          gradient="green"
+        >
           <div className="orders-list">
             {doneOrders.map((order) => (
               <OrderItemCard
@@ -359,7 +365,6 @@ function OrderItemCard({
             {formatDate(order.createdAt)}
           </span>
         </div>
-
         <div className="order-card__right">
           <OrderStatusBadge status={order.status} />
           <span className="order-card__total">
@@ -368,47 +373,57 @@ function OrderItemCard({
         </div>
       </div>
 
-      {/* Thông tin người dùng */}
       <div className="order-card__client">
         <div className="order-card__info-row">
-          <span>👤 Khách hàng</span>
-          <strong>
-            {order.name}
-            {order.userName && order.name !== order.userName && (
-              <small>({order.userName})</small>
-            )}
-          </strong>
+          <span>
+            <User size={13} strokeWidth={2} style={{ marginRight: 4 }} />
+            Khách hàng
+          </span>
+          <strong>{order.name}</strong>
         </div>
         <div className="order-card__info-row">
-          <span>📞 Điện thoại</span>
+          <span>
+            <Phone size={13} strokeWidth={2} style={{ marginRight: 4 }} />
+            Điện thoại
+          </span>
           <strong>{order.phone}</strong>
         </div>
         <div className="order-card__info-row">
-          <span>📍 Địa chỉ</span>
+          <span>
+            <MapPin size={13} strokeWidth={2} style={{ marginRight: 4 }} />
+            Địa chỉ
+          </span>
           <strong>{order.address}</strong>
         </div>
         {order.userEmail && (
           <div className="order-card__info-row">
-            <span>📧 Email</span>
+            <span>
+              <Mail size={13} strokeWidth={2} style={{ marginRight: 4 }} />
+              Email
+            </span>
             <strong>{order.userEmail}</strong>
           </div>
         )}
         {order.note && (
           <div className="order-card__info-row">
-            <span>📝 Ghi chú</span>
+            <span>
+              <FileText size={13} strokeWidth={2} style={{ marginRight: 4 }} />
+              Ghi chú
+            </span>
             <strong>{order.note}</strong>
           </div>
         )}
       </div>
 
-      {/* Danh sách sản phẩm */}
       <div className="order-card__items">
         <p className="order-card__items-title">
           Sản phẩm ({orderItems.length})
         </p>
         {orderItems.map((item, i) => (
           <div key={i} className="order-card__item">
-            <span className="order-card__item-emoji">{item.emoji || "📦"}</span>
+            <div className="order-card__item-image">
+              <img src={item.image} alt={item.name} />
+            </div>
             <span className="order-card__item-name">{item.name}</span>
             <span className="order-card__item-qty">× {item.qty}</span>
             <span className="order-card__item-price">
@@ -418,13 +433,11 @@ function OrderItemCard({
         ))}
       </div>
 
-      {/* Tổng cộng */}
       <div className="order-card__footer">
         <span>Tổng cộng</span>
         <strong>{formatCurrency(orderTotal)}</strong>
       </div>
 
-      {/* Hành động */}
       {actionMsg && <p className="form-success">{actionMsg}</p>}
 
       <div className="order-card__actions">
@@ -434,35 +447,54 @@ function OrderItemCard({
             onClick={() => onConfirm(order)}
             disabled={confirming}
           >
-            {confirming ? "⏳ Đang xử lý..." : "✅ Xác nhận đơn"}
+            {confirming ? (
+              <>
+                <Loader2 size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+                Đang xử lý...
+              </>
+            ) : (
+              <>
+                <Check size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+                Xác nhận đơn
+              </>
+            )}
           </button>
         )}
-
         {order.status === "confirmed" && onProduce && (
           <button
             className="btn-action btn-action--purple"
             onClick={() => onProduce(order)}
             disabled={loading}
           >
-            {loading ? "⏳ Đang tạo..." : "🏭 Tạo yêu cầu sản xuất"}
+            {loading ? (
+              <>
+                <Loader2 size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+                Đang tạo...
+              </>
+            ) : (
+              <>
+                <Factory size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+                Tạo yêu cầu sản xuất
+              </>
+            )}
           </button>
         )}
-
         {order.status === "processing" && onComplete && (
           <button
             className="btn-action btn-action--green"
             onClick={() => onComplete(order)}
           >
-            ✅ Đánh dấu hoàn thành
+            <Check size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+            Đánh dấu hoàn thành
           </button>
         )}
-
         {["pending", "processing"].includes(order.status) && onCancel && (
           <button
             className="btn-action btn-action--danger"
             onClick={() => onCancel(order)}
           >
-            🚫 Hủy đơn
+            <Ban size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+            Hủy đơn
           </button>
         )}
       </div>

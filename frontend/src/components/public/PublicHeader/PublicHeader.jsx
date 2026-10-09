@@ -31,11 +31,9 @@ export default function PublicHeader() {
 
       const cartData = Array.isArray(response.data) ? response.data : [];
 
-      const totalQty = cartData.reduce((total, item) => {
-        return total + Number(item.qty || 0);
-      }, 0);
-
-      setCartCount(totalQty);
+      // Badge trên icon giỏ hàng đếm SỐ MỤC (số dòng sản phẩm khác nhau),
+      // không cộng dồn qty. Mua 3 chiếc cùng loại thì vẫn hiện 1.
+      setCartCount(cartData.length);
     } catch (error) {
       console.error("Lỗi lấy số lượng giỏ hàng:", error);
       setCartCount(0);
@@ -101,7 +99,13 @@ export default function PublicHeader() {
     <header className="pub-header">
       <div className="pub-header__inner">
         <Link to={ROUTES.USER.HOME} className="pub-header__logo">
-          <span>🛋️</span>
+          <span>
+            <img
+              src="/images/logo.png"
+              alt="Nguyễn Sơn Tùng"
+              className="pub-header__logo-image"
+            />
+          </span>
 
           <span>
             <strong>Nội Thất</strong>

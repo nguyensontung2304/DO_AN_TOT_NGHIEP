@@ -2,7 +2,6 @@
 .pub-footer {
   background: #1a1a2e;
   color: #ccc;
-  margin-top: 80px;
 
   //  cột thông tin chính
   &__inner {
@@ -10,7 +9,7 @@
     margin: 0 auto;
     padding: 48px 24px 36px;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 0.8fr 0.8fr 1fr;
     gap: 48px;
 
     @media (max-width: 900px) {
@@ -30,8 +29,29 @@
       font-size: 20px;
       font-weight: 700;
       color: #fff;
-      display: block;
+      display: flex;
+      align-items: center;
+      gap: 10px;
       margin-bottom: 12px;
+
+      &-image {
+        width: 32px;
+        height: 32px;
+        object-fit: cover;
+        border-radius: 50%;
+      }
+
+      &-text {
+        strong {
+          font-weight: 800;
+          color: #c0392b;
+        }
+
+        em {
+          font-weight: 500;
+          color: #555;
+        }
+      }
     }
 
     p {
@@ -82,17 +102,50 @@
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    a,
-    p {
-      font-size: 13px;
-      color: #8892b0;
+    a {
       text-decoration: none;
-      transition: color 0.2s;
-      line-height: 1.5;
+      background: none;
+      border: none;
+      padding: 0;
       margin: 0;
+      font-size: 14px;
+      color: #aaa;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      line-height: 1.8;
+      transition:
+        color 0.2s,
+        padding-left 0.2s;
 
       &:hover {
-        color: #e74c3c;
+        color: #fff;
+        padding-left: 4px;
+      }
+    }
+
+    &-contact {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      background: none;
+      border: none;
+      padding: 0;
+      margin: 0;
+      font-size: 14px;
+      color: #aaa;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      line-height: 1.8;
+      transition:
+        color 0.2s,
+        padding-left 0.2s;
+
+      &:hover {
+        color: #fff;
+        padding-left: 4px;
       }
     }
   }
@@ -146,7 +199,9 @@
   text-align: left;
   font-family: inherit;
   line-height: 1.8;
-  transition: color 0.2s, padding-left 0.2s;
+  transition:
+    color 0.2s,
+    padding-left 0.2s;
 
   &:hover {
     color: #fff;

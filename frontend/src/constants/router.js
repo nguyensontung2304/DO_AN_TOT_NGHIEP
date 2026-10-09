@@ -6,9 +6,12 @@ export const ROUTES = {
     ABOUT: "/about",
     CONTACT: "/contact",
     CART: "/cart",
+    CART_CHECKOUT: "/cart/checkout",
+    CART_ORDERS: "/cart/orders",
     LOGIN: "/login",
     REGISTER: "/register",
     PROFILE: "/profile",
+    PROFILE_CHANGE_PASSWORD: "/profile/change-password",
   },
   ADMIN: {
     DASHBOARD: "/admin",
@@ -19,6 +22,7 @@ export const ROUTES = {
     FACTORY: "/admin/factory",
     FINISHED_GOODS: "/admin/finished-goods",
     PRODUCTS: "/admin/products",
+    CHAT: "/admin/chat",
   },
 };
 

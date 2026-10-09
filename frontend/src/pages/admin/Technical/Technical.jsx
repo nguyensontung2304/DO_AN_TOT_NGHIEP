@@ -1,11 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { formatDate } from "../../../utils/formatDate";
+import {
+  Settings,
+  Trash2,
+  Send,
+  FileText,
+  Ruler,
+  Bell,
+  CheckCircle,
+  ClipboardList,
+  AlertTriangle,
+} from "lucide-react";
 import { useApp } from "../../../context/useApp";
 import "./technical.scss";
 
-// ── Shared admin card shell ───────────────────────────────────────────────────
-function AdminCard({ title, icon, children }) {
+function AdminCard({ title, icon, children, gradient }) {
   return (
-    <div className="admin-card">
+    <div
+      className={`admin-card${gradient ? ` admin-card--gradient-${gradient}` : ""}`}
+    >
       <div className="admin-card__header">
         <span>{icon}</span>
         <h2>{title}</h2>
@@ -17,12 +30,12 @@ function AdminCard({ title, icon, children }) {
 
 function StatusBadge({ status }) {
   const map = {
-    pending:       { label: "Chờ thủ kho",      cls: "badge--yellow"  },
-    checked:       { label: "Đã kiểm kê",        cls: "badge--blue"    },
-    purchasing:    { label: "Đang mua hàng",      cls: "badge--orange"  },
-    ready:         { label: "Sẵn sàng SX",        cls: "badge--teal"    },
-    in_production: { label: "Đang sản xuất",      cls: "badge--purple"  },
-    done:          { label: "Hoàn thành",         cls: "badge--green"   },
+    pending: { label: "Chờ thủ kho", cls: "badge--yellow" },
+    checked: { label: "Đã kiểm kê", cls: "badge--blue" },
+    purchasing: { label: "Đang mua hàng", cls: "badge--orange" },
+    ready: { label: "Sẵn sàng SX", cls: "badge--teal" },
+    in_production: { label: "Đang sản xuất", cls: "badge--purple" },
+    done: { label: "Hoàn thành", cls: "badge--green" },
   };
   const s = map[status] || { label: status, cls: "badge--gray" };
   return <span className={`badge ${s.cls}`}>{s.label}</span>;
@@ -76,14 +89,24 @@ function MaterialRow({
         onClick={() => onRemove(groupIndex, index)}
         title="Xoá dòng"
       >
-        🗑️
+        <Trash2 size={14} strokeWidth={2} />
       </button>
     </div>
   );
 }
 
-const emptyRow = { materialId: "", materialName: "", unit: "", requiredQty: "" };
-const emptyForm = { productName: "", productQty: "", note: "", rows: [{ ...emptyRow }] };
+const emptyRow = {
+  materialId: "",
+  materialName: "",
+  unit: "",
+  requiredQty: "",
+};
+const emptyForm = {
+  productName: "",
+  productQty: "",
+  note: "",
+  rows: [{ ...emptyRow }],
+};
 
 // Dựng form từ đơn hàng vừa được admin xác nhận.
 // Mỗi sản phẩm có danh sách vật tư riêng nên đơn nhiều sản phẩm sẽ thành nhiều nhóm.
@@ -94,7 +117,8 @@ function buildFormFromOrder(order, materials) {
   const toRow = (r) => {
     const mat = materials.find(
       (m) =>
-        m.name.toLowerCase().trim() === r.material_name.toLowerCase().trim(),
+        (m.name || "").toLowerCase().trim() ===
+        (r.material_name || "").toLowerCase().trim(),
     );
     return {
       materialId: mat ? mat.id : "",
@@ -152,6 +176,7 @@ export default function Technical() {
     provideDesign,
     confirmedOrderDraft,
     setConfirmedOrderDraft,
+    clearConfirmedOrderDraft,
     pendingNotifications,
     dismissNotification,
   } = useApp();
@@ -165,21 +190,21 @@ export default function Technical() {
   // Đơn hàng đã nạp vào form lần nào (tránh nạp lại khi render lại)
   const [filledOrderId, setFilledOrderId] = useState(null);
 
-  // Điền form ngay khi đơn hàng mới được xác nhận.
-  // So sánh trong lúc render thay vì useEffect để tránh render dây chuyền.
-  if (
-    confirmedOrderDraft &&
-    confirmedOrderDraft.id !== filledOrderId &&
-    (confirmedOrderDraft.cart || []).length > 0
-  ) {
+  useEffect(() => {
+    if (
+      !confirmedOrderDraft ||
+      confirmedOrderDraft.id === filledOrderId ||
+      !(confirmedOrderDraft.cart || []).length
+    ) {
+      return;
+    }
     const built = buildFormFromOrder(confirmedOrderDraft, materials);
-
     if (built) {
       setForm(built.form);
       setAutoFillBanner(built.banner);
       setFilledOrderId(confirmedOrderDraft.id);
     }
-  }
+  }, [confirmedOrderDraft, filledOrderId, materials]);
 
   // Nạp lại 1 đơn từ bảng thông báo vào form
   const loadOrderIntoForm = (order) => {
@@ -188,69 +213,78 @@ export default function Technical() {
     setConfirmedOrderDraft(order);
   };
 
+  const resetAfterSubmit = () => {
+    setForm(emptyForm);
+    setFilledOrderId(null);
+    clearConfirmedOrderDraft?.();
+    if (filledOrderId) dismissNotification(filledOrderId);
+    setSubmitted(true);
+    setTimeout(() => setSubmitted(false), 3000);
+  };
+
   // Gửi yêu cầu: nhiều sản phẩm → tạo 1 yêu cầu/sản phẩm, vật tư đi kèm riêng
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError("");
     setAutoFillBanner("");
 
     const groups = form.groups || [];
 
-    if (groups.length > 0) {
-      const items = groups
-        .map((g) => ({
-          productName: g.name,
-          productQty: Number(g.qty),
-          materials: g.rows
-            .filter((r) => r.materialId && Number(r.requiredQty) > 0)
-            .map((r) => ({
-              materialId: r.materialId,
-              materialName: r.materialName,
-              unit: r.unit,
-              requiredQty: Number(r.requiredQty),
-            })),
-        }))
-        .filter((it) => it.materials.length > 0);
+    try {
+      if (groups.length > 0) {
+        const items = groups
+          .map((g) => ({
+            productName: g.name,
+            productQty: Number(g.qty),
+            materials: g.rows
+              .filter((r) => r.materialId && Number(r.requiredQty) > 0)
+              .map((r) => ({
+                materialId: r.materialId,
+                materialName: r.materialName,
+                unit: r.unit,
+                requiredQty: Number(r.requiredQty),
+              })),
+          }))
+          .filter((it) => it.materials.length > 0);
 
-      if (items.length === 0) {
-        setFormError(
-          "Cần chọn ít nhất 1 vật tư với số lượng hợp lệ cho mỗi sản phẩm.",
-        );
+        if (items.length === 0) {
+          setFormError(
+            "Cần chọn ít nhất 1 vật tư với số lượng hợp lệ cho mỗi sản phẩm.",
+          );
+          return;
+        }
+
+        await addProductionRequest({ note: form.note.trim(), items });
+        resetAfterSubmit();
         return;
       }
 
-      addProductionRequest({ note: form.note.trim(), items });
-      setForm(emptyForm);
-      setSubmitted(true);
-      setTimeout(() => setSubmitted(false), 3000);
-      return;
+      if (!form.productName.trim() || !form.productQty) {
+        setFormError("Vui lòng nhập tên sản phẩm và số lượng.");
+        return;
+      }
+      const validRows = (form.rows || []).filter(
+        (r) => r.materialId && Number(r.requiredQty) > 0,
+      );
+      if (validRows.length === 0) {
+        setFormError("Cần chọn ít nhất 1 vật tư với số lượng hợp lệ.");
+        return;
+      }
+      await addProductionRequest({
+        productName: form.productName.trim(),
+        productQty: Number(form.productQty),
+        note: form.note.trim(),
+        materials: validRows.map((r) => ({
+          materialId: r.materialId,
+          materialName: r.materialName,
+          unit: r.unit,
+          requiredQty: Number(r.requiredQty),
+        })),
+      });
+      resetAfterSubmit();
+    } catch {
+      setFormError("Không gửi được yêu cầu. Vui lòng thử lại.");
     }
-
-    if (!form.productName.trim() || !form.productQty) {
-      setFormError("Vui lòng nhập tên sản phẩm và số lượng.");
-      return;
-    }
-    const validRows = form.rows.filter(
-      (r) => r.materialId && Number(r.requiredQty) > 0,
-    );
-    if (validRows.length === 0) {
-      setFormError("Cần chọn ít nhất 1 vật tư với số lượng hợp lệ.");
-      return;
-    }
-    addProductionRequest({
-      productName: form.productName.trim(),
-      productQty: Number(form.productQty),
-      note: form.note.trim(),
-      materials: validRows.map((r) => ({
-        materialId: r.materialId,
-        materialName: r.materialName,
-        unit: r.unit,
-        requiredQty: Number(r.requiredQty),
-      })),
-    });
-    setForm(emptyForm);
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
   };
 
   // ── Cung cấp bản thiết kế cho nhà máy ────────────────────────────────────
@@ -304,19 +338,29 @@ export default function Technical() {
     });
 
   const pendingDesigns = designRequests.filter((r) => r.status === "pending");
-  const doneDesigns    = designRequests.filter((r) => r.status === "provided");
+  const doneDesigns = designRequests.filter((r) => r.status === "provided");
 
   return (
     <div className="technical-page">
       <div className="page-header">
-        <h1>⚙️ Bộ phận Kỹ thuật</h1>
-        <p className="page-sub">Tạo yêu cầu sản xuất và cung cấp bản thiết kế cho Nhà máy</p>
+        <h1>
+          <Settings
+            size={24}
+            strokeWidth={2}
+            style={{ verticalAlign: "middle", marginRight: 8 }}
+          />
+          Bộ phận Kỹ thuật
+        </h1>
+        <p className="page-sub">
+          Tạo yêu cầu sản xuất và cung cấp bản thiết kế cho Nhà máy
+        </p>
       </div>
 
       {/* ── 0. Thông báo đơn hàng mới được admin xác nhận ────��─────────────── */}
       <AdminCard
         title={`Thông báo đơn hàng mới (${pendingNotifications.length})`}
-        icon="🔔"
+        icon={<Bell size={18} strokeWidth={2} />}
+        gradient="orange"
       >
         {pendingNotifications.length === 0 ? (
           <p className="empty-state">Chưa có đơn hàng nào mới cần xử lý.</p>
@@ -326,7 +370,8 @@ export default function Technical() {
               <thead>
                 <tr>
                   <th>Đơn hàng</th>
-                  <th>Khách hàng</th>
+                  <th>Tên khách hàng</th>
+                  <th>Số điện thoại</th>
                   <th>Sản phẩm</th>
                   <th>Thời gian</th>
                   <th>Hành động</th>
@@ -336,15 +381,13 @@ export default function Technical() {
                 {pendingNotifications.map((o, ni) => (
                   <tr key={`${o.id}-${ni}`}>
                     <td>
-                      <strong>
-                        #{String(o.id).slice(-6).toUpperCase()}
-                      </strong>
+                      <strong>#{String(o.id).slice(-6).toUpperCase()}</strong>
                     </td>
-                    <td>
-                      {o.name || "—"}
-                      <br />
-                      <small>{o.phone}</small>
-                    </td>
+
+                    <td>{o.name}</td>
+
+                    <td>{o.phone}</td>
+
                     <td>
                       <ul className="material-list-inline">
                         {(o.cart || []).map((c, ci) => (
@@ -354,24 +397,21 @@ export default function Technical() {
                         ))}
                       </ul>
                     </td>
-                    <td>
-                      {o.createdAt
-                        ? new Date(o.createdAt).toLocaleString("vi-VN")
-                        : "—"}
-                    </td>
+
+                    <td>{formatDate(o.createdAt)}</td>
+
                     <td>
                       <div className="tech-notify-actions">
-                        <button
-                          className="btn-action btn-action--blue"
-                          onClick={() => loadOrderIntoForm(o)}
-                        >
-                          📋 Điền vào form
-                        </button>
                         <button
                           className="btn-action btn-action--gray"
                           onClick={() => dismissNotification(o.id)}
                         >
-                          ✓ Đã xem
+                          <CheckCircle
+                            size={13}
+                            strokeWidth={2}
+                            style={{ marginRight: 4 }}
+                          />
+                          Đã xem
                         </button>
                       </div>
                     </td>
@@ -384,7 +424,11 @@ export default function Technical() {
       </AdminCard>
 
       {/* ── 1. Tạo yêu cầu SX ─────────────────────────────────────────────── */}
-      <AdminCard title="Tạo yêu cầu sản xuất" icon="📋">
+      <AdminCard
+        title="Tạo yêu cầu sản xuất"
+        icon={<ClipboardList size={18} strokeWidth={2} />}
+        gradient="blue"
+      >
         <form className="tech-form" onSubmit={handleSubmit}>
           {/* Banner auto-fill từ đơn hàng */}
           {autoFillBanner && (
@@ -395,20 +439,28 @@ export default function Technical() {
 
           <div className="form-row">
             <div className="form-group">
-              <label>Tên sản phẩm đầu ra <span className="req">*</span></label>
+              <label>
+                Tên sản phẩm đầu ra <span className="req">*</span>
+              </label>
               <input
                 value={form.productName}
-                onChange={(e) => setForm((f) => ({ ...f, productName: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, productName: e.target.value }))
+                }
                 placeholder="VD: Bàn ăn gỗ sồi 6 chỗ"
               />
             </div>
             <div className="form-group">
-              <label>Số lượng sản xuất <span className="req">*</span></label>
+              <label>
+                Số lượng sản xuất <span className="req">*</span>
+              </label>
               <input
                 type="number"
                 min="1"
                 value={form.productQty}
-                onChange={(e) => setForm((f) => ({ ...f, productQty: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, productQty: e.target.value }))
+                }
                 placeholder="VD: 10"
               />
             </div>
@@ -461,7 +513,9 @@ export default function Technical() {
             ))
           ) : (
             <div className="form-group">
-              <label>Danh sách vật tư cần dùng <span className="req">*</span></label>
+              <label>
+                Danh sách vật tư cần dùng <span className="req">*</span>
+              </label>
               <div className="tech-material-list">
                 <div className="tech-material-list__head">
                   <span>Vật tư</span>
@@ -469,7 +523,7 @@ export default function Technical() {
                   <span>Đơn vị</span>
                   <span></span>
                 </div>
-                {form.rows.map((row, i) => (
+                {(form.rows || []).map((row, i) => (
                   <MaterialRow
                     key={i}
                     row={row}
@@ -481,23 +535,50 @@ export default function Technical() {
                   />
                 ))}
               </div>
-              <button type="button" className="btn-add-row" onClick={() => addRow(-1)}>
+              <button
+                type="button"
+                className="btn-add-row"
+                onClick={() => addRow(-1)}
+              >
                 + Thêm vật tư
               </button>
             </div>
           )}
 
-          {formError && <p className="form-error">⚠️ {formError}</p>}
-          {submitted && <p className="form-success">✅ Đã gửi yêu cầu tới Thủ kho!</p>}
+          {formError && (
+            <p className="form-error">
+              <AlertTriangle
+                size={14}
+                strokeWidth={2}
+                style={{ marginRight: 4 }}
+              />
+              {formError}
+            </p>
+          )}
+          {submitted && (
+            <p className="form-success">
+              <CheckCircle
+                size={14}
+                strokeWidth={2}
+                style={{ marginRight: 4 }}
+              />
+              Đã gửi yêu cầu tới Thủ kho!
+            </p>
+          )}
 
           <button type="submit" className="btn-submit">
-            📤 Gửi yêu cầu cho Thủ kho
+            <Send size={15} strokeWidth={2} style={{ marginRight: 6 }} />
+            Gửi yêu cầu cho Thủ kho
           </button>
         </form>
       </AdminCard>
 
       {/* ── 2. Danh sách yêu cầu SX đã tạo ────────────────────────────────── */}
-      <AdminCard title="Danh sách yêu cầu sản xuất đã tạo" icon="📑">
+      <AdminCard
+        title="Danh sách yêu cầu sản xuất đã tạo"
+        icon={<FileText size={18} strokeWidth={2} />}
+        gradient="teal"
+      >
         {productionRequests.length === 0 ? (
           <p className="empty-state">Chưa có yêu cầu nào.</p>
         ) : (
@@ -518,20 +599,27 @@ export default function Technical() {
                 {productionRequests.map((req, i) => (
                   <tr key={req.id}>
                     <td>{i + 1}</td>
-                    <td><strong>{req.productName}</strong></td>
+                    <td>
+                      <strong>{req.productName}</strong>
+                    </td>
                     <td>{req.productQty}</td>
                     <td>
                       <ul className="material-list-inline">
-                        {req.materials.map((m, mi) => (
+                        {(req.materials || []).map((m, mi) => (
                           <li key={mi}>
-                            {m.materialName}: <strong>{m.requiredQty} {m.unit}</strong>
+                            {m.materialName}:{" "}
+                            <strong>
+                              {m.requiredQty} {m.unit}
+                            </strong>
                           </li>
                         ))}
                       </ul>
                     </td>
                     <td>{req.note || "—"}</td>
-                    <td>{req.createdAt}</td>
-                    <td><StatusBadge status={req.status} /></td>
+                    <td>{formatDate(req.createdAt)}</td>
+                    <td>
+                      <StatusBadge status={req.status} />
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -541,14 +629,25 @@ export default function Technical() {
       </AdminCard>
 
       {/* ── 3. Yêu cầu bản thiết kế từ Nhà máy ────────────────────────────── */}
-      <AdminCard title="Yêu cầu bản thiết kế từ Nhà máy" icon="📐">
+      <AdminCard
+        title="Yêu cầu bản thiết kế từ Nhà máy"
+        icon={<Ruler size={18} strokeWidth={2} />}
+        gradient="purple"
+      >
         {pendingDesigns.length === 0 && doneDesigns.length === 0 ? (
           <p className="empty-state">Chưa có yêu cầu bản thiết kế nào.</p>
         ) : (
           <>
             {pendingDesigns.length > 0 && (
               <>
-                <h3 className="section-subtitle">🟡 Chờ cung cấp ({pendingDesigns.length})</h3>
+                <h3 className="section-subtitle">
+                  <CheckCircle
+                    size={14}
+                    strokeWidth={2}
+                    style={{ color: "#856404", marginRight: 4 }}
+                  />
+                  Chờ cung cấp ({pendingDesigns.length})
+                </h3>
                 <div className="table-wrap">
                   <table className="data-table">
                     <thead>
@@ -565,16 +664,21 @@ export default function Technical() {
                       {pendingDesigns.map((req, i) => (
                         <tr key={req.id}>
                           <td>{i + 1}</td>
-                          <td><strong>{req.productName}</strong></td>
+                          <td>
+                            <strong>{req.productName}</strong>
+                          </td>
                           <td>{req.note || "—"}</td>
-                          <td>{req.createdAt}</td>
+                          <td>{formatDate(req.createdAt)}</td>
                           <td>
                             <textarea
                               rows={2}
                               placeholder="Mô tả bản thiết kế, thông số kỹ thuật..."
                               value={designNotes[req.id] || ""}
                               onChange={(e) =>
-                                setDesignNotes((n) => ({ ...n, [req.id]: e.target.value }))
+                                setDesignNotes((n) => ({
+                                  ...n,
+                                  [req.id]: e.target.value,
+                                }))
                               }
                             />
                           </td>
@@ -582,9 +686,16 @@ export default function Technical() {
                             <button
                               className="btn-action btn-action--green"
                               disabled={!designNotes[req.id]?.trim()}
-                              onClick={() => provideDesign(req.id, designNotes[req.id])}
+                              onClick={() =>
+                                provideDesign(req.id, designNotes[req.id])
+                              }
                             >
-                              ✅ Gửi thiết kế
+                              <Send
+                                size={13}
+                                strokeWidth={2}
+                                style={{ marginRight: 4 }}
+                              />
+                              Gửi thiết kế
                             </button>
                           </td>
                         </tr>
@@ -598,7 +709,12 @@ export default function Technical() {
             {doneDesigns.length > 0 && (
               <>
                 <h3 className="section-subtitle" style={{ marginTop: "24px" }}>
-                  ✅ Đã cung cấp ({doneDesigns.length})
+                  <CheckCircle
+                    size={14}
+                    strokeWidth={2}
+                    style={{ color: "#155724", marginRight: 4 }}
+                  />
+                  Đã cung cấp ({doneDesigns.length})
                 </h3>
                 <div className="table-wrap">
                   <table className="data-table">
@@ -614,9 +730,11 @@ export default function Technical() {
                       {doneDesigns.map((req, i) => (
                         <tr key={req.id}>
                           <td>{i + 1}</td>
-                          <td><strong>{req.productName}</strong></td>
+                          <td>
+                            <strong>{req.productName}</strong>
+                          </td>
                           <td>{req.designNote}</td>
-                          <td>{req.createdAt}</td>
+                          <td>{formatDate(req.createdAt)}</td>
                         </tr>
                       ))}
                     </tbody>

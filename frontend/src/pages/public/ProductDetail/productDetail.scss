@@ -160,11 +160,13 @@
     background: linear-gradient(135deg, #fff0ee, #fff8f7);
     border-radius: 20px;
     height: 400px;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     border: 1.5px solid #f0e8e8;
+    overflow: hidden;
   }
 
   &__badge {
@@ -177,6 +179,7 @@
     font-weight: 700;
     padding: 4px 12px;
     border-radius: 20px;
+    z-index: 2;
   }
 
   &__discount {
@@ -189,12 +192,29 @@
     font-weight: 800;
     padding: 5px 12px;
     border-radius: 8px;
+    z-index: 2;
   }
 
-  &__emoji {
-    font-size: 120px;
-    line-height: 1;
-    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1));
+  // Khung chứa ảnh
+  &__image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      display: block;
+
+      // Ảnh phủ kín toàn bộ khung
+      object-fit: cover;
+      object-position: center;
+
+      filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1));
+    }
   }
 
   &__hint {
@@ -224,11 +244,14 @@
   }
 
   &__name {
-    font-size: 32px;
+    // clamp(min, ưu tiên theo % bề rộng, max): co dần theo màn hình
+    // thay vì đứng yên một cỡ chữ cho tới khi gặp media query.
+    font-size: clamp(20px, 5.4vw, 32px);
     font-weight: 800;
     color: #1a1a2e;
     line-height: 1.3;
     margin: 0;
+    overflow-wrap: anywhere;
   }
 
   &__price-row {
@@ -318,7 +341,7 @@
 .pd-product-details {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 32px;
+  gap: 30px;
   align-items: start;
 }
 
@@ -338,6 +361,8 @@
   border: 1px solid #eeeeee;
   border-radius: 14px;
   padding: 24px;
+  // min-width: 0 để cột grid co lại được thay vì bị nội dung kéo căng
+  min-width: 0;
 
   &__content {
     font-size: 15px;
@@ -348,6 +373,7 @@
     background: #f9f9f9;
     border-radius: 10px;
     border-left: 3px solid #c0392b;
+    overflow-wrap: anywhere;
   }
 }
 
@@ -356,7 +382,11 @@
 .pd-technical {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  position: sticky;
+  top: 100px;
+  align-self: start;
+  min-width: 0;
+  height: fit-content;
 }
 
 // ── Specs ─────────────────────────────────────────────────────────────────────
@@ -499,17 +529,17 @@
   display: flex;
   align-items: baseline;
   gap: 3px;
-  min-width: 90px;
+  min-width: 0;
 
   strong {
-    font-size: 38px;
+    font-size: clamp(24px, 4.6vw, 38px);
     line-height: 1;
     font-weight: 900;
     color: #1a1a2e;
   }
 
   span {
-    font-size: 14px;
+    font-size: clamp(11px, 1.6vw, 14px);
     color: #999;
   }
 }
@@ -524,6 +554,14 @@
   > span {
     font-size: 12px;
     color: #888;
+  }
+
+  // Sao co theo bề rộng màn hình.
+  // RatingStars đặt width/height bằng thuộc tính trên thẻ <svg>; thuộc tính đó
+  // có độ ưu tiên thấp hơn CSS nên khai báo ở đây sẽ ghi đè được, không cần !important.
+  .star svg {
+    width: clamp(22px, 5vw, 50px);
+    height: clamp(22px, 5vw, 50px);
   }
 }
 
@@ -564,6 +602,13 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 5px;
+    min-width: 0;
+
+    // Sao phần "đánh giá của bạn" cũng co theo bề rộng
+    .star svg {
+      width: clamp(26px, 6.4vw, 38px);
+      height: clamp(26px, 6.4vw, 38px);
+    }
   }
 
   &__note {
@@ -735,11 +780,17 @@
 
   &__img {
     background: linear-gradient(135deg, #fff0ee, #fff8f7);
-    height: 130px;
+    height: 230px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 52px;
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
   }
 
   &__body {
@@ -806,7 +857,7 @@
   }
 
   .pd-product-top {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 28px;
   }
 
@@ -814,15 +865,17 @@
     position: static;
   }
 
+  // minmax(0, 1fr) chứ không phải 1fr:
+  // "1fr" = minmax(auto, 1fr) nên cột không bao giờ nhỏ hơn bề rộng nội dung.
+  // Khi bảng thông số hoặc tên sản phẩm dài, cột bị kéo rộng và tràn ngang ở 375px.
   .pd-product-details {
-    grid-template-columns: 1fr;
-    gap: 24px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
   }
 
   // Rating + Comment chuyển thành 2 hàng
   .pd-rating-row {
-    grid-template-columns: 1fr;
-    gap: 24px;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .pd-rating-section,
@@ -875,7 +928,7 @@
     height: 330px;
   }
 
-  .pd-gallery__emoji {
+  .pd-gallery__image {
     font-size: 90px;
   }
 
@@ -883,9 +936,7 @@
     padding-top: 0;
   }
 
-  .pd-info__name {
-    font-size: 25px;
-  }
+  // Cỡ chữ tên sản phẩm đã tự co bằng clamp() ở rule gốc
 
   .pd-info__price {
     font-size: 27px;
@@ -936,17 +987,7 @@
     box-sizing: border-box;
   }
 
-  .pd-rating-score {
-    min-width: 70px;
-
-    strong {
-      font-size: 30px;
-    }
-
-    span {
-      font-size: 12px;
-    }
-  }
+  // Điểm trung bình đã tự co bằng clamp() ở rule gốc
 
   .pd-rating-stars {
     width: 100%;
@@ -1012,7 +1053,7 @@
     border-radius: 14px;
   }
 
-  .pd-gallery__emoji {
+  .pd-gallery__image {
     font-size: 75px;
   }
 
@@ -1026,9 +1067,7 @@
     right: 12px;
   }
 
-  .pd-info__name {
-    font-size: 22px;
-  }
+  // Cỡ chữ tên sản phẩm đã tự co bằng clamp() ở rule gốc
 
   .pd-info__price {
     font-size: 24px;
@@ -1064,25 +1103,35 @@
     padding: 9px 10px;
   }
 
+  // Bảng thông số không được đẩy rộng cột:
+  // table-layout: fixed + cho phép xuống dòng ở mọi điểm gãy từ.
+  .pd-specs__table {
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  .pd-specs__key {
+    width: 38%;
+  }
+
+  .pd-specs__key,
+  .pd-specs__val {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
   // ── Rating ────────────────────────────────────────────────────────────────
 
   .pd-rating-summary {
-    align-items: flex-start;
     padding: 12px;
     gap: 10px;
-  }
-
-  .pd-rating-score {
-    min-width: 65px;
 
     strong {
-      font-size: 25px;
-    }
-
-    span {
-      font-size: 10px;
+      font-size: 23px;
     }
   }
+
+  // Điểm trung bình đã tự co bằng clamp() ở rule gốc
 
   .pd-rating-stars {
     width: 100%;
@@ -1156,8 +1205,8 @@
   // Rating trung bình
   .pd-rating-stars {
     svg {
-      width: 25px !important;
-      height: 25px !important;
+      width: 15px !important;
+      height: 20px !important;
     }
   }
 
@@ -1167,5 +1216,178 @@
       width: 25px !important;
       height: 25px !important;
     }
+  }
+}
+
+// ==================================================
+// PHỤC HỒI — các rule từng có nhưng bị mất khi khôi phục file
+// ==================================================
+
+// Trạng thái nút thêm giỏ hàng (đã thêm / đang gửi / lỗi)
+
+.pd-btn--added {
+  background: #27ae60;
+  border-color: #27ae60;
+  color: #fff;
+}
+
+.pd-btn--add:disabled,
+.pd-btn--buy-now:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pd-add-error {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: #c0392b;
+}
+
+// Bảng thông số: ẩn nền sọc kẻ ở hàng chẵn
+
+.pd-specs__table tr:nth-child(2n) {
+  background: #fff;
+}
+
+// Khung chứa tab đánh giá + bình luận
+.pd-feedback {
+  margin-top: 28px;
+  background: #fff;
+  border: 1px solid #eeeeee;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+// Panel đánh giá + bình luận khi nằm trong khung .pd-feedback
+// Bỏ nền/đổ bóng/bo góc vì khung ngoài đã lo phần đó
+
+.pd-feedback .pd-rating-section,
+.pd-feedback .pd-rating-comment {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
+.pd-feedback__panel {
+  min-width: 0;
+  padding: 20px;
+}
+
+.pd-feedback__tabs {
+  display: flex;
+  border-bottom: 1px solid #eeeeee;
+  background: #fafafa;
+}
+
+.pd-feedback__tab {
+  flex: 1;
+  padding: 14px 16px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: #777;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    background 0.2s,
+    border-color 0.2s;
+
+  &:hover {
+    color: #c0392b;
+    background: #fff;
+  }
+
+  &.is-active {
+    color: #c0392b;
+    background: #fff;
+    border-bottom-color: #c0392b;
+  }
+}
+
+// ==================================================
+// MÀN HÌNH HẸP (375px — iPhone SE / Mini)
+// ==================================================
+// Các phần dưới đây từng đứng yên ở cỡ chữ cố định nên vỡ layout khi
+// màn hình nhỏ: bảng thông số tràn ngang, khối đánh giá bị đẩy vỡ.
+@media (max-width: 400px) {
+  .pd-main {
+    padding: 18px 12px 36px;
+  }
+
+  // ── Mô tả dài ──
+
+  .pd-long-description {
+    padding: 12px;
+  }
+
+  .pd-long-description__content {
+    padding: 12px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  // ── Thông số kỹ thuật ──
+
+  .pd-specs {
+    padding: 12px;
+  }
+
+  .pd-section-title {
+    font-size: 16px;
+  }
+
+  .pd-specs__table {
+    font-size: 12px;
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  .pd-specs__key {
+    width: 38%;
+  }
+
+  .pd-specs__key,
+  .pd-specs__val {
+    padding: 7px 8px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  // ── Nguyên vật liệu ──
+
+  .pd-recipe summary {
+    font-size: 12px;
+  }
+
+  .pd-recipe__list li {
+    font-size: 12px;
+  }
+
+  // ── Đánh giá + bình luận ──
+
+  .pd-rating-section,
+  .pd-rating-comment {
+    padding: 12px;
+  }
+
+  .pd-rating-summary {
+    padding: 10px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .pd-rating-stars {
+    gap: 2px;
+  }
+
+  .pd-user-rating {
+    padding: 10px;
+  }
+
+  .pd-rating-login {
+    padding: 12px;
   }
 }

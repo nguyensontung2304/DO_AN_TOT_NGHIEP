@@ -1,0 +1,47 @@
+// ── Success ────────────────────────────────────────────────────────────────────
+.cart-success {
+  text-align: center;
+  padding: 80px 24px;
+  max-width: 520px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+
+  &__icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #27ae60;
+    margin-bottom: 16px;
+  }
+
+  p {
+    font-size: 15px;
+    color: #555;
+    line-height: 1.7;
+    margin-bottom: 8px;
+  }
+
+  &__sub {
+    color: #888 !important;
+    font-size: 14px !important;
+    margin-bottom: 32px !important;
+  }
+
+  &__btns {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+
+    button {
+      display: flex;
+      gap: 5px;
+    }
+  }
+}
