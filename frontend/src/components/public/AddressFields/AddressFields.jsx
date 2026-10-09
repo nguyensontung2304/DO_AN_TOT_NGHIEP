@@ -118,7 +118,7 @@ function AddressFields({ form, onChange, disabled = false }) {
 
   // Cập nhật dữ liệu vào object form được truyền từ component cha
   const handleChange = (event) => {
-    const { name, value } = event.target;
+    const { name, value, type, checked } = event.target;
 
     if (name === "provinceCode") {
       setProvinceCode(value);
@@ -128,7 +128,11 @@ function AddressFields({ form, onChange, disabled = false }) {
       return;
     }
 
-    form[name] = value;
+    if (type === "checkbox") {
+      form[name] = checked;
+    } else {
+      form[name] = value;
+    }
   };
 
   return (
@@ -147,7 +151,7 @@ function AddressFields({ form, onChange, disabled = false }) {
         </div>
       )}
 
-      {/* <div className="address-fields__group">
+      <div className="address-fields__group">
         <label htmlFor="fullName">
           Họ tên người nhận <span>*</span>
         </label>
@@ -156,7 +160,7 @@ function AddressFields({ form, onChange, disabled = false }) {
           id="fullName"
           name="fullName"
           value={form.fullName || ""}
-          onChange={onChange}
+          onChange={handleChange}
           disabled={disabled}
           required
         />
@@ -175,12 +179,12 @@ function AddressFields({ form, onChange, disabled = false }) {
           maxLength={10}
           pattern="0[0-9]{9}"
           title="Số điện thoại gồm 10 số, bắt đầu bằng 0"
-          defaultValue={form.phone || ""}
+          value={form.phone || ""}
           disabled={disabled}
           required
           onChange={handleChange}
         />
-      </div> */}
+      </div>
 
       <div className="address-fields__row">
         <div className="address-fields__group">

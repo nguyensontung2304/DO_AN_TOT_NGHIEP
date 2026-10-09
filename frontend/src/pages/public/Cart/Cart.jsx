@@ -1,7 +1,7 @@
 import { Package, ShoppingCart, LoaderCircle } from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { ROUTES } from "../../../constants/router";
 
 import {
@@ -12,6 +12,7 @@ import {
   createOrder,
   cancelOrder,
 } from "../../../api";
+import { getAddress } from "../../../api/addressApi";
 import { useApp } from "../../../context/useApp";
 
 import CartView from "./components/CartView/CartView";
@@ -81,6 +82,13 @@ export default function Cart() {
   // id đơn đang mở rộng chi tiết
   const [expandedOrder, setExpandedOrder] = useState(null);
 
+  //  State địa chỉ từ AddressBook
+  const [addresses, setAddresses] = useState([]);
+  const [addressLoading, setAddressLoading] = useState(false);
+  const [defaultAddress, setDefaultAddress] = useState(null);
+
+  const dispatch = useDispatch();
+
   // Kiểm tra profile đã đủ thông tin chưa
   const profileComplete =
     currentUser &&
@@ -89,16 +97,20 @@ export default function Cart() {
     currentUser.address?.trim();
 
   const [form, setForm] = useState({
-    name: "",
+    fullName: "",
     phone: "",
-    address: "",
+    provinceCode: "",
+    wardCode: "",
+    addressLine: "",
     note: "",
   });
 
   const [formErrors, setFormErrors] = useState({
-    name: "",
+    fullName: "",
     phone: "",
-    address: "",
+    provinceCode: "",
+    wardCode: "",
+    addressLine: "",
   });
 
   //  Helper cập nhật form
@@ -109,20 +121,46 @@ export default function Cart() {
     }
   };
 
-  //  Sync profile → form khi chuyển sang checkout
+  //  Sync profile/AddressBook → form khi chuyển sang checkout
   const [formInitialized, setFormInitialized] = useState(false);
+
+  // Load addresses from AddressBook when entering checkout
+  useEffect(() => {
+    if (step === "checkout" && currentUser?.id && addresses.length === 0) {
+      setAddressLoading(true);
+      getAddress()
+        .then((data) => {
+          const addrList = Array.isArray(data) ? data : [];
+          setAddresses(addrList);
+          const defaultAddr = addrList.find((a) => a.isDefault);
+          if (defaultAddr) {
+            setDefaultAddress(defaultAddr);
+          }
+        })
+        .catch((err) => {
+          console.error("Lỗi tải sổ địa chỉ:", err);
+        })
+        .finally(() => {
+          setAddressLoading(false);
+        });
+    }
+  }, [step, currentUser]);
 
   useEffect(() => {
     if (step === "checkout" && !formInitialized && currentUser) {
+      // Ưu tiên địa chỉ mặc định từ AddressBook
+      const addr = defaultAddress || {};
       setForm({
-        name: currentUser.name || "",
-        phone: currentUser.phone || "",
-        address: currentUser.address || "",
+        fullName: addr.fullName || currentUser.name || "",
+        phone: addr.phone || currentUser.phone || "",
+        provinceCode: addr.provinceCode || currentUser.provinceCode || "",
+        wardCode: addr.wardCode || currentUser.wardCode || "",
+        addressLine: addr.addressLine || currentUser.addressLine || "",
         note: "",
       });
       setFormInitialized(true);
     }
-  }, [step, currentUser, formInitialized]);
+  }, [step, currentUser, formInitialized, defaultAddress]);
 
   useEffect(() => {
     if (step === "cart") setFormInitialized(false);
@@ -130,10 +168,16 @@ export default function Cart() {
 
   //  Validate form
   const validateForm = () => {
-    const errors = { name: "", phone: "", address: "" };
+    const errors = {
+      fullName: "",
+      phone: "",
+      provinceCode: "",
+      wardCode: "",
+      addressLine: "",
+    };
     let valid = true;
-    if (!form.name.trim()) {
-      errors.name = "Vui lòng nhập họ và tên.";
+    if (!form.fullName.trim()) {
+      errors.fullName = "Vui lòng nhập họ và tên.";
       valid = false;
     }
 
@@ -145,8 +189,18 @@ export default function Cart() {
       valid = false;
     }
 
-    if (!form.address.trim()) {
-      errors.address = "Vui lòng nhập địa chỉ nhận hàng.";
+    if (!form.provinceCode) {
+      errors.provinceCode = "Vui lòng chọn tỉnh/thành phố.";
+      valid = false;
+    }
+
+    if (!form.wardCode) {
+      errors.wardCode = "Vui lòng chọn phường/xã.";
+      valid = false;
+    }
+
+    if (!form.addressLine.trim()) {
+      errors.addressLine = "Vui lòng nhập địa chỉ chi tiết.";
       valid = false;
     }
 
@@ -283,12 +337,18 @@ export default function Cart() {
     }
     if (!validateForm()) return;
 
+    // Construct full address string for API
+    const fullAddress = `${form.addressLine}, ${form.wardCode}, ${form.provinceCode}`;
+
     try {
       const res = await createOrder({
         userId: currentUser.id,
-        name: form.name,
+        name: form.fullName,
         phone: form.phone,
-        address: form.address,
+        address: fullAddress,
+        provinceCode: form.provinceCode,
+        wardCode: form.wardCode,
+        addressLine: form.addressLine,
         note: form.note,
         cart,
         total: cartTotal,
@@ -308,9 +368,12 @@ export default function Cart() {
         userName: currentUser.name,
         userEmail: currentUser.email,
         createdAt: res.data?.order?.created_at || new Date().toISOString(),
-        name: form.name,
+        name: form.fullName,
         phone: form.phone,
-        address: form.address,
+        provinceCode: form.provinceCode,
+        wardCode: form.wardCode,
+        addressLine: form.addressLine,
+        address: `${form.addressLine}, ${form.wardCode}, ${form.provinceCode}`,
         note: form.note,
         cart: cart.map((item) => ({ ...item })),
         total: cartTotal,

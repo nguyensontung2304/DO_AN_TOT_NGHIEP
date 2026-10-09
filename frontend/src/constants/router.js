@@ -12,6 +12,7 @@ export const ROUTES = {
     REGISTER: "/register",
     PROFILE: "/profile",
     PROFILE_CHANGE_PASSWORD: "/profile/change-password",
+    PROFILE_ADDRESS_BOOK: "/profile/address-book",
   },
   ADMIN: {
     DASHBOARD: "/admin",

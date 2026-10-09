@@ -56,6 +56,7 @@ export default function AdminHeader() {
     handoverOrders,
     designRequests,
     productionReports,
+    finishedGoods,
     pendingNotifications,
     globalNotifications,
     markAllGlobalRead,
@@ -82,6 +83,9 @@ export default function AdminHeader() {
   const pendingReceive = productionReports.filter(
     (r) => r.status === "reported",
   ).length;
+  const pendingHandoverToCustomer = finishedGoods.filter(
+    (g) => !g.handedOver,
+  ).length;
   const unreadGlobal = globalNotifications.filter((n) => !n.read).length;
   const technicalAlerts = pendingDesign + pendingNotifications.length;
   const warehouseAlerts = pendingPR + pendingHandover + pendingReceive;
@@ -93,7 +97,8 @@ export default function AdminHeader() {
     pendingOrders +
     pendingNotifications.length +
     unreadGlobal +
-    pendingReceive;
+    pendingReceive +
+    pendingHandoverToCustomer;
 
   useEffect(() => {
     const onClick = (e) => {
@@ -214,7 +219,7 @@ export default function AdminHeader() {
           if (to === ROUTES.ADMIN.PURCHASING) badge = pendingPurchase;
           if (to === ROUTES.ADMIN.TECHNICAL) badge = technicalAlerts;
           if (to === ROUTES.ADMIN.FACTORY) badge = pendingHandover;
-          if (to === ROUTES.ADMIN.FINISHED_GOODS) badge = pendingReceive;
+          if (to === ROUTES.ADMIN.FINISHED_GOODS) badge = pendingReceive + pendingHandoverToCustomer;
 
           return (
             <NavLink

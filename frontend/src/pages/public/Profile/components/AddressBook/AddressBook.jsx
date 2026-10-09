@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 
-import AddressFields from "../../../components/AddressFields";
+import AddressFields from "../../../../../components/public/AddressFields/AddressFields";
 
 import {
   getAddress,
@@ -23,25 +22,75 @@ const initialForm = {
   isDefault: false,
 };
 
-function AddressBook() {
-  const dispatch = useDispatch();
+function AddressBook({ currentUser }) {
+  // Danh sách địa chỉ lấy trực tiếp từ API
+  const [addresses, setAddresses] = useState([]);
 
-  const [editor, setEditor] = useState(null);
-  const [form, setForm] = useState(initialForm);
+  // Trạng thái tải dữ liệu
+  const [loading, setLoading] = useState(true);
+
+  // Trạng thái lưu, sửa, xóa hoặc đặt mặc định
   const [saving, setSaving] = useState(false);
+
+  // Lỗi tải danh sách
+  const [error, setError] = useState("");
+
+  // Lỗi thao tác
   const [actionError, setActionError] = useState("");
 
-  const {
-    data: addresses = [],
-    loading,
-    error,
-  } = useSelector((state) => state.address.addressList);
+  // Modal thêm hoặc sửa địa chỉ
+  const [editor, setEditor] = useState(null);
 
-  const { data: user } = useSelector((state) => state.auth.userInfo);
+  // Dữ liệu form
+  const [form, setForm] = useState(initialForm);
 
+  // Chuyển lỗi API thành thông báo dễ đọc
+  const showError = (err) => {
+    if (typeof err === "string") return err;
+
+    return (
+      err?.response?.data?.message ||
+      err?.message ||
+      "Đã xảy ra lỗi. Vui lòng thử lại."
+    );
+  };
+
+  // Lấy danh sách địa chỉ từ backend
+  const fetchAddress = async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await getAddress();
+
+      // API hiện tại trả về một mảng địa chỉ.
+      // Hỗ trợ cả trường hợp dữ liệu được bọc trong data.
+      const result = response?.data ?? response;
+
+      const list = Array.isArray(result)
+        ? result
+        : Array.isArray(result?.data)
+          ? result.data
+          : null;
+
+      if (!list) {
+        throw new Error("Dữ liệu danh sách địa chỉ không hợp lệ.");
+      }
+
+      setAddresses(list);
+      return true;
+    } catch (err) {
+      setError(showError(err));
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Tải danh sách khi component được mở
   useEffect(() => {
-    dispatch(getAddress());
-  }, [dispatch]);
+    fetchAddress();
+  }, []);
 
   // Mở form thêm hoặc sửa địa chỉ
   const openEditor = (address = null) => {
@@ -50,18 +99,17 @@ function AddressBook() {
 
     setForm({
       ...initialForm,
-      ...(address || {
-        fullName: user?.name || "",
-        phone: user?.phone || "",
-        isDefault: addresses.length === 0,
-      }),
+      ...(address || {}),
+      fullName: address?.fullName ?? currentUser?.name ?? "",
+      phone: address?.phone ?? currentUser?.phone ?? "",
       provinceCode: address?.provinceCode ?? "",
       wardCode: address?.wardCode ?? "",
       addressLine: address?.addressLine ?? "",
+      isDefault: address ? Boolean(address.isDefault) : addresses.length === 0,
     });
   };
 
-  // Cập nhật dữ liệu khi nhập
+  // Cập nhật dữ liệu khi người dùng nhập
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
 
@@ -71,6 +119,7 @@ function AddressBook() {
         [name]: type === "checkbox" ? checked : value,
       };
 
+      // Khi đổi tỉnh/thành, phải chọn lại phường/xã
       if (name === "provinceCode") {
         next.wardCode = "";
       }
@@ -79,18 +128,7 @@ function AddressBook() {
     });
   };
 
-  // Hiển thị thông báo
-  const showError = (error) => {
-    if (typeof error === "string") return error;
-
-    return (
-      error?.message ||
-      error?.response?.data?.message ||
-      "Đã xảy ra lỗi. Vui lòng thử lại."
-    );
-  };
-
-  // Lưu địa chỉ
+  // Thêm hoặc cập nhật địa chỉ qua API
   const handleSave = async (event) => {
     event.preventDefault();
 
@@ -102,39 +140,56 @@ function AddressBook() {
     try {
       const values = { ...form };
 
-      const thunk = editor.id
-        ? updateAddress({
-            ...values,
-            id: editor.id,
-          })
-        : createAddress(values);
+      if (editor?.id) {
+        await updateAddress({
+          ...values,
+          id: editor.id,
+        });
+      } else {
+        await createAddress(values);
+      }
 
-      await dispatch(thunk).unwrap();
+      // Lấy lại dữ liệu mới nhất từ backend
+      const refreshed = await fetchAddresses();
+
+      if (!refreshed) {
+        setActionError(
+          "Đã lưu địa chỉ nhưng không thể tải lại danh sách. Vui lòng thử lại.",
+        );
+        return;
+      }
 
       setEditor(null);
       setForm(initialForm);
-    } catch (error) {
-      setActionError(showError(error));
+    } catch (err) {
+      setActionError(showError(err));
     } finally {
       setSaving(false);
     }
   };
 
   // Xóa địa chỉ hoặc đặt địa chỉ mặc định
-  const handleAction = async (thunk, successMessage) => {
+  const handleAction = async (apiRequest, successMessage) => {
     if (saving) return;
 
     setSaving(true);
     setActionError("");
 
     try {
-      await dispatch(thunk).unwrap();
+      await apiRequest();
 
-      // Thông báo thành công bằng giao diện của component
-      setActionError("");
+      const refreshed = await fetchAddresses();
+
+      if (!refreshed) {
+        setActionError(
+          "Thao tác đã hoàn tất nhưng không thể tải lại danh sách. Vui lòng thử lại.",
+        );
+        return;
+      }
+
       window.alert(successMessage);
-    } catch (error) {
-      setActionError(showError(error));
+    } catch (err) {
+      setActionError(showError(err));
     } finally {
       setSaving(false);
     }
@@ -149,38 +204,48 @@ function AddressBook() {
           type="button"
           className="address-book__add"
           onClick={() => openEditor()}
-          disabled={saving || loading || Boolean(error)}
+          disabled={saving || loading}
         >
           <span aria-hidden="true">＋</span>
           Thêm địa chỉ
         </button>
       </div>
 
+      {/* Lỗi tải danh sách */}
       {error && (
         <div className="address-book__alert address-book__alert--error">
-          <span>{showError(error)}</span>
+          <span>{error}</span>
 
-          <button type="button" onClick={() => dispatch(getAddress())}>
+          <button
+            type="button"
+            onClick={fetchAddresses}
+            disabled={loading || saving}
+          >
             Thử lại
           </button>
         </div>
       )}
 
+      {/* Lỗi thêm, sửa, xóa hoặc đặt mặc định */}
       {actionError && (
         <div className="address-book__alert address-book__alert--error">
           {actionError}
         </div>
       )}
 
+      {/* Trạng thái tải dữ liệu */}
       {loading ? (
         <div className="address-book__loading">
           <span className="address-book__spinner" />
           <p>Đang tải danh sách địa chỉ...</p>
         </div>
       ) : !error && addresses.length === 0 ? (
+        /* Chưa có địa chỉ */
         <div className="address-book__empty">
           <div className="address-book__empty-icon">⌖</div>
+
           <h3>Chưa có địa chỉ</h3>
+
           <p>
             Bạn chưa có địa chỉ giao hàng. Địa chỉ đầu tiên sẽ được đặt làm mặc
             định.
@@ -190,85 +255,102 @@ function AddressBook() {
             type="button"
             className="address-book__add"
             onClick={() => openEditor()}
+            disabled={saving}
           >
             Thêm địa chỉ ngay
           </button>
         </div>
       ) : (
-        <div className="address-book__list">
-          {addresses.map((address) => (
-            <article className="address-book__card" key={address.id}>
-              <div className="address-book__card-header">
-                <div className="address-book__recipient">
-                  <strong>{address.fullName}</strong>
-                  <span>{address.phone}</span>
+        /* Danh sách địa chỉ */
+        !error && (
+          <div className="address-book__list">
+            {addresses.map((address) => (
+              <article className="address-book__card" key={address.id}>
+                <div className="address-book__card-header">
+                  <div className="address-book__recipient">
+                    <strong>{address.fullName}</strong>
+                    <span>{address.phone}</span>
+                  </div>
+
+                  <div className="address-book__badges">
+                    {address.label && (
+                      <span className="address-book__badge">
+                        {address.label}
+                      </span>
+                    )}
+
+                    {address.isDefault && (
+                      <span className="address-book__badge address-book__badge--default">
+                        Mặc định
+                      </span>
+                    )}
+                  </div>
                 </div>
 
-                <div className="address-book__badges">
-                  {address.label && (
-                    <span className="address-book__badge">{address.label}</span>
-                  )}
+                <p className="address-book__full-address">
+                  {address.fullAddress ||
+                    [
+                      address.addressLine,
+                      address.wardName,
+                      address.provinceName,
+                    ]
+                      .filter(Boolean)
+                      .join(", ")}
+                </p>
 
-                  {address.isDefault && (
-                    <span className="address-book__badge address-book__badge--default">
-                      Mặc định
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <p className="address-book__full-address">
-                {address.fullAddress}
-              </p>
-
-              <div className="address-book__actions">
-                <button
-                  type="button"
-                  onClick={() => openEditor(address)}
-                  disabled={saving}
-                >
-                  Sửa
-                </button>
-
-                {!address.isDefault && (
+                <div className="address-book__actions">
                   <button
                     type="button"
-                    onClick={() =>
-                      handleAction(
-                        setDefaultAddress(address.id),
-                        "Đã đặt địa chỉ mặc định",
-                      )
-                    }
+                    onClick={() => openEditor(address)}
                     disabled={saving}
                   >
-                    Đặt làm mặc định
+                    Sửa
                   </button>
-                )}
 
-                <button
-                  type="button"
-                  className="address-book__delete"
-                  onClick={() => {
-                    const confirmed = window.confirm(
-                      address.isDefault
-                        ? "Xóa địa chỉ mặc định này? Địa chỉ còn lại đầu tiên sẽ trở thành mặc định."
-                        : "Bạn có chắc chắn muốn xóa địa chỉ này?",
-                    );
+                  {!address.isDefault && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleAction(
+                          () => setDefaultAddress(address.id),
+                          "Đã đặt địa chỉ mặc định",
+                        )
+                      }
+                      disabled={saving}
+                    >
+                      Đặt làm mặc định
+                    </button>
+                  )}
 
-                    if (confirmed) {
-                      handleAction(deleteAddress(address.id), "Đã xóa địa chỉ");
-                    }
-                  }}
-                  disabled={saving}
-                >
-                  Xóa
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
+                  <button
+                    type="button"
+                    className="address-book__delete"
+                    onClick={() => {
+                      const confirmed = window.confirm(
+                        address.isDefault
+                          ? "Xóa địa chỉ mặc định này? Địa chỉ còn lại đầu tiên sẽ trở thành mặc định."
+                          : "Bạn có chắc chắn muốn xóa địa chỉ này?",
+                      );
+
+                      if (confirmed) {
+                        handleAction(
+                          () => deleteAddress(address.id),
+                          "Đã xóa địa chỉ",
+                        );
+                      }
+                    }}
+                    disabled={saving}
+                  >
+                    Xóa
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+        )
       )}
 
+      {/* Modal thêm hoặc sửa địa chỉ */}
       {editor !== null && (
         <div
           className="address-book__overlay"
@@ -315,6 +397,7 @@ function AddressBook() {
                     disabled={saving}
                     onChange={handleChange}
                   />
+
                   <small>Không bắt buộc.</small>
                 </div>
 
@@ -331,7 +414,9 @@ function AddressBook() {
                     checked={Boolean(form.isDefault)}
                     onChange={handleChange}
                     disabled={
-                      saving || editor.isDefault || addresses.length === 0
+                      saving ||
+                      Boolean(editor.isDefault) ||
+                      addresses.length === 0
                     }
                   />
 

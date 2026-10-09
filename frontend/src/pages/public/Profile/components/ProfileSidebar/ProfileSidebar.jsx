@@ -14,6 +14,11 @@ const TABS = [
     to: ROUTES.USER.PROFILE,
   },
   {
+    key: "addressBook",
+    label: "📍 Sổ địa chỉ",
+    to: ROUTES.USER.PROFILE_ADDRESS_BOOK,
+  },
+  {
     key: "password",
     label: "🔒 Đổi mật khẩu",
     to: ROUTES.USER.PROFILE_CHANGE_PASSWORD,

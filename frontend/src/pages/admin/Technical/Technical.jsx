@@ -10,6 +10,8 @@ import {
   CheckCircle,
   ClipboardList,
   AlertTriangle,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { useApp } from "../../../context/useApp";
 import "./technical.scss";
@@ -74,7 +76,8 @@ function MaterialRow({
 
       <input
         type="number"
-        min="1"
+        min="0.01"
+        step="0.01"
         placeholder="Số lượng cần"
         value={row.requiredQty}
         onChange={(e) =>
@@ -189,6 +192,9 @@ export default function Technical() {
 
   // Đơn hàng đã nạp vào form lần nào (tránh nạp lại khi render lại)
   const [filledOrderId, setFilledOrderId] = useState(null);
+
+  // View more state
+  const [showAllTechnical, setShowAllTechnical] = useState(false);
 
   useEffect(() => {
     if (
@@ -582,49 +588,69 @@ export default function Technical() {
         {productionRequests.length === 0 ? (
           <p className="empty-state">Chưa có yêu cầu nào.</p>
         ) : (
-          <div className="table-wrap">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Sản phẩm</th>
-                  <th>SL SX</th>
-                  <th>Vật tư cần</th>
-                  <th>Ghi chú</th>
-                  <th>Ngày tạo</th>
-                  <th>Trạng thái</th>
-                </tr>
-              </thead>
-              <tbody>
-                {productionRequests.map((req, i) => (
-                  <tr key={req.id}>
-                    <td>{i + 1}</td>
-                    <td>
-                      <strong>{req.productName}</strong>
-                    </td>
-                    <td>{req.productQty}</td>
-                    <td>
-                      <ul className="material-list-inline">
-                        {(req.materials || []).map((m, mi) => (
-                          <li key={mi}>
-                            {m.materialName}:{" "}
-                            <strong>
-                              {m.requiredQty} {m.unit}
-                            </strong>
-                          </li>
-                        ))}
-                      </ul>
-                    </td>
-                    <td>{req.note || "—"}</td>
-                    <td>{formatDate(req.createdAt)}</td>
-                    <td>
-                      <StatusBadge status={req.status} />
-                    </td>
+          <>
+            <div className="table-wrap">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Sản phẩm</th>
+                    <th>SL SX</th>
+                    <th>Vật tư cần</th>
+                    <th>Ghi chú</th>
+                    <th>Ngày tạo</th>
+                    <th>Trạng thái</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {productionRequests.slice(0, showAllTechnical ? undefined : 5).map((req, i) => (
+                    <tr key={req.id}>
+                      <td>{i + 1}</td>
+                      <td>
+                        <strong>{req.productName}</strong>
+                      </td>
+                      <td>{req.productQty}</td>
+                      <td>
+                        <ul className="material-list-inline">
+                          {(req.materials || []).map((m, mi) => (
+                            <li key={mi}>
+                              {m.materialName}:{" "}
+                              <strong>
+                                {m.requiredQty} {m.unit}
+                              </strong>
+                            </li>
+                          ))}
+                        </ul>
+                      </td>
+                      <td>{req.note || "—"}</td>
+                      <td>{formatDate(req.createdAt)}</td>
+                      <td>
+                        <StatusBadge status={req.status} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {productionRequests.length > 5 && (
+              <button
+                className="dash-view-more"
+                onClick={() => setShowAllTechnical(!showAllTechnical)}
+              >
+                {showAllTechnical ? (
+                  <>
+                    <ChevronUp size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+                    Thu gọn
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+                    Xem thêm ({productionRequests.length - 5} mục nữa)
+                  </>
+                )}
+              </button>
+            )}
+          </>
         )}
       </AdminCard>
 

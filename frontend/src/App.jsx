@@ -108,6 +108,7 @@ function App() {
 
             {/* Tương tự: tab hồ sơ và tab đổi mật khẩu có 2 URL khác nhau */}
             <Route path={ROUTES.USER.PROFILE} element={<Profile />} />
+            <Route path={ROUTES.USER.PROFILE_ADDRESS_BOOK} element={<Profile />} />
             <Route
               path={ROUTES.USER.PROFILE_CHANGE_PASSWORD}
               element={<Profile />}

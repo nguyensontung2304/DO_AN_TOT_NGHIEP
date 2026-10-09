@@ -100,6 +100,7 @@ export default function OrdersView({
       </div>
     );
   }
+  console.log(orders);
 
   return (
     <div className="orders-list">

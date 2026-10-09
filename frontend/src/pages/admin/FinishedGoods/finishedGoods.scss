@@ -128,3 +128,31 @@
   font-weight: 800;
   color: #27ae60;
 }
+
+// ── View More Button ────────────────────────────────────────────────────────────
+.dash-view-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    background: #eef2ff;
+    border-color: #2563eb;
+    color: #1d4ed8;
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+}

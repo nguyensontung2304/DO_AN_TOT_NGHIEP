@@ -1,16 +1,15 @@
 import api from "./api";
 
-export const getAddresses = async () =>
-  (await api.get("/profile/addresses")).data;
+export const getAddress = async () => (await api.get("/profile/address")).data;
 
 export const createAddress = async (data) =>
-  (await api.post("/profile/addresses", data)).data;
+  (await api.post("/profile/address", data)).data;
 
 export const updateAddress = async ({ id, ...data }) =>
-  (await api.patch(`/profile/addresses/${id}`, data)).data;
+  (await api.patch(`/profile/address/${id}`, data)).data;
 
 export const deleteAddress = async (id) =>
-  (await api.delete(`/profile/addresses/${id}`)).data;
+  (await api.delete(`/profile/address/${id}`)).data;
 
 export const setDefaultAddress = async (id) =>
-  (await api.patch(`/profile/addresses/${id}/default`)).data;
+  (await api.patch(`/profile/address/${id}/default`)).data;

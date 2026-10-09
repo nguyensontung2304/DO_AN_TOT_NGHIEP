@@ -7,6 +7,8 @@ import {
   Ruler,
   FileText,
   ChartNoAxesColumn,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { useState } from "react";
 import { formatDate } from "../../../utils/formatDate";
@@ -84,6 +86,8 @@ export default function Factory() {
     (o) => o.status === "accepted" || o.status === "in_production",
   );
   const doneHandovers = handoverOrders.filter((o) => o.status === "done");
+
+  const [showAllDone, setShowAllDone] = useState(false);
 
   const handleAccept = (order) =>
     updateHandoverOrderStatus(order.id, "accepted");
@@ -446,7 +450,7 @@ export default function Factory() {
                 </tr>
               </thead>
               <tbody>
-                {doneHandovers.map((o, i) => (
+                {doneHandovers.slice(0, showAllDone ? undefined : 5).map((o, i) => (
                   <tr key={o.id}>
                     <td>{i + 1}</td>
                     <td>
@@ -462,6 +466,24 @@ export default function Factory() {
               </tbody>
             </table>
           </div>
+          {doneHandovers.length > 5 && (
+            <button
+              className="dash-view-more"
+              onClick={() => setShowAllDone(!showAllDone)}
+            >
+              {showAllDone ? (
+                <>
+                  <ChevronUp size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+                  Thu gọn
+                </>
+              ) : (
+                <>
+                  <ChevronDown size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+                  Xem thêm ({doneHandovers.length - 5} mục nữa)
+                </>
+              )}
+            </button>
+          )}
         </AdminCard>
       )}
     </div>

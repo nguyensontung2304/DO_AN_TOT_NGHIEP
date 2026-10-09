@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import {
   Package,
   ClipboardList,
@@ -7,16 +8,12 @@ import {
   Gift,
   Zap,
   Banknote,
-  // RefreshCw,
-  // Settings,
-  // Wrench,
-  // Download,
-  // Truck,
   AlertTriangle,
   BarChart2,
   Clock,
   Ruler,
-  // Check,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { useApp } from "../../../context/useApp";
 import { formatDate } from "../../../utils/formatDate";
@@ -45,21 +42,78 @@ function StatCard({ icon: Icon, value, label, color, to }) {
   );
 }
 
-// function FlowStep({ num, icon: Icon, label, active, done }) {
-//   return (
-//     <div
-//       className={`flow-step ${active ? "flow-step--active" : ""} ${done ? "flow-step--done" : ""}`}
-//     >
-//       <div className="flow-step__circle">
-//         {done ? <Check size={14} strokeWidth={2.5} /> : num}
-//       </div>
-//       <span className="flow-step__icon">
-//         <Icon size={20} strokeWidth={1.8} />
-//       </span>
-//       <span className="flow-step__label">{label}</span>
-//     </div>
-//   );
-// }
+function RecentTable({
+  title,
+  icon: Icon,
+  gradient,
+  data,
+  columns,
+  renderRow,
+  route,
+  limit = 5,
+}) {
+  const [showAll, setShowAll] = useState(false);
+  const displayData = showAll ? data : data.slice(0, limit);
+  const hasMore = data.length > limit;
+
+  return (
+    <div className={`admin-card admin-card--gradient-${gradient}`}>
+      <div className="admin-card__header">
+        <Icon size={18} strokeWidth={2} />
+        <h2>{title}</h2>
+      </div>
+      <div className="admin-card__body">
+        {data.length === 0 ? (
+          <p className="empty-state">Chưa có dữ liệu nào.</p>
+        ) : (
+          <>
+            <div className="table-wrap">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    {columns.map((col, i) => (
+                      <th key={i}>{col}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {displayData.map((item, i) => (
+                    <tr key={item.id || i}>
+                      {renderRow(item, i)}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {hasMore && (
+              <button
+                className="dash-view-more"
+                onClick={() => setShowAll(!showAll)}
+              >
+                {showAll ? (
+                  <>
+                    <ChevronUp size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+                    Thu gọn
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+                    Xem thêm ({data.length - limit} mục nữa)
+                  </>
+                )}
+              </button>
+            )}
+            {route && !showAll && (
+              <Link to={route} className="dash-view-all-link">
+                Xem tất cả →
+              </Link>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function Dashboard() {
   const {
@@ -93,8 +147,8 @@ export default function Dashboard() {
   const pendingOrders = orders.filter((o) => o.status === "pending").length;
   const totalOrderValue = orders.reduce((s, o) => s + Number(o.total || 0), 0);
 
-  const recentRequests = [...productionRequests].reverse().slice(0, 5);
-  const recentOrders = [...orders].reverse().slice(0, 5);
+  const recentRequests = [...productionRequests].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  const recentOrders = [...orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   const statusLabel = {
     pending: "Chờ thủ kho",
@@ -116,7 +170,7 @@ export default function Dashboard() {
     pending: "Chờ xác nhận",
     confirmed: "Đã xác nhận",
     processing: "Đang sản xuất",
-    shipping: "Hoàn thành — đang giao",
+    shipping: "Đã giao hàng",
     done: "Hoàn thành",
     cancelled: "Đã hủy",
   };
@@ -284,231 +338,56 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* Flow diagram */}
-      {/* <div
-        className="admin-card admin-card--gradient-purple"
-        style={{ marginBottom: "28px" }}
-      >
-        <div className="admin-card__header">
-          <RefreshCw size={18} strokeWidth={2} />
-          <h2>Quy trình sản xuất</h2>
-        </div>
-        <div className="admin-card__body">
-          <div className="flow-diagram">
-            <FlowStep
-              num={1}
-              icon={Settings}
-              label="Kỹ thuật tạo yêu cầu"
-              done={productionRequests.length > 0}
-              active={false}
-            />
-            <div className="flow-arrow">→</div>
-            <FlowStep
-              num={2}
-              icon={Warehouse}
-              label="Thủ kho kiểm kê"
-              done={productionRequests.some((r) => r.status !== "pending")}
-              active={pending > 0}
-            />
-            <div className="flow-arrow">→</div>
-            <FlowStep
-              num={3}
-              icon={ShoppingCart}
-              label="Mua hàng"
-              done={purchaseRequests.some((r) => r.status !== "pending")}
-              active={purPending > 0}
-            />
-            <div className="flow-arrow">→</div>
-            <FlowStep
-              num={4}
-              icon={Download}
-              label="Nhập kho"
-              done={purchaseRequests.some((r) => r.status === "stocked")}
-              active={false}
-            />
-            <div className="flow-arrow">→</div>
-            <FlowStep
-              num={5}
-              icon={Truck}
-              label="Bàn giao NM"
-              done={handoverOrders.length > 0}
-              active={false}
-            />
-            <div className="flow-arrow">→</div>
-            <FlowStep
-              num={6}
-              icon={Wrench}
-              label="Sản xuất"
-              done={productionReports.length > 0}
-              active={inProd > 0}
-            />
-            <div className="flow-arrow">→</div>
-            <FlowStep
-              num={7}
-              icon={Package}
-              label="Nhận thành phẩm"
-              done={totalFin > 0}
-              active={reportPend > 0}
-            />
-          </div>
-        </div>
-      </div> */}
-
       <div className="dash-bottom">
         {/* Yêu cầu SX gần nhất */}
-        <div className="admin-card admin-card--gradient-blue">
-          <div className="admin-card__header">
-            <Clock size={18} strokeWidth={2} />
-            <h2>Yêu cầu sản xuất gần nhất</h2>
-          </div>
-          <div className="admin-card__body">
-            {recentRequests.length === 0 ? (
-              <p className="empty-state">Chưa có yêu cầu nào.</p>
-            ) : (
-              <div className="table-wrap">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Sản phẩm</th>
-                      <th>SL</th>
-                      <th>Ngày tạo</th>
-                      <th>Trạng thái</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentRequests.map((r) => (
-                      <tr key={r.id}>
-                        <td>
-                          <strong>{r.productName}</strong>
-                        </td>
-                        <td>{r.productQty}</td>
-                        <td>{formatDate(r.createdAt)}</td>
-                        <td>
-                          <span
-                            className={`badge ${statusCls[r.status] || "badge--gray"}`}
-                          >
-                            {statusLabel[r.status] || r.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
+        <RecentTable
+          title="Yêu cầu sản xuất gần nhất"
+          icon={Clock}
+          gradient="blue"
+          data={recentRequests}
+          columns={["Sản phẩm", "SL", "Ngày tạo", "Trạng thái"]}
+          renderRow={(r) => (
+            <>
+              <td><strong>{r.productName}</strong></td>
+              <td>{r.productQty}</td>
+              <td>{formatDate(r.createdAt)}</td>
+              <td>
+                <span className={`badge ${statusCls[r.status] || "badge--gray"}`}>
+                  {statusLabel[r.status] || r.status}
+                </span>
+              </td>
+            </>
+          )}
+          route={ROUTES.ADMIN.WAREHOUSE}
+        />
 
         {/* Đơn hàng gần nhất */}
-        <div className="admin-card admin-card--gradient-green">
-          <div className="admin-card__header">
-            <ClipboardList size={18} strokeWidth={2} />
-            <h2>Đơn hàng gần nhất</h2>
-          </div>
-          <div className="admin-card__body">
-            {recentOrders.length === 0 ? (
-              <p className="empty-state">Chưa có đơn hàng nào.</p>
-            ) : (
-              <div className="table-wrap">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Khách hàng</th>
-                      <th>Sản phẩm</th>
-                      <th>Tổng tiền</th>
-                      <th>Ngày đặt</th>
-                      <th>Trạng thái</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentOrders.map((o) => (
-                      <tr key={o.id}>
-                        <td>
-                          <strong>{o.name}</strong>
-                        </td>
-                        <td>
-                          <small>
-                            {(o.cart || []).length} SP:{" "}
-                            {(o.cart || []).map((i) => i.name).join(", ")}
-                          </small>
-                        </td>
-                        <td>{Number(o.total).toLocaleString("vi-VN")}₫</td>
-                        <td>{formatDate(o.createdAt)}</td>
-                        <td>
-                          <span
-                            className={`badge ${orderStatusCls[o.status] || "badge--gray"}`}
-                          >
-                            {orderStatusLabel[o.status] || o.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Quick links */}
-        {/* <div className="admin-card admin-card--gradient-orange">
-          <div className="admin-card__header">
-            <Zap size={18} strokeWidth={2} />
-            <h2>Truy cập nhanh</h2>
-          </div>
-          <div className="admin-card__body">
-            <div className="dash-quick-links">
-              {[
-                {
-                  to: ROUTES.ADMIN.ORDERS,
-                  Icon: ClipboardList,
-                  label: "Đơn hàng",
-                  sub: "Quản lý đơn hàng KH",
-                },
-                {
-                  to: ROUTES.ADMIN.TECHNICAL,
-                  Icon: Settings,
-                  label: "Kỹ thuật",
-                  sub: "Tạo yêu cầu SX",
-                },
-                {
-                  to: ROUTES.ADMIN.WAREHOUSE,
-                  Icon: Warehouse,
-                  label: "Thủ kho",
-                  sub: "Kiểm kê & nhập kho",
-                },
-                {
-                  to: ROUTES.ADMIN.PURCHASING,
-                  Icon: ShoppingCart,
-                  label: "Mua hàng",
-                  sub: "Xử lý đơn mua",
-                },
-                {
-                  to: ROUTES.ADMIN.FACTORY,
-                  Icon: Wrench,
-                  label: "Nhà máy",
-                  sub: "Quản lý sản xuất",
-                },
-                {
-                  to: ROUTES.ADMIN.FINISHED_GOODS,
-                  Icon: Package,
-                  label: "Thành phẩm",
-                  sub: "Kho thành phẩm",
-                },
-              ].map(({ to, Icon, label, sub }) => (
-                <Link key={to} to={to} className="dash-quick-link">
-                  <span className="dash-quick-link__icon">
-                    <Icon size={22} strokeWidth={1.8} />
-                  </span>
-                  <div>
-                    <strong>{label}</strong>
-                    <small>{sub}</small>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div> */}
+        <RecentTable
+          title="Đơn hàng gần nhất"
+          icon={ClipboardList}
+          gradient="green"
+          data={recentOrders}
+          columns={["Khách hàng", "Sản phẩm", "Tổng tiền", "Ngày đặt", "Trạng thái"]}
+          renderRow={(o) => (
+            <>
+              <td><strong>{o.name}</strong></td>
+              <td>
+                <small>
+                  {(o.cart || []).length} SP:{" "}
+                  {(o.cart || []).map((i) => i.name).join(", ")}
+                </small>
+              </td>
+              <td>{Number(o.total).toLocaleString("vi-VN")}₫</td>
+              <td>{formatDate(o.createdAt)}</td>
+              <td>
+                <span className={`badge ${orderStatusCls[o.status] || "badge--gray"}`}>
+                  {orderStatusLabel[o.status] || o.status}
+                </span>
+              </td>
+            </>
+          )}
+          route={ROUTES.ADMIN.ORDERS}
+        />
       </div>
     </div>
   );

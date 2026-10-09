@@ -13,6 +13,8 @@ import {
   Save,
   X,
   CheckCircle,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { formatDate } from "../../../utils/formatDate";
 import { useApp } from "../../../context/useApp";
@@ -75,6 +77,9 @@ export default function Warehouse() {
   const [editId, setEditId] = useState(null);
   const [editForm, setEditForm] = useState({ name: "", unit: "", stock: "" });
   const [rowMsg, setRowMsg] = useState("");
+
+  // View more state
+  const [showAllAll, setShowAllAll] = useState(false);
 
   const flash = (msg) => {
     setRowMsg(msg);
@@ -768,34 +773,54 @@ export default function Warehouse() {
         {productionRequests.length === 0 ? (
           <p className="empty-state">Chưa có yêu cầu nào.</p>
         ) : (
-          <div className="table-wrap">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Sản phẩm</th>
-                  <th>SL</th>
-                  <th>Ngày tạo</th>
-                  <th>Trạng thái</th>
-                </tr>
-              </thead>
-              <tbody>
-                {productionRequests.map((r, i) => (
-                  <tr key={r.id}>
-                    <td>{i + 1}</td>
-                    <td>
-                      <strong>{r.productName}</strong>
-                    </td>
-                    <td>{r.productQty}</td>
-                    <td>{formatDate(r.createdAt)}</td>
-                    <td>
-                      <StatusBadge status={r.status} />
-                    </td>
+          <>
+            <div className="table-wrap">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Sản phẩm</th>
+                    <th>SL</th>
+                    <th>Ngày tạo</th>
+                    <th>Trạng thái</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {productionRequests.slice(0, showAllAll ? undefined : 5).map((r, i) => (
+                    <tr key={r.id}>
+                      <td>{i + 1}</td>
+                      <td>
+                        <strong>{r.productName}</strong>
+                      </td>
+                      <td>{r.productQty}</td>
+                      <td>{formatDate(r.createdAt)}</td>
+                      <td>
+                        <StatusBadge status={r.status} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {productionRequests.length > 5 && (
+              <button
+                className="dash-view-more"
+                onClick={() => setShowAllAll(!showAllAll)}
+              >
+                {showAllAll ? (
+                  <>
+                    <ChevronUp size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+                    Thu gọn
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+                    Xem thêm ({productionRequests.length - 5} mục nữa)
+                  </>
+                )}
+              </button>
+            )}
+          </>
         )}
       </AdminCard>
     </div>

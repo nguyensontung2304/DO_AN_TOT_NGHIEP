@@ -5,11 +5,13 @@ import { ROUTES } from "../../../constants/router";
 import ProfileSidebar from "./components/ProfileSidebar/ProfileSidebar";
 import ProfileInfo from "./components/ProfileInfo/ProfileInfo";
 import ChangePassword from "./components/ChangePassword/ChangePassword";
+import AddressBook from "./components/AddressBook/AddressBook";
 
 import "./profile.scss";
 
 const TAB_TITLES = {
   info: "👤 Thông tin cá nhân",
+  addressBook: "📍 Sổ địa chỉ",
   password: "🔒 Đổi mật khẩu",
 };
 
@@ -25,7 +27,11 @@ export default function Profile() {
   const { pathname } = useLocation();
 
   const activeTab =
-    pathname === ROUTES.USER.PROFILE_CHANGE_PASSWORD ? "password" : "info";
+    pathname === ROUTES.USER.PROFILE_CHANGE_PASSWORD
+      ? "password"
+      : pathname === ROUTES.USER.PROFILE_ADDRESS_BOOK
+        ? "addressBook"
+        : "info";
 
   return (
     <div className="profile-page">
@@ -36,8 +42,9 @@ export default function Profile() {
           <h2 className="profile-content__title">{TAB_TITLES[activeTab]}</h2>
 
           {activeTab === "info" ? (
-            // key theo user để đổi tài khoản thì form được dựng lại từ đầu
             <ProfileInfo key={currentUser.id} currentUser={currentUser} />
+          ) : activeTab === "addressBook" ? (
+            <AddressBook currentUser={currentUser} />
           ) : (
             <ChangePassword />
           )}

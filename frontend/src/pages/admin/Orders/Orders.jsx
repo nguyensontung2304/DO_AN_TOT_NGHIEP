@@ -1,18 +1,16 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import {
   Inbox,
   CheckCircle,
-  Wrench,
   Check,
   Ban,
-  Loader2,
-  Factory,
   User,
   Phone,
   MapPin,
   Mail,
   FileText,
   ClipboardList,
+  Wrench,
 } from "lucide-react";
 import { useApp } from "../../../context/useApp";
 import { getProductById } from "../../../api";
@@ -38,7 +36,7 @@ function OrderStatusBadge({ status }) {
     pending: { label: "Chờ xác nhận", cls: "badge--yellow" },
     confirmed: { label: "Đã xác nhận", cls: "badge--blue" },
     processing: { label: "Đang sản xuất", cls: "badge--purple" },
-    shipping: { label: "Hoàn thành — đang giao", cls: "badge--blue" },
+    shipping: { label: "Đã giao hàng", cls: "badge--blue" },
     done: { label: "Hoàn thành", cls: "badge--green" },
     cancelled: { label: "Đã hủy", cls: "badge--red" },
   };
@@ -47,13 +45,7 @@ function OrderStatusBadge({ status }) {
 }
 
 export default function Orders() {
-  const {
-    orders,
-    updateOrderStatus,
-    addProductionRequest,
-    materials,
-    setConfirmedOrderDraft,
-  } = useApp();
+  const { orders, updateOrderStatus, setConfirmedOrderDraft } = useApp();
 
   const pendingOrders = orders.filter((o) => o.status === "pending");
   const confirmedOrders = orders.filter((o) => o.status === "confirmed");
@@ -62,139 +54,51 @@ export default function Orders() {
     (o) => o.status === "done" || o.status === "shipping",
   );
 
-  const [loadingProduct, setLoadingProduct] = useState(null);
-  const [actionMsg, setActionMsg] = useState({});
   const [confirmingId, setConfirmingId] = useState(null);
 
-  const handleConfirm = useCallback(
-    async (order) => {
-      setConfirmingId(order.id);
-      updateOrderStatus(order.id, "confirmed");
-      try {
-        const recipeResults = await Promise.all(
-          (order.cart || []).map((item) =>
-            getProductById(item.productId)
-              .then((res) => ({ item, recipe: res.data?.recipe || [] }))
-              .catch(() => ({ item, recipe: [] })),
-          ),
-        );
-        const itemsWithRecipe = recipeResults.map(({ item, recipe }) => ({
-          ...item,
-          materials: recipe.map((r) => ({
-            material_name: r.material_name,
-            unit: r.unit,
-            qty: Number(r.qty) * Number(item.qty),
-          })),
-        }));
-        const materialMap = {};
-        itemsWithRecipe.forEach((item) => {
-          item.materials.forEach((r) => {
-            const key = r.material_name.toLowerCase().trim();
-            if (!materialMap[key])
-              materialMap[key] = {
-                material_name: r.material_name,
-                unit: r.unit,
-                qty: 0,
-              };
-            materialMap[key].qty += r.qty;
-          });
-        });
-        setConfirmedOrderDraft?.({
-          ...order,
-          itemsWithRecipe,
-          recipeRows: Object.values(materialMap),
-        });
-      } catch {
-        /* keep draft from updateOrderStatus */
-      } finally {
-        setConfirmingId(null);
-      }
-    },
-    [updateOrderStatus, setConfirmedOrderDraft],
-  );
-
-  const handleCreateProduction = useCallback(
-    async (order) => {
-      const items = order.cart || [];
-      if (!items.length) return;
-      setLoadingProduct(order.id);
-      try {
-        const recipeResults = await Promise.all(
-          items.map((item) =>
-            getProductById(item.productId)
-              .then((res) => ({ item, recipe: res.data?.recipe || [] }))
-              .catch(() => ({ item, recipe: [] })),
-          ),
-        );
-        const requestItems = recipeResults
-          .map(({ item, recipe }) => {
-            const agg = {};
-            recipe.forEach((r) => {
-              const key = r.material_name.toLowerCase().trim();
-              if (!agg[key])
-                agg[key] = {
-                  materialId: null,
-                  materialName: r.material_name,
-                  unit: r.unit,
-                  requiredQty: 0,
-                };
-              const mat = materials.find(
-                (m) => m.name.toLowerCase().trim() === key,
-              );
-              if (agg[key].materialId === null && mat)
-                agg[key].materialId = mat.id;
-              agg[key].requiredQty += Number(r.qty) * Number(item.qty);
-            });
-            return {
-              productName: item.name,
-              productQty: item.qty,
-              materials: Object.values(agg).filter(
-                (m) => m.materialId !== null,
-              ),
+  const handleConfirm = async (order) => {
+    setConfirmingId(order.id);
+    updateOrderStatus(order.id, "confirmed");
+    try {
+      const recipeResults = await Promise.all(
+        (order.cart || []).map((item) =>
+          getProductById(item.productId)
+            .then((res) => ({ item, recipe: res.data?.recipe || [] }))
+            .catch(() => ({ item, recipe: [] })),
+        ),
+      );
+      const itemsWithRecipe = recipeResults.map(({ item, recipe }) => ({
+        ...item,
+        materials: recipe.map((r) => ({
+          material_name: r.material_name,
+          unit: r.unit,
+          qty: Number(r.qty) * Number(item.qty),
+        })),
+      }));
+      const materialMap = {};
+      itemsWithRecipe.forEach((item) => {
+        item.materials.forEach((r) => {
+          const key = r.material_name.toLowerCase().trim();
+          if (!materialMap[key])
+            materialMap[key] = {
+              material_name: r.material_name,
+              unit: r.unit,
+              qty: 0,
             };
-          })
-          .filter((it) => it.materials.length > 0);
-
-        if (!requestItems.length) {
-          setActionMsg((prev) => ({
-            ...prev,
-            [order.id]: "Không tìm thấy vật tư nào trong kho cho đơn này",
-          }));
-          setTimeout(
-            () => setActionMsg((prev) => ({ ...prev, [order.id]: "" })),
-            4000,
-          );
-          return;
-        }
-        await addProductionRequest({
-          orderId: order.id,
-          note: order.note || `Đơn hàng #${order.id}`,
-          items: requestItems,
+          materialMap[key].qty += r.qty;
         });
-        updateOrderStatus(order.id, "processing");
-        setActionMsg((prev) => ({
-          ...prev,
-          [order.id]: `Đã tạo ${requestItems.length} yêu cầu sản xuất!`,
-        }));
-        setTimeout(
-          () => setActionMsg((prev) => ({ ...prev, [order.id]: "" })),
-          3000,
-        );
-      } catch {
-        setActionMsg((prev) => ({
-          ...prev,
-          [order.id]: "Có lỗi khi tạo yêu cầu sản xuất",
-        }));
-        setTimeout(
-          () => setActionMsg((prev) => ({ ...prev, [order.id]: "" })),
-          3000,
-        );
-      } finally {
-        setLoadingProduct(null);
-      }
-    },
-    [materials, addProductionRequest, updateOrderStatus],
-  );
+      });
+      setConfirmedOrderDraft?.({
+        ...order,
+        itemsWithRecipe,
+        recipeRows: Object.values(materialMap),
+      });
+    } catch {
+      /* keep draft from updateOrderStatus */
+    } finally {
+      setConfirmingId(null);
+    }
+  };
 
   const handleComplete = (order) => updateOrderStatus(order.id, "done");
   const handleCancel = (order) => updateOrderStatus(order.id, "cancelled");
@@ -258,11 +162,9 @@ export default function Orders() {
                 key={order.id}
                 order={order}
                 onConfirm={handleConfirm}
-                onProduce={handleCreateProduction}
                 onCancel={handleCancel}
-                loading={loadingProduct === order.id}
                 confirming={confirmingId === order.id}
-                actionMsg={actionMsg[order.id]}
+                // actionMsg={actionMsg[order.id]}
                 formatDate={formatDate}
                 formatCurrency={formatCurrency}
               />
@@ -273,7 +175,7 @@ export default function Orders() {
 
       {confirmedOrders.length > 0 && (
         <AdminCard
-          title="Đã xác nhận — chờ tạo yêu cầu sản xuất"
+          title="Đã xác nhận — chờ Kỹ thuật xử lý"
           icon={<CheckCircle size={18} strokeWidth={2} />}
           gradient="teal"
         >
@@ -282,10 +184,7 @@ export default function Orders() {
               <OrderItemCard
                 key={order.id}
                 order={order}
-                onProduce={handleCreateProduction}
                 onCancel={handleCancel}
-                loading={loadingProduct === order.id}
-                actionMsg={actionMsg[order.id]}
                 formatDate={formatDate}
                 formatCurrency={formatCurrency}
               />
@@ -342,7 +241,6 @@ function OrderItemCard({
   onConfirm,
   onComplete,
   onCancel,
-  onProduce,
   loading,
   confirming,
   actionMsg,
@@ -456,25 +354,6 @@ function OrderItemCard({
               <>
                 <Check size={14} strokeWidth={2} style={{ marginRight: 4 }} />
                 Xác nhận đơn
-              </>
-            )}
-          </button>
-        )}
-        {order.status === "confirmed" && onProduce && (
-          <button
-            className="btn-action btn-action--purple"
-            onClick={() => onProduce(order)}
-            disabled={loading}
-          >
-            {loading ? (
-              <>
-                <Loader2 size={14} strokeWidth={2} style={{ marginRight: 4 }} />
-                Đang tạo...
-              </>
-            ) : (
-              <>
-                <Factory size={14} strokeWidth={2} style={{ marginRight: 4 }} />
-                Tạo yêu cầu sản xuất
               </>
             )}
           </button>
