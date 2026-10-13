@@ -74,13 +74,12 @@ export async function getWards(provinceCode) {
 export async function validateShippingAddress(data) {
   if (!data || typeof data !== "object")
     throw httpError(400, "Thông tin địa chỉ không hợp lệ");
-  const fullName =
-    typeof data.fullName === "string" ? data.fullName.trim() : "";
+  const name = typeof data.name === "string" ? data.name.trim() : "";
   const phone = typeof data.phone === "string" ? data.phone.trim() : "";
   const addressLine =
     typeof data.addressLine === "string" ? data.addressLine.trim() : "";
   const label = typeof data.label === "string" ? data.label.trim() : "";
-  if (!fullName || fullName.length > 100)
+  if (!name || name.length > 100)
     throw httpError(400, "Họ tên phải có từ 1 đến 100 ký tự");
   if (!/^0\d{9}$/.test(phone))
     throw httpError(400, "Số điện thoại gồm 10 số, bắt đầu bằng 0");
@@ -103,7 +102,7 @@ export async function validateShippingAddress(data) {
     throw httpError(400, "Địa chỉ đầy đủ tối đa 255 ký tự");
   return {
     label,
-    fullName,
+    name,
     phone,
     addressLine,
     provinceCode,

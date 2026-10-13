@@ -23,6 +23,7 @@ export function formatProduct(product) {
     image: getImageUrl(product.image),
     badge: product.badge || null,
     description: product.description,
+    long_description: product.long_description,
     categoryId: Number(product.category_id),
     categoryName: product.category?.name,
   };
@@ -36,7 +37,6 @@ export function formatUser(user) {
     email: user.email,
     role: user.role,
     phone: user.phone,
-    address: user.address,
     avatar: getImageUrl(user.avatar),
   };
 }
@@ -77,7 +77,7 @@ export function formatAddress(address) {
   return {
     id: address.id,
     label: address.label,
-    fullName: address.full_name,
+    name: address.name,
     phone: address.phone,
     provinceCode: address.province_code,
     provinceName: address.province_name,

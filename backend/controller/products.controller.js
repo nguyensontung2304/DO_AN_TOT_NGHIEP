@@ -5,30 +5,6 @@ import { formatProduct } from "../utils/format.js";
 const { Product, ProductSpec, ProductRecipe, Rating, Comment, Category } =
   models;
 
-// ====================== UTILS ======================
-// Trả về danh sách danh mục có sản phẩm kèm số lượng (dùng cho filter phía client)
-// const getCategoriesWithProductCount = async () => {
-//   const all = await Category.findAll({
-//     attributes: ["id", "name"],
-//     order: [["name", "ASC"]],
-//   });
-
-//   const counts = await Product.findAll({
-//     attributes: ["category_id", [fn("COUNT", col("id")), "count"]],
-//     where: { category_id: { [Op.ne]: null } },
-//     group: ["category_id"],
-//     raw: true,
-//   });
-
-//   const countMap = Object.fromEntries(
-//     counts.map((c) => [c.category_id, Number(c.count)]),
-//   );
-
-//   return all
-//     .map((c) => ({ name: c.name, count: countMap[c.id] ?? 0 }))
-//     .filter((c) => c.count > 0);
-// };
-
 // ====================== LẤY TẤT CẢ SẢN PHẨM ======================
 export const getProducts = async (req, res) => {
   const {

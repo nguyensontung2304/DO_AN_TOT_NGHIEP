@@ -27,10 +27,6 @@ export default class User extends Model {
       type: DataTypes.STRING(10),
       allowNull: true
     },
-    address: {
-      type: DataTypes.STRING(100),
-      allowNull: true
-    },
     refresh_token: {
       type: DataTypes.TEXT,
       allowNull: true

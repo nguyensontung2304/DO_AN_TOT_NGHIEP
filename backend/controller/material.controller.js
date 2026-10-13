@@ -31,7 +31,7 @@ export const updateMaterialStock = async (req, res) => {
 
   const m = await Material.findByPk(id);
   if (!m) return res.status(404).json({ message: "Không tìm thấy vật tư" });
-  await m.update({ stock: m.stock + delta });
+  await m.update({ stock: Number(m.stock || 0) + Number(delta || 0) });
   res.status(200).json(mapMaterial(m));
 };
 

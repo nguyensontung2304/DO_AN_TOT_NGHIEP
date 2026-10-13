@@ -23,7 +23,7 @@ export default class Address extends Model {
       allowNull: false,
       defaultValue: ""
     },
-    full_name: {
+    name: {
       type: DataTypes.STRING(100),
       allowNull: false
     },

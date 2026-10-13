@@ -16,7 +16,7 @@ export const getAllFinishedGoods = async (req, res) => {
 };
 
 // POST /finished-goods  { name, qty, unit }
-// Cộng dồn vào thành phẩm đã có cùng tên, nếu chưa có thì tạo mới
+// Mỗi lần nhập kho là một lô riêng, kể cả khi trùng tên sản phẩm.
 export const createFinishedGood = async (req, res) => {
   const { name, qty, unit } = req.body;
   if (!name || qty === undefined) {
@@ -24,16 +24,6 @@ export const createFinishedGood = async (req, res) => {
   }
 
   const amount = Number(qty);
-  const existing = await FinishedGood.findOne({
-    where: { name },
-    order: [["id", "DESC"]],
-  });
-
-  if (existing) {
-    await existing.update({ qty: existing.qty + amount });
-    return res.status(201).json(mapFG(existing));
-  }
-
   const created = await FinishedGood.create({ name, qty: amount, unit });
   res.status(201).json(mapFG(created));
 };

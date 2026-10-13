@@ -54,7 +54,7 @@ const orderInclude = [
   {
     model: User,
     as: "user",
-    attributes: ["id", "name", "email", "phone", "address"],
+    attributes: ["id", "name", "email", "phone"],
   },
 
   {

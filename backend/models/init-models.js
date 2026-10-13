@@ -1,6 +1,7 @@
 import _sequelize from "sequelize";
 const DataTypes = _sequelize.DataTypes;
 import _Address from  "./address.js";
+import _AdminComponent from  "./adminComponent.js";
 import _CartItem from  "./cartItem.js";
 import _Category from  "./category.js";
 import _Comment from  "./comment.js";
@@ -18,10 +19,12 @@ import _ProductionRequest from  "./productionRequest.js";
 import _Product from  "./product.js";
 import _PurchaseRequest from  "./purchaseRequest.js";
 import _Rating from  "./rating.js";
+import _UserAdminPermission from  "./userAdminPermission.js";
 import _User from  "./user.js";
 
 export default function initModels(sequelize) {
   const Address = _Address.init(sequelize, DataTypes);
+  const AdminComponent = _AdminComponent.init(sequelize, DataTypes);
   const CartItem = _CartItem.init(sequelize, DataTypes);
   const Category = _Category.init(sequelize, DataTypes);
   const Comment = _Comment.init(sequelize, DataTypes);
@@ -39,8 +42,11 @@ export default function initModels(sequelize) {
   const Product = _Product.init(sequelize, DataTypes);
   const PurchaseRequest = _PurchaseRequest.init(sequelize, DataTypes);
   const Rating = _Rating.init(sequelize, DataTypes);
+  const UserAdminPermission = _UserAdminPermission.init(sequelize, DataTypes);
   const User = _User.init(sequelize, DataTypes);
 
+  UserAdminPermission.belongsTo(AdminComponent, { as: "component", foreignKey: "component_id"});
+  AdminComponent.hasMany(UserAdminPermission, { as: "user_admin_permissions", foreignKey: "component_id"});
   Product.belongsTo(Category, { as: "category", foreignKey: "category_id"});
   Category.hasMany(Product, { as: "products", foreignKey: "category_id"});
   OrderItem.belongsTo(Order, { as: "order", foreignKey: "order_id"});
@@ -77,9 +83,12 @@ export default function initModels(sequelize) {
   User.hasMany(Order, { as: "orders", foreignKey: "user_id"});
   Rating.belongsTo(User, { as: "user", foreignKey: "user_id"});
   User.hasMany(Rating, { as: "ratings", foreignKey: "user_id"});
+  UserAdminPermission.belongsTo(User, { as: "user", foreignKey: "user_id"});
+  User.hasMany(UserAdminPermission, { as: "user_admin_permissions", foreignKey: "user_id"});
 
   return {
     Address,
+    AdminComponent,
     CartItem,
     Category,
     Comment,
@@ -97,6 +106,7 @@ export default function initModels(sequelize) {
     Product,
     PurchaseRequest,
     Rating,
+    UserAdminPermission,
     User,
   };
 }

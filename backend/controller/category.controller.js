@@ -47,7 +47,9 @@ export const createCategory = async (req, res) => {
   const { name } = req.body;
 
   if (!name || !String(name).trim()) {
-    return res.status(400).json({ message: "Tên danh mục không được để trống" });
+    return res
+      .status(400)
+      .json({ message: "Tên danh mục không được để trống" });
   }
 
   try {
@@ -74,7 +76,9 @@ export const updateCategory = async (req, res) => {
 
   if (name !== undefined && name !== null) {
     if (!String(name).trim()) {
-      return res.status(400).json({ message: "Tên danh mục không được để trống" });
+      return res
+        .status(400)
+        .json({ message: "Tên danh mục không được để trống" });
     }
     category.name = String(name).trim();
     try {

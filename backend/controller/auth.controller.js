@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import models from "../models/index.js";
 import { formatUser } from "../utils/format.js";
 
-const { User } = models;
+const { User, Address, AdminComponent, UserAdminPermission } = models;
 
 // Các controller dưới đây không cần try/catch:
 // Express 5 tự chuyển lỗi sang errorHandler (middlewares/error.middleware.js)
@@ -64,43 +64,125 @@ export async function register(req, res) {
 // POST /login - đăng nhập, body: { email, password }
 export async function login(req, res) {
   const { email, password } = req.body;
-  console.log("=======> Login request body:", req.body); // Log email, password gửi lên từ frontend
 
-  // Tìm user trong database theo email
-  const matchUser = await User.findOne({ where: { email: email } });
-  console.log("=======> Matched user:", matchUser);
+  // 1. Tìm tài khoản theo email
+  const matchUser = await User.findOne({
+    where: { email },
+  });
 
-  // Nếu không tìm thấy email user, trả về lỗi
   if (!matchUser) {
-    return res.status(400).json({ message: "Email hoặc mật khẩu không đúng" });
+    return res.status(400).json({
+      message: "Email hoặc mật khẩu không đúng",
+    });
   }
 
-  // So sánh mật khẩu người dùng nhập với mật khẩu đã mã hóa trong database
+  // 2. Kiểm tra mật khẩu
   const isMatchPassword = await bcrypt.compare(password, matchUser.password);
-  console.log("=======> password:", password); // Log mật khẩu người dùng nhập
-  console.log("=======> matchUser.password:", matchUser.password); // Log mật khẩu đã mã hóa trong database
-  console.log("=======> Password match:", isMatchPassword); // Log kết quả so sánh mật khẩu
 
-  // Nếu mật khẩu không khớp, trả về lỗi
   if (!isMatchPassword) {
-    return res.status(400).json({ message: "Email hoặc mật khẩu không đúng" });
+    return res.status(400).json({
+      message: "Email hoặc mật khẩu không đúng",
+    });
   }
 
-  // Nếu email và mật khẩu đúng, tạo access token và refresh token
+  // 3. Chỉ tài khoản admin gốc được cấp toàn bộ quyền.
+  // Cấu hình ADMIN_ROOT_EMAIL trong file .env (mặc định admin@gmail.com).
+  const rootEmail = (process.env.ADMIN_ROOT_EMAIL || "admin@gmail.com")
+    .trim()
+    .toLowerCase();
+
+  const isRootAdmin =
+    matchUser.role === "admin" &&
+    (matchUser.email.trim().toLowerCase() === rootEmail ||
+      matchUser.email.trim().toLowerCase() === "admin@gmail.com");
+
+  // 4. Lấy quyền component từ database
+  let permissions = [];
+
+  if (matchUser.role === "admin") {
+    if (isRootAdmin) {
+      // Admin gốc: lấy tất cả component hiện có
+      const components = await AdminComponent.findAll({
+        attributes: ["code"],
+      });
+
+      const defaultCodes = [
+        "dashboard",
+        "orders",
+        "technical",
+        "warehouse",
+        "purchasing",
+        "factory",
+        "finished_goods",
+        "products",
+        "chat",
+      ];
+      permissions = Array.from(
+        new Set([...components.map((component) => component.code), ...defaultCodes])
+      );
+    } else {
+      // Admin thông thường: chỉ lấy các quyền đã được cấp
+      const assignedPermissions = await UserAdminPermission.findAll({
+        where: {
+          user_id: matchUser.id,
+        },
+        include: [
+          {
+            model: AdminComponent,
+            as: "component",
+            attributes: ["code"],
+            required: true,
+          },
+        ],
+      });
+
+      permissions = assignedPermissions
+        .map((permission) => permission.component?.code)
+        .filter(Boolean);
+    }
+  }
+
+  // 5. Tạo token
   const accessToken = generateAccessToken(matchUser);
-  console.log("=======> Access token:", accessToken); // Log access token
   const refreshToken = generateRefreshToken(matchUser);
-  console.log("=======> Refresh token:", refreshToken); // Log refresh token
 
-  // Lưu refresh token vào DB để sau này kiểm tra khi cấp lại access token
-  await matchUser.update({ refresh_token: refreshToken });
-  console.log("=======> Matched user sau khi đã lưu refresh token:", matchUser);
+  // 6. Lưu refresh token
+  await matchUser.update({
+    refresh_token: refreshToken,
+  });
 
-  // Trả về access token, refresh token và thông tin user (không có password)
-  res.status(200).json({
-    accessToken: accessToken,
-    refreshToken: refreshToken,
-    user: formatUser(matchUser),
+  // 7. Lấy danh sách địa chỉ của user
+  const addressList = await Address.findAll({
+    where: {
+      user_id: matchUser.id,
+    },
+    order: [
+      ["is_default", "DESC"],
+      ["id", "DESC"],
+    ],
+  });
+
+  const addresses = addressList.map((item) => item.toJSON());
+
+  const defaultAddress =
+    addresses.find((item) => item.is_default) || addresses[0] || null;
+
+  // 8. Trả thông tin user kèm địa chỉ từ bảng addresses
+  return res.status(200).json({
+    accessToken,
+    refreshToken,
+    user: {
+      ...formatUser(matchUser),
+
+      // Danh sách địa chỉ từ bảng addresses
+      addresses,
+
+      // Địa chỉ mặc định, thay thế address cũ
+      address: defaultAddress,
+
+      permissions,
+      isRootAdmin,
+    },
   });
 }
 
@@ -158,14 +240,96 @@ export async function refreshToken(req, res) {
 }
 
 // ====================== MyProfile ======================
-// GET /profile - lấy thông tin user đang đăng nhập (cần token)
+// GET /profile - lấy thông tin user đang đăng nhập
+
 export async function getMyProfile(req, res) {
-  const result = await User.findByPk(req.user.id);
-  if (!result) {
-    return res.status(404).json({ message: "Không tìm thấy user" });
+  const user = await User.findByPk(req.user.id);
+
+  if (!user) {
+    return res.status(404).json({
+      message: "Không tìm thấy user",
+    });
   }
 
-  res.status(200).json(formatUser(result));
+  // Lấy danh sách địa chỉ
+  const addressList = await Address.findAll({
+    where: {
+      user_id: user.id,
+    },
+    order: [
+      ["is_default", "DESC"],
+      ["id", "DESC"],
+    ],
+  });
+
+  const addresses = addressList.map((item) => item.toJSON());
+
+  const defaultAddress =
+    addresses.find((item) => item.is_default) || addresses[0] || null;
+
+  // Xác định tài khoản quản trị gốc
+  const rootEmail = (process.env.ADMIN_ROOT_EMAIL || "admin@gmail.com")
+    .trim()
+    .toLowerCase();
+
+  const isRootAdmin =
+    user.role === "admin" &&
+    (user.email.trim().toLowerCase() === rootEmail ||
+      user.email.trim().toLowerCase() === "admin@gmail.com");
+
+  // Lấy quyền component từ database
+  let permissions = [];
+
+  if (user.role === "admin") {
+    if (isRootAdmin) {
+      // Admin gốc được lấy toàn bộ component đã khai báo
+      const components = await AdminComponent.findAll({
+        attributes: ["code"],
+      });
+
+      const defaultCodes = [
+        "dashboard",
+        "orders",
+        "technical",
+        "warehouse",
+        "purchasing",
+        "factory",
+        "finished_goods",
+        "products",
+        "chat",
+      ];
+      permissions = Array.from(
+        new Set([...components.map((component) => component.code), ...defaultCodes])
+      );
+    } else {
+      // Admin thường chỉ nhận quyền đã được cấp
+      const assignedPermissions = await UserAdminPermission.findAll({
+        where: {
+          user_id: user.id,
+        },
+        include: [
+          {
+            model: AdminComponent,
+            as: "component",
+            attributes: ["code"],
+            required: true,
+          },
+        ],
+      });
+
+      permissions = assignedPermissions
+        .map((permission) => permission.component?.code)
+        .filter(Boolean);
+    }
+  }
+
+  return res.status(200).json({
+    ...formatUser(user),
+    addresses,
+    address: defaultAddress,
+    permissions,
+    isRootAdmin,
+  });
 }
 
 // ====================== Cập nhật USER theo id ======================
@@ -191,7 +355,6 @@ export const updateMyProfile = async (req, res) => {
   await user.update({
     name,
     phone,
-    address,
   });
 
   // Trả dữ liệu user sau khi cập nhật

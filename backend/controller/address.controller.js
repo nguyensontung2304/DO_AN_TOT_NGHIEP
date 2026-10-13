@@ -7,7 +7,7 @@ const { Address, User } = models;
 
 const toDatabase = (data) => ({
   label: data.label,
-  full_name: data.fullName,
+  name: data.name,
   phone: data.phone,
   province_code: data.provinceCode,
   province_name: data.provinceName,
