@@ -133,7 +133,7 @@ export default function Purchasing() {
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Sản phẩm SX</th>
+                  <th>Sản phẩm sản xuất</th>
                   <th>Vật tư</th>
                   <th>Ngày</th>
                 </tr>

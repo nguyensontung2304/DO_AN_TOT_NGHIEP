@@ -35,7 +35,7 @@ function StatusBadge({ status }) {
     pending: { label: "Chờ thủ kho", cls: "badge--yellow" },
     checked: { label: "Đã kiểm kê", cls: "badge--blue" },
     purchasing: { label: "Đang mua hàng", cls: "badge--orange" },
-    ready: { label: "Sẵn sàng SX", cls: "badge--teal" },
+    ready: { label: "Sẵn sàng sản xuất", cls: "badge--teal" },
     in_production: { label: "Đang sản xuất", cls: "badge--purple" },
     done: { label: "Hoàn thành", cls: "badge--green" },
   };
@@ -228,70 +228,76 @@ export default function Technical() {
     setTimeout(() => setSubmitted(false), 3000);
   };
 
-  // Gửi yêu cầu: nhiều sản phẩm → tạo 1 yêu cầu/sản phẩm, vật tư đi kèm riêng
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setFormError("");
-    setAutoFillBanner("");
+// Gửi yêu cầu: nhiều sản phẩm → tạo 1 yêu cầu/sản phẩm, vật tư đi kèm riêng
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      setFormError("");
+      setAutoFillBanner("");
 
-    const groups = form.groups || [];
+      const groups = form.groups || [];
 
-    try {
-      if (groups.length > 0) {
-        const items = groups
-          .map((g) => ({
-            productName: g.name,
-            productQty: Number(g.qty),
-            materials: g.rows
-              .filter((r) => r.materialId && Number(r.requiredQty) > 0)
-              .map((r) => ({
-                materialId: r.materialId,
-                materialName: r.materialName,
-                unit: r.unit,
-                requiredQty: Number(r.requiredQty),
-              })),
-          }))
-          .filter((it) => it.materials.length > 0);
+      try {
+        if (groups.length > 0) {
+          const items = groups
+            .map((g) => ({
+              productName: g.name,
+              productQty: Number(g.qty),
+              materials: g.rows
+                .filter((r) => r.materialId && Number(r.requiredQty) > 0)
+                .map((r) => ({
+                  materialId: r.materialId,
+                  materialName: r.materialName,
+                  unit: r.unit,
+                  requiredQty: Number(r.requiredQty),
+                })),
+            }))
+            .filter((it) => it.materials.length > 0);
 
-        if (items.length === 0) {
-          setFormError(
-            "Cần chọn ít nhất 1 vật tư với số lượng hợp lệ cho mỗi sản phẩm.",
-          );
+          if (items.length === 0) {
+            setFormError(
+              "Cần chọn ít nhất 1 vật tư với số lượng hợp lệ cho mỗi sản phẩm.",
+            );
+            return;
+          }
+
+          // Lấy orderId từ confirmedOrderDraft nếu có
+          const orderId = confirmedOrderDraft?.id || null;
+          await addProductionRequest({ note: form.note.trim(), items, orderId });
+          resetAfterSubmit();
           return;
         }
 
-        await addProductionRequest({ note: form.note.trim(), items });
-        resetAfterSubmit();
-        return;
-      }
+        if (!form.productName.trim() || !form.productQty) {
+          setFormError("Vui lòng nhập tên sản phẩm và số lượng.");
+          return;
+        }
+        const validRows = (form.rows || []).filter(
+          (r) => r.materialId && Number(r.requiredQty) > 0,
+        );
+        if (validRows.length === 0) {
+          setFormError("Cần chọn ít nhất 1 vật tư với số lượng hợp lệ.");
+          return;
+        }
 
-      if (!form.productName.trim() || !form.productQty) {
-        setFormError("Vui lòng nhập tên sản phẩm và số lượng.");
-        return;
+        // Lấy orderId từ confirmedOrderDraft nếu có
+        const orderId = confirmedOrderDraft?.id || null;
+        await addProductionRequest({
+          productName: form.productName.trim(),
+          productQty: Number(form.productQty),
+          note: form.note.trim(),
+          materials: validRows.map((r) => ({
+            materialId: r.materialId,
+            materialName: r.materialName,
+            unit: r.unit,
+            requiredQty: Number(r.requiredQty),
+          })),
+          orderId,
+        });
+        resetAfterSubmit();
+      } catch {
+        setFormError("Không gửi được yêu cầu. Vui lòng thử lại.");
       }
-      const validRows = (form.rows || []).filter(
-        (r) => r.materialId && Number(r.requiredQty) > 0,
-      );
-      if (validRows.length === 0) {
-        setFormError("Cần chọn ít nhất 1 vật tư với số lượng hợp lệ.");
-        return;
-      }
-      await addProductionRequest({
-        productName: form.productName.trim(),
-        productQty: Number(form.productQty),
-        note: form.note.trim(),
-        materials: validRows.map((r) => ({
-          materialId: r.materialId,
-          materialName: r.materialName,
-          unit: r.unit,
-          requiredQty: Number(r.requiredQty),
-        })),
-      });
-      resetAfterSubmit();
-    } catch {
-      setFormError("Không gửi được yêu cầu. Vui lòng thử lại.");
-    }
-  };
+    };
 
   // ── Cung cấp bản thiết kế cho nhà máy ────────────────────────────────────
   const [designNotes, setDesignNotes] = useState({});
@@ -603,32 +609,34 @@ export default function Technical() {
                   </tr>
                 </thead>
                 <tbody>
-                  {productionRequests.slice(0, showAllTechnical ? undefined : 5).map((req, i) => (
-                    <tr key={req.id}>
-                      <td>{i + 1}</td>
-                      <td>
-                        <strong>{req.productName}</strong>
-                      </td>
-                      <td>{req.productQty}</td>
-                      <td>
-                        <ul className="material-list-inline">
-                          {(req.materials || []).map((m, mi) => (
-                            <li key={mi}>
-                              {m.materialName}:{" "}
-                              <strong>
-                                {m.requiredQty} {m.unit}
-                              </strong>
-                            </li>
-                          ))}
-                        </ul>
-                      </td>
-                      <td>{req.note || "—"}</td>
-                      <td>{formatDate(req.createdAt)}</td>
-                      <td>
-                        <StatusBadge status={req.status} />
-                      </td>
-                    </tr>
-                  ))}
+                  {productionRequests
+                    .slice(0, showAllTechnical ? undefined : 5)
+                    .map((req, i) => (
+                      <tr key={req.id}>
+                        <td>{i + 1}</td>
+                        <td>
+                          <strong>{req.productName}</strong>
+                        </td>
+                        <td>{req.productQty}</td>
+                        <td>
+                          <ul className="material-list-inline">
+                            {(req.materials || []).map((m, mi) => (
+                              <li key={mi}>
+                                {m.materialName}:{" "}
+                                <strong>
+                                  {m.requiredQty} {m.unit}
+                                </strong>
+                              </li>
+                            ))}
+                          </ul>
+                        </td>
+                        <td>{req.note || "—"}</td>
+                        <td>{formatDate(req.createdAt)}</td>
+                        <td>
+                          <StatusBadge status={req.status} />
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
@@ -639,12 +647,20 @@ export default function Technical() {
               >
                 {showAllTechnical ? (
                   <>
-                    <ChevronUp size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+                    <ChevronUp
+                      size={14}
+                      strokeWidth={2}
+                      style={{ marginRight: 4 }}
+                    />
                     Thu gọn
                   </>
                 ) : (
                   <>
-                    <ChevronDown size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+                    <ChevronDown
+                      size={14}
+                      strokeWidth={2}
+                      style={{ marginRight: 4 }}
+                    />
                     Xem thêm ({productionRequests.length - 5} mục nữa)
                   </>
                 )}

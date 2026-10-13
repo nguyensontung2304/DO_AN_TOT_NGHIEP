@@ -16,9 +16,9 @@ import { useApp } from "../../../context/useApp";
 import "../Technical/technical.scss";
 import "./factory.scss";
 
-function AdminCard({ title, icon, children }) {
+function AdminCard({ title, icon, gradient, children }) {
   return (
-    <div className="admin-card">
+    <div className={`admin-card admin-card--gradient-${gradient}`}>
       <div className="admin-card__header">
         <span>{icon}</span>
         <h2>{title}</h2>
@@ -266,7 +266,7 @@ export default function Factory() {
       <AdminCard
         title="Đang sản xuất"
         icon={<Zap size={18} strokeWidth={2} />}
-        gradient="yellow"
+        gradient="pink"
       >
         {acceptedHandovers.length === 0 ? (
           <p className="empty-state">Không có đơn hàng đang sản xuất.</p>
@@ -450,19 +450,21 @@ export default function Factory() {
                 </tr>
               </thead>
               <tbody>
-                {doneHandovers.slice(0, showAllDone ? undefined : 5).map((o, i) => (
-                  <tr key={o.id}>
-                    <td>{i + 1}</td>
-                    <td>
-                      <strong>{o.productName}</strong>
-                    </td>
-                    <td>{o.productQty}</td>
-                    <td>{formatDate(o.createdAt)}</td>
-                    <td>
-                      <HandoverStatusBadge status={o.status} />
-                    </td>
-                  </tr>
-                ))}
+                {doneHandovers
+                  .slice(0, showAllDone ? undefined : 5)
+                  .map((o, i) => (
+                    <tr key={o.id}>
+                      <td>{i + 1}</td>
+                      <td>
+                        <strong>{o.productName}</strong>
+                      </td>
+                      <td>{o.productQty}</td>
+                      <td>{formatDate(o.createdAt)}</td>
+                      <td>
+                        <HandoverStatusBadge status={o.status} />
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
@@ -473,12 +475,20 @@ export default function Factory() {
             >
               {showAllDone ? (
                 <>
-                  <ChevronUp size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+                  <ChevronUp
+                    size={14}
+                    strokeWidth={2}
+                    style={{ marginRight: 4 }}
+                  />
                   Thu gọn
                 </>
               ) : (
                 <>
-                  <ChevronDown size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+                  <ChevronDown
+                    size={14}
+                    strokeWidth={2}
+                    style={{ marginRight: 4 }}
+                  />
                   Xem thêm ({doneHandovers.length - 5} mục nữa)
                 </>
               )}

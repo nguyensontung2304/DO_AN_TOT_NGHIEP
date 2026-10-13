@@ -4,7 +4,7 @@ import { faComment } from "@fortawesome/free-solid-svg-icons";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getProducts } from "../../../api";
+import { getCategories } from "../../../api/categoryApi";
 import { ROUTES } from "../../../constants/router";
 import "./publicFooter.scss";
 
@@ -24,11 +24,10 @@ export default function PublicFooter() {
 
     (async () => {
       try {
-        const res = await getProducts({ limit: 1 });
-        const data = res.data;
+        const res = await getCategories();
 
         if (!cancelled) {
-          setCategories(Array.isArray(data?.categories) ? data.categories : []);
+          setCategories(Array.isArray(res.data) ? res.data : []);
         }
       } catch (error) {
         console.error("Lỗi lấy danh mục cho footer:", error);
@@ -54,7 +53,7 @@ export default function PublicFooter() {
         <div className="pub-footer__brand">
           <div className="pub-footer__logo">
             <img
-              src="/images/logo.png"
+              src="/images/logo.jpeg"
               alt="Nguyễn Sơn Tùng"
               className="pub-footer__logo-image"
             />

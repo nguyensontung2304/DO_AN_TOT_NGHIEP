@@ -101,7 +101,7 @@ export default function PublicHeader() {
         <Link to={ROUTES.USER.HOME} className="pub-header__logo">
           <span>
             <img
-              src="/images/logo.png"
+              src="/images/logo.jpeg"
               alt="Nguyễn Sơn Tùng"
               className="pub-header__logo-image"
             />

@@ -14,7 +14,7 @@ import "./AddressBook.scss";
 
 const initialForm = {
   label: "",
-  fullName: "",
+  name: "",
   phone: "",
   provinceCode: "",
   wardCode: "",
@@ -100,7 +100,7 @@ function AddressBook({ currentUser }) {
     setForm({
       ...initialForm,
       ...(address || {}),
-      fullName: address?.fullName ?? currentUser?.name ?? "",
+      name: address?.name ?? currentUser?.name ?? "",
       phone: address?.phone ?? currentUser?.phone ?? "",
       provinceCode: address?.provinceCode ?? "",
       wardCode: address?.wardCode ?? "",
@@ -150,7 +150,7 @@ function AddressBook({ currentUser }) {
       }
 
       // Lấy lại dữ liệu mới nhất từ backend
-      const refreshed = await fetchAddresses();
+      const refreshed = await fetchAddress();
 
       if (!refreshed) {
         setActionError(
@@ -178,7 +178,7 @@ function AddressBook({ currentUser }) {
     try {
       await apiRequest();
 
-      const refreshed = await fetchAddresses();
+      const refreshed = await fetchAddress();
 
       if (!refreshed) {
         setActionError(
@@ -268,7 +268,7 @@ function AddressBook({ currentUser }) {
               <article className="address-book__card" key={address.id}>
                 <div className="address-book__card-header">
                   <div className="address-book__recipient">
-                    <strong>{address.fullName}</strong>
+                    <strong>{address.name}</strong>
                     <span>{address.phone}</span>
                   </div>
 

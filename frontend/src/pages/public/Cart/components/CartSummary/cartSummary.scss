@@ -65,13 +65,21 @@
   }
 
   &__note {
-    font-size: 12px;
+    font-size: 13px;
     color: #888;
     line-height: 1.8;
     margin-bottom: 20px;
     padding: 12px;
     background: #f7f8fa;
     border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    &-text {
+      display: flex;
+      gap: 10px;
+    }
   }
 }
 

@@ -33,7 +33,10 @@
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 
   &__title {
-    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 19px;
     font-weight: 700;
     color: #111827;
     margin-bottom: 24px;

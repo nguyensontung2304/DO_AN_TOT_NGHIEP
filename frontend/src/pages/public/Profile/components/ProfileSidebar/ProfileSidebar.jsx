@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-
+import { UserRound, MapPin, LockKeyhole } from "lucide-react";
 import { ROUTES } from "../../../../../constants/router";
 import AvatarUpload from "../AvatarUpload/AvatarUpload";
 
@@ -10,17 +10,29 @@ import "./profileSidebar.scss";
 const TABS = [
   {
     key: "info",
-    label: "👤 Thông tin cá nhân",
+    label: (
+      <>
+        <UserRound size={20} /> Thông tin cá nhân
+      </>
+    ),
     to: ROUTES.USER.PROFILE,
   },
   {
     key: "addressBook",
-    label: "📍 Sổ địa chỉ",
+    label: (
+      <>
+        <MapPin size={20} /> Sổ địa chỉ
+      </>
+    ),
     to: ROUTES.USER.PROFILE_ADDRESS_BOOK,
   },
   {
     key: "password",
-    label: "🔒 Đổi mật khẩu",
+    label: (
+      <>
+        <LockKeyhole size={20} /> Đổi mật khẩu
+      </>
+    ),
     to: ROUTES.USER.PROFILE_CHANGE_PASSWORD,
   },
 ];

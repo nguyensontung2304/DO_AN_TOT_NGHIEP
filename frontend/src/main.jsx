@@ -1,4 +1,3 @@
-// import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
@@ -7,11 +6,17 @@ import App from "./App";
 import { store } from "./redux/store";
 import { AppProvider } from "./context/AppContext";
 
-// Style global: font chữ, màu nền body, box-sizing, reset margin
+import AOS from "aos";
+import "aos/dist/aos.css";
 import "./index.scss";
 
+AOS.init({
+  duration: 800,
+  once: true,
+  offset: 100,
+});
+
 ReactDOM.createRoot(document.getElementById("root")).render(
-  // <React.StrictMode>
   <Provider store={store}>
     <BrowserRouter>
       <AppProvider>
@@ -19,5 +24,4 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       </AppProvider>
     </BrowserRouter>
   </Provider>,
-  // </React.StrictMode>,
 );

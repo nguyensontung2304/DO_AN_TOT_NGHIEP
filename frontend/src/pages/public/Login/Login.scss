@@ -4,7 +4,7 @@
   min-height: 100vh;
 }
 
-/* BÊN TRÁI - BRAND */
+/* BÊN TRÁI - BRAND & SLIDER ẢNH */
 .login-brand {
   width: 65%;
   min-height: 100vh;
@@ -14,15 +14,21 @@
   justify-content: center;
   overflow: hidden;
   background: #f8f7fa;
-}
 
-.login-brand-image {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+  .login-brand-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    opacity: 0;
+    transition: opacity 3s ease-in-out;
+
+    &.active {
+      opacity: 1;
+    }
+  }
 }
 
 .login-brand::after {
@@ -35,41 +41,6 @@
     rgba(0, 0, 0, 0.45)
   );
   z-index: 1;
-}
-
-.login-brand-overlay {
-  position: relative;
-  z-index: 2;
-  color: #fff;
-  text-align: center;
-  padding: 30px;
-  margin-bottom: 450px;
-  margin-right: 500px;
-
-  h1 {
-    margin: 0 0 10px;
-    font-size: 42px;
-    font-weight: 800;
-    letter-spacing: 1px;
-    text-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
-
-    strong {
-      font-weight: 800;
-      color: #c0392b;
-    }
-
-    em {
-      font-weight: 500;
-      color: #555;
-    }
-  }
-
-  p {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 400;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  }
 }
 
 /* BÊN PHẢI - PANEL */
@@ -115,7 +86,7 @@
     width: 80px;
     height: 80px;
     display: block;
-    margin: 0 auto 15px;
+    margin: 0 auto 5px;
 
     img {
       width: 100%;
@@ -247,51 +218,6 @@
   }
 }
 
-/* DIVIDER */
-.login-divider {
-  position: relative;
-  text-align: center;
-  margin: 20px 0 16px;
-
-  &::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: #eee;
-  }
-
-  span {
-    position: relative;
-    background: #fff;
-    padding: 0 12px;
-    font-size: 13px;
-    color: #bbb;
-  }
-}
-
-/* ADMIN LINK */
-.login-admin-link {
-  display: block;
-  text-align: center;
-  font-size: 14px;
-  font-weight: 600;
-  color: #555;
-  text-decoration: none;
-  padding: 10px;
-  border: 1.5px solid #e0e0e0;
-  border-radius: 8px;
-  transition: all 0.2s;
-
-  &:hover {
-    border-color: #7c3aed;
-    color: #7c3aed;
-    background: #f8f5ff;
-  }
-}
-
 /* TABLET */
 @media (max-width: 900px) {
   .login-brand {
@@ -301,10 +227,6 @@
   .login-panel {
     width: 45%;
     padding: 30px;
-  }
-
-  .login-brand-image {
-    object-fit: cover;
   }
 }
 
@@ -318,10 +240,6 @@
     width: 100%;
     min-height: 260px;
     height: 260px;
-  }
-
-  .login-brand-image {
-    object-fit: cover;
   }
 
   .login-panel {

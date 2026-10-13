@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
-
+import { UserRound, MapPin, LockKeyhole } from "lucide-react";
 import { ROUTES } from "../../../constants/router";
 import ProfileSidebar from "./components/ProfileSidebar/ProfileSidebar";
 import ProfileInfo from "./components/ProfileInfo/ProfileInfo";
@@ -10,9 +10,21 @@ import AddressBook from "./components/AddressBook/AddressBook";
 import "./profile.scss";
 
 const TAB_TITLES = {
-  info: "👤 Thông tin cá nhân",
-  addressBook: "📍 Sổ địa chỉ",
-  password: "🔒 Đổi mật khẩu",
+  info: (
+    <>
+      <UserRound size={23} /> Thông tin cá nhân
+    </>
+  ),
+  addressBook: (
+    <>
+      <MapPin size={23} /> Sổ địa chỉ
+    </>
+  ),
+  password: (
+    <>
+      <LockKeyhole size={23} /> Đổi mật khẩu
+    </>
+  ),
 };
 
 // Trang hồ sơ.

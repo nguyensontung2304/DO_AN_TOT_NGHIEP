@@ -20,7 +20,7 @@ import "./ordersView.scss";
 const STATUS_LABEL = {
   pending: { text: "Chờ xác nhận", cls: "order-status--pending" },
   confirmed: { text: "Đã xác nhận", cls: "order-status--confirmed" },
-  processing: { text: "Đang sản xuất", cls: "order-status--confirmed" },
+  processing: { text: "Đang sản xuất", cls: "order-status--processing" },
   shipping: { text: "Đang giao hàng", cls: "order-status--shipping" },
   done: { text: "Hoàn thành", cls: "order-status--done" },
   cancelled: { text: "Đã hủy", cls: "order-status--cancelled" },

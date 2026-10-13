@@ -26,8 +26,8 @@ function StatusBadge({ status }) {
     pending: { label: "Chờ thủ kho", cls: "badge--yellow" },
     checked: { label: "Đã kiểm kê", cls: "badge--blue" },
     purchasing: { label: "Đang mua hàng", cls: "badge--orange" },
-    ready: { label: "Sẵn sàng SX", cls: "badge--teal" },
-    in_production: { label: "Đang SX", cls: "badge--purple" },
+    ready: { label: "Sẵn sàng sản xuất", cls: "badge--teal" },
+    in_production: { label: "Đang sản xuất", cls: "badge--purple" },
     done: { label: "Hoàn thành", cls: "badge--green" },
   };
   const s = map[status] || { label: status, cls: "badge--gray" };
@@ -240,7 +240,7 @@ export default function Warehouse() {
       [{ name: report.productName, qty: report.finishedQty, unit: "cái" }],
       report.handoverOrderId,
     );
-    updateProductionReportStatus(report.id, "delivered");
+    updateProductionReportStatus(report.id, "in_warehouse");
     const ho = handoverOrders.find((o) => o.id === report.handoverOrderId);
     if (ho) updateHandoverOrderStatus(ho.id, "done");
   };
@@ -285,7 +285,7 @@ export default function Warehouse() {
       <AdminCard
         title="Kho vật tư"
         icon={<Package size={18} strokeWidth={2} />}
-        gradient="blue"
+        gradient="pink"
       >
         <form className="wh-mat-form" onSubmit={handleAddMaterial}>
           <input
@@ -786,19 +786,21 @@ export default function Warehouse() {
                   </tr>
                 </thead>
                 <tbody>
-                  {productionRequests.slice(0, showAllAll ? undefined : 5).map((r, i) => (
-                    <tr key={r.id}>
-                      <td>{i + 1}</td>
-                      <td>
-                        <strong>{r.productName}</strong>
-                      </td>
-                      <td>{r.productQty}</td>
-                      <td>{formatDate(r.createdAt)}</td>
-                      <td>
-                        <StatusBadge status={r.status} />
-                      </td>
-                    </tr>
-                  ))}
+                  {productionRequests
+                    .slice(0, showAllAll ? undefined : 5)
+                    .map((r, i) => (
+                      <tr key={r.id}>
+                        <td>{i + 1}</td>
+                        <td>
+                          <strong>{r.productName}</strong>
+                        </td>
+                        <td>{r.productQty}</td>
+                        <td>{formatDate(r.createdAt)}</td>
+                        <td>
+                          <StatusBadge status={r.status} />
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
@@ -809,12 +811,20 @@ export default function Warehouse() {
               >
                 {showAllAll ? (
                   <>
-                    <ChevronUp size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+                    <ChevronUp
+                      size={14}
+                      strokeWidth={2}
+                      style={{ marginRight: 4 }}
+                    />
                     Thu gọn
                   </>
                 ) : (
                   <>
-                    <ChevronDown size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+                    <ChevronDown
+                      size={14}
+                      strokeWidth={2}
+                      style={{ marginRight: 4 }}
+                    />
                     Xem thêm ({productionRequests.length - 5} mục nữa)
                   </>
                 )}

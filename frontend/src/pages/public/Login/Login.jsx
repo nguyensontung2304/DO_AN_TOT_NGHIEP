@@ -6,6 +6,25 @@ import { setUser } from "../../../redux/userSlice";
 import { ROUTES } from "../../../constants/router";
 import "./login.scss";
 
+const ADMIN_COMPONENT_PATHS = {
+  dashboard: "/admin",
+  orders: "/admin/orders",
+  technical: "/admin/technical",
+  warehouse: "/admin/warehouse",
+  purchasing: "/admin/purchasing",
+  factory: "/admin/factory",
+  finished_goods: "/admin/finished-goods",
+  products: "/admin/products",
+  chat: "/admin/chat",
+};
+
+// Danh sách hình ảnh background tự động chuyển đổi sau mỗi 3 giây
+const BRAND_IMAGES = [
+  "/images/brand1.jpeg",
+  "/images/brand2.jpeg",
+  "/images/brand3.jpeg",
+];
+
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -16,20 +35,58 @@ export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Hiệu ứng tự động chuyển ảnh sau mỗi 4 giây
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentImageIndex(
+        (prevIndex) => (prevIndex + 1) % BRAND_IMAGES.length,
+      );
+    }, 4000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   // Quyết định chuyển hướng sau khi có user (đăng nhập thành công hoặc đã đăng nhập rồi)
   useEffect(() => {
-    if (currentUser?.id) {
-      if (currentUser?.role === "admin") {
-        navigate(ROUTES.ADMIN.DASHBOARD, { replace: true });
-      } else if (from.startsWith("/admin")) {
-        // user thường không bao giờ được truy cập trang admin
-        navigate(ROUTES.USER.HOME, { replace: true });
-      } else {
-        navigate(from, { replace: true });
+    if (!currentUser?.id) return;
+
+    if (currentUser.role === "admin") {
+      const isRoot =
+        currentUser.isRootAdmin === true ||
+        currentUser.is_root_admin === true ||
+        currentUser.email?.toLowerCase() === "admin@gmail.com";
+
+      const permissions = Array.isArray(currentUser.permissions)
+        ? currentUser.permissions
+        : [];
+
+      let targetPath = ROUTES.ADMIN.DASHBOARD;
+
+      if (!isRoot) {
+        const firstAllowedPath = permissions
+          .map((code) => ADMIN_COMPONENT_PATHS[code])
+          .find(Boolean);
+
+        if (!firstAllowedPath) {
+          navigate(ROUTES.USER.HOME, { replace: true });
+          return;
+        }
+
+        targetPath = firstAllowedPath;
       }
+
+      navigate(targetPath, { replace: true });
+      return;
     }
-  }, [currentUser?.id, currentUser?.role, from, navigate]);
+
+    if (from.startsWith("/admin")) {
+      navigate(ROUTES.USER.HOME, { replace: true });
+    } else {
+      navigate(from, { replace: true });
+    }
+  }, [currentUser, from, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,11 +107,7 @@ export default function Login() {
       localStorage.setItem("userRole", user.role || "user");
 
       dispatch(setUser(user));
-
-      // Thông báo cho AppContext load ERP data (nếu là admin)
       window.dispatchEvent(new Event("userChanged"));
-
-      // Điều hướng được xử lý bởi useEffect trên dựa trên role
     } catch (error) {
       setError(error.response?.data?.message || "Đăng nhập thất bại");
     } finally {
@@ -64,21 +117,16 @@ export default function Login() {
 
   return (
     <div className="login-page">
-      {/* BÊN TRÁI - 65% */}
+      {/* BÊN TRÁI - 65% (Slider ảnh nền tự động chuyển sau 3s) */}
       <div className="login-brand">
-        <img
-          src="/images/brand.png"
-          alt="Nguyễn Sơn Tùng"
-          className="login-brand-image"
-        />
-
-        <div className="login-brand-overlay">
-          <h1>
-            <strong>Nội Thất</strong>
-            <em> Việt</em>
-          </h1>
-          <p>Nâng tầm không gian, trọn vẹn nét Việt.</p>
-        </div>
+        {BRAND_IMAGES.map((imgSrc, index) => (
+          <img
+            key={index}
+            src={imgSrc}
+            alt="Nội Thất Việt"
+            className={`login-brand-image ${index === currentImageIndex ? "active" : ""}`}
+          />
+        ))}
       </div>
 
       {/* BÊN PHẢI - 35% */}
@@ -94,7 +142,7 @@ export default function Login() {
           <div className="login-logo">
             <div className="login-logo-image">
               <img
-                src="/images/logo.png"
+                src="/images/logo.jpeg"
                 alt="Nguyễn Sơn Tùng"
                 className="pub-header__logo-image"
               />
@@ -111,7 +159,6 @@ export default function Login() {
           <form className="login-form" onSubmit={handleSubmit}>
             <div className="form-group">
               <label>Email</label>
-
               <input
                 type="email"
                 value={form.email}
@@ -129,7 +176,6 @@ export default function Login() {
 
             <div className="form-group">
               <label>Mật khẩu</label>
-
               <input
                 type="password"
                 value={form.password}
@@ -160,4 +206,3 @@ export default function Login() {
     </div>
   );
 }
-// supabase,

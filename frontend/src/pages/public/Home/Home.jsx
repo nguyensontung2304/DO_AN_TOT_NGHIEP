@@ -194,7 +194,12 @@ function CategorySection({ categoryName, products, onViewMore }) {
   const displayed = products.slice(0, 4);
 
   return (
-    <div className="home-products-inner-category">
+    <div
+      className="home-products-inner-category"
+      data-aos="fade-up"
+      data-aos-duration="1000"
+      data-aos-delay="300"
+    >
       <div className="home-products-inner-category-header">
         <h2 className="home-products-inner-category-header-title">
           {categoryName}
@@ -302,7 +307,12 @@ export default function Home() {
 
       {/* HERO */}
       <section className="home-hero">
-        <div className="home-hero-content">
+        <div
+          className="home-hero-content"
+          data-aos="fade-right"
+          data-aos-duration="1000"
+          data-aos-delay="300"
+        >
           <span className="home-hero-content-tag">
             Nội thất cao cấp — trực tiếp từ xưởng
           </span>
@@ -336,7 +346,12 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="home-hero-visual">
+        <div
+          className="home-hero-visual"
+          data-aos="fade-left"
+          data-aos-duration="1000"
+          data-aos-delay="300"
+        >
           {[
             {
               icon: Sofa,
@@ -382,7 +397,12 @@ export default function Home() {
       </section>
 
       {/* STATS */}
-      <section className="home-stats">
+      <section
+        className="home-stats"
+        data-aos="fade-down"
+        data-aos-duration="1000"
+        data-aos-delay="300"
+      >
         <div className="home-stats-inner">
           {[
             {
@@ -416,7 +436,12 @@ export default function Home() {
       {/* PRODUCTS */}
       <section className="home-products" id="products">
         <div className="home-products-inner">
-          <div className="home-products-inner-heading">
+          <div
+            className="home-products-inner-heading"
+            data-aos="fade-up"
+            data-aos-duration="1000"
+            data-aos-delay="300"
+          >
             <span className="home-products-inner-heading-eyebrow">
               BỘ SƯU TẬP CHO KHÔNG GIAN SỐNG
             </span>
@@ -454,7 +479,12 @@ export default function Home() {
       {/* FEATURES */}
       <section className="home-features">
         <div className="home-features-inner">
-          <div className="home-features-inner-heading">
+          <div
+            className="home-features-inner-heading"
+            data-aos="fade-down"
+            data-aos-duration="1000"
+            data-aos-delay="300"
+          >
             <span className="home-features-inner-heading-eyebrow">
               ĐIỂM TỰA CHO NGÔI NHÀ HOÀN MỸ
             </span>
@@ -464,7 +494,12 @@ export default function Home() {
             </h2>
           </div>
 
-          <div className="home-features-inner-list">
+          <div
+            className="home-features-inner-list"
+            data-aos="fade-up"
+            data-aos-duration="1000"
+            data-aos-delay="300"
+          >
             {[
               {
                 icon: Trophy,
@@ -513,7 +548,13 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-      <section className="home-cta">
+      <section
+        data-aos="fade-up"
+        data-aos-duration="1000"
+        data-aos-delay="300"
+        tion
+        className="home-cta"
+      >
         <div className="home-cta-inner">
           <span className="home-cta-inner-eyebrow">
             ĐỘI NGŨ NỘI THẤT VIỆT LUÔN SẴN SÀNG

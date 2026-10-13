@@ -2,9 +2,20 @@ import { useEffect, useState } from "react";
 import { getProvinces, getWards } from "../../../api/locationApi";
 import "./addressFields.scss";
 
-// Dùng chung cho Sổ địa chỉ và địa chỉ nhập mới khi checkout.
-function AddressFields({ form, onChange, disabled = false }) {
-  const [provinceCode, setProvinceCode] = useState(form.provinceCode || "");
+function AddressFields({
+  form = {},
+  address = null,
+  onChange,
+  disabled = false,
+  formErrors = {},
+}) {
+  // Ưu tiên dữ liệu form để người dùng có thể chỉnh sửa.
+  // Nếu form chưa có dữ liệu thì lấy từ địa chỉ mặc định.
+  const getValue = (field) => form[field] ?? address?.[field] ?? "";
+
+  const [provinceCode, setProvinceCode] = useState(
+    String(getValue("provinceCode") || ""),
+  );
 
   const [provinceList, setProvinceList] = useState({
     data: [],
@@ -21,34 +32,40 @@ function AddressFields({ form, onChange, disabled = false }) {
 
   const [retry, setRetry] = useState(0);
 
-  // Tải danh sách tỉnh/thành phố
+  // Đồng bộ tỉnh/thành khi form được điền từ địa chỉ mặc định.
+  useEffect(() => {
+    setProvinceCode(String(getValue("provinceCode") || ""));
+  }, [form.provinceCode, address?.provinceCode]);
+
+  // Tải danh sách tỉnh/thành.
   useEffect(() => {
     let active = true;
 
-    setProvinceList((prev) => ({
-      ...prev,
+    setProvinceList({
+      data: [],
       loading: true,
       error: null,
-    }));
+    });
 
     getProvinces()
       .then((data) => {
-        if (active) {
-          setProvinceList({
-            data,
-            loading: false,
-            error: null,
-          });
-        }
+        if (!active) return;
+
+        setProvinceList({
+          data: Array.isArray(data) ? data : [],
+          loading: false,
+          error: null,
+        });
       })
-      .catch((error) => {
-        if (active) {
-          setProvinceList({
-            data: [],
-            loading: false,
-            error: error.response?.data?.message || "Không tải được tỉnh/thành",
-          });
-        }
+      .catch((err) => {
+        if (!active) return;
+
+        setProvinceList({
+          data: [],
+          loading: false,
+          error:
+            err?.response?.data?.message || "Không tải được tỉnh/thành phố.",
+        });
       });
 
     return () => {
@@ -56,7 +73,7 @@ function AddressFields({ form, onChange, disabled = false }) {
     };
   }, [retry]);
 
-  // Tải danh sách phường/xã theo tỉnh đã chọn
+  // Tải danh sách phường/xã theo tỉnh/thành đã chọn.
   useEffect(() => {
     if (!provinceCode) {
       setWardList({
@@ -80,24 +97,24 @@ function AddressFields({ form, onChange, disabled = false }) {
 
     getWards(provinceCode)
       .then((data) => {
-        if (active) {
-          setWardList({
-            code: provinceCode,
-            data,
-            loading: false,
-            error: null,
-          });
-        }
+        if (!active) return;
+
+        setWardList({
+          code: provinceCode,
+          data: Array.isArray(data) ? data : [],
+          loading: false,
+          error: null,
+        });
       })
-      .catch((error) => {
-        if (active) {
-          setWardList({
-            code: provinceCode,
-            data: [],
-            loading: false,
-            error: error.response?.data?.message || "Không tải được phường/xã",
-          });
-        }
+      .catch((err) => {
+        if (!active) return;
+
+        setWardList({
+          code: provinceCode,
+          data: [],
+          loading: false,
+          error: err?.response?.data?.message || "Không tải được phường/xã.",
+        });
       });
 
     return () => {
@@ -116,24 +133,40 @@ function AddressFields({ form, onChange, disabled = false }) {
 
   const error = provinceList.error || wards.error;
 
-  // Cập nhật dữ liệu vào object form được truyền từ component cha
+  // Báo thay đổi về Cart.jsx.
   const handleChange = (event) => {
-    const { name, value, type, checked } = event.target;
+    const { name, value } = event.target;
 
     if (name === "provinceCode") {
       setProvinceCode(value);
 
-      form.provinceCode = value;
-      form.wardCode = "";
+      onChange?.({
+        target: {
+          name: "provinceCode",
+          value,
+          type: "select-one",
+        },
+      });
+
+      // Đổi tỉnh/thành thì phải chọn lại phường/xã.
+      onChange?.({
+        target: {
+          name: "wardCode",
+          value: "",
+          type: "select-one",
+        },
+      });
+
       return;
     }
 
-    if (type === "checkbox") {
-      form[name] = checked;
-    } else {
-      form[name] = value;
-    }
+    onChange?.(event);
   };
+
+  const renderError = (field) =>
+    formErrors[field] ? (
+      <small className="address-fields__error">{formErrors[field]}</small>
+    ) : null;
 
   return (
     <div className="address-fields">
@@ -145,6 +178,7 @@ function AddressFields({ form, onChange, disabled = false }) {
             type="button"
             className="address-fields__retry"
             onClick={() => setRetry((value) => value + 1)}
+            disabled={disabled}
           >
             Thử lại
           </button>
@@ -152,18 +186,21 @@ function AddressFields({ form, onChange, disabled = false }) {
       )}
 
       <div className="address-fields__group">
-        <label htmlFor="fullName">
+        <label htmlFor="name">
           Họ tên người nhận <span>*</span>
         </label>
 
         <input
-          id="fullName"
-          name="fullName"
-          value={form.fullName || ""}
+          id="name"
+          name="name"
+          type="text"
+          value={getValue("name")}
           onChange={handleChange}
           disabled={disabled}
           required
         />
+
+        {renderError("name")}
       </div>
 
       <div className="address-fields__group">
@@ -177,13 +214,13 @@ function AddressFields({ form, onChange, disabled = false }) {
           type="tel"
           placeholder="Nhập số điện thoại"
           maxLength={10}
-          pattern="0[0-9]{9}"
-          title="Số điện thoại gồm 10 số, bắt đầu bằng 0"
-          value={form.phone || ""}
+          value={getValue("phone")}
+          onChange={handleChange}
           disabled={disabled}
           required
-          onChange={handleChange}
         />
+
+        {renderError("phone")}
       </div>
 
       <div className="address-fields__row">
@@ -196,9 +233,9 @@ function AddressFields({ form, onChange, disabled = false }) {
             id="provinceCode"
             name="provinceCode"
             value={provinceCode}
+            onChange={handleChange}
             disabled={disabled || provinceList.loading}
             required
-            onChange={handleChange}
           >
             <option value="">
               {provinceList.loading
@@ -207,11 +244,13 @@ function AddressFields({ form, onChange, disabled = false }) {
             </option>
 
             {provinceList.data.map((item) => (
-              <option key={item.code} value={item.code}>
+              <option key={item.code} value={String(item.code)}>
                 {item.name}
               </option>
             ))}
           </select>
+
+          {renderError("provinceCode")}
         </div>
 
         <div className="address-fields__group">
@@ -222,24 +261,25 @@ function AddressFields({ form, onChange, disabled = false }) {
           <select
             id="wardCode"
             name="wardCode"
-            key={provinceCode}
-            defaultValue={form.wardCode || ""}
+            value={String(getValue("wardCode") || "")}
+            onChange={handleChange}
             disabled={
               disabled || !provinceCode || wards.loading || Boolean(wards.error)
             }
             required
-            onChange={handleChange}
           >
             <option value="">
               {wards.loading ? "Đang tải phường/xã..." : "Chọn phường/xã"}
             </option>
 
             {wards.data.map((item) => (
-              <option key={item.code} value={item.code}>
+              <option key={item.code} value={String(item.code)}>
                 {item.name}
               </option>
             ))}
           </select>
+
+          {renderError("wardCode")}
         </div>
       </div>
 
@@ -254,11 +294,13 @@ function AddressFields({ form, onChange, disabled = false }) {
           rows={2}
           maxLength={160}
           placeholder="Số nhà, tên đường, thôn / tổ dân phố..."
-          defaultValue={form.addressLine || ""}
+          value={getValue("addressLine")}
+          onChange={handleChange}
           disabled={disabled}
           required
-          onChange={handleChange}
         />
+
+        {renderError("addressLine")}
       </div>
     </div>
   );

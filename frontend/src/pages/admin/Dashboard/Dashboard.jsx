@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
+
 import { useState } from "react";
+
 import {
   Package,
   ClipboardList,
@@ -15,26 +17,34 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
+
 import { useApp } from "../../../context/useApp";
+
 import { formatDate } from "../../../utils/formatDate";
+
 import { ROUTES } from "../../../constants/router";
+
 import "../Technical/technical.scss";
+
 import "./dashboard.scss";
 
 function StatCard({ icon: Icon, value, label, color, to }) {
   const inner = (
-    <div className={`dash-stat dash-stat--${color}`}>
-      <span className="dash-stat__icon">
+    <div className={`dashboard-page-stat dashboard-page-stat-${color}`}>
+      <span className="dashboard-page-stat-icon">
         <Icon size={30} strokeWidth={1.6} />
       </span>
+
       <div>
         <strong>{value}</strong>
+
         <p>{label}</p>
       </div>
     </div>
   );
+
   return to ? (
-    <Link to={to} className="dash-stat-link">
+    <Link to={to} className="dashboard-page-stat-link">
       {inner}
     </Link>
   ) : (
@@ -60,8 +70,10 @@ function RecentTable({
     <div className={`admin-card admin-card--gradient-${gradient}`}>
       <div className="admin-card__header">
         <Icon size={18} strokeWidth={2} />
+
         <h2>{title}</h2>
       </div>
+
       <div className="admin-card__body">
         {data.length === 0 ? (
           <p className="empty-state">Chưa có dữ liệu nào.</p>
@@ -76,35 +88,44 @@ function RecentTable({
                     ))}
                   </tr>
                 </thead>
+
                 <tbody>
                   {displayData.map((item, i) => (
-                    <tr key={item.id || i}>
-                      {renderRow(item, i)}
-                    </tr>
+                    <tr key={item.id || i}>{renderRow(item, i)}</tr>
                   ))}
                 </tbody>
               </table>
             </div>
+
             {hasMore && (
               <button
-                className="dash-view-more"
+                className="dashboard-page-view-more"
                 onClick={() => setShowAll(!showAll)}
               >
                 {showAll ? (
                   <>
-                    <ChevronUp size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+                    <ChevronUp
+                      size={14}
+                      strokeWidth={2}
+                      style={{ marginRight: 4 }}
+                    />
                     Thu gọn
                   </>
                 ) : (
                   <>
-                    <ChevronDown size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+                    <ChevronDown
+                      size={14}
+                      strokeWidth={2}
+                      style={{ marginRight: 4 }}
+                    />
                     Xem thêm ({data.length - limit} mục nữa)
                   </>
                 )}
               </button>
             )}
+
             {route && !showAll && (
-              <Link to={route} className="dash-view-all-link">
+              <Link to={route} className="dashboard-page-view-all-link">
                 Xem tất cả →
               </Link>
             )}
@@ -118,68 +139,111 @@ function RecentTable({
 export default function Dashboard() {
   const {
     materials,
+
     productionRequests,
+
     purchaseRequests,
+
     handoverOrders,
+
     designRequests,
+
     productionReports,
+
     finishedGoods,
+
     orders,
   } = useApp();
 
   const pending = productionRequests.filter(
     (r) => r.status === "pending",
   ).length;
+
   const inProd = productionRequests.filter(
     (r) => r.status === "in_production",
   ).length;
+
   const purPending = purchaseRequests.filter(
     (r) => r.status === "pending",
   ).length;
+
   const designPend = designRequests.filter(
     (r) => r.status === "pending",
   ).length;
+
   const reportPend = productionReports.filter(
     (r) => r.status === "reported",
   ).length;
+
   const totalFin = finishedGoods.reduce((s, g) => s + g.qty, 0);
+
   const lowStock = materials.filter((m) => m.stock <= 5).length;
+
   const pendingOrders = orders.filter((o) => o.status === "pending").length;
+
   const totalOrderValue = orders.reduce((s, o) => s + Number(o.total || 0), 0);
 
-  const recentRequests = [...productionRequests].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  const recentOrders = [...orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  const recentRequests = [...productionRequests].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+  );
+
+  const recentOrders = [...orders].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+  );
 
   const statusLabel = {
     pending: "Chờ thủ kho",
+
     checked: "Đã kiểm kê",
+
     purchasing: "Đang mua hàng",
-    ready: "Sẵn sàng SX",
+
+    ready: "Sẵn sàng sản xuất",
+
     in_production: "Đang sản xuất",
+
     done: "Hoàn thành",
   };
+
   const statusCls = {
     pending: "badge--yellow",
+
     checked: "badge--blue",
+
     purchasing: "badge--orange",
+
     ready: "badge--teal",
+
     in_production: "badge--purple",
+
     done: "badge--green",
   };
+
   const orderStatusLabel = {
     pending: "Chờ xác nhận",
+
     confirmed: "Đã xác nhận",
+
     processing: "Đang sản xuất",
+
     shipping: "Đã giao hàng",
+
     done: "Hoàn thành",
+
     cancelled: "Đã hủy",
   };
+
   const orderStatusCls = {
     pending: "badge--yellow",
+
     confirmed: "badge--blue",
+
     processing: "badge--purple",
+
     shipping: "badge--blue",
+
     done: "badge--green",
+
     cancelled: "badge--red",
   };
 
@@ -194,34 +258,37 @@ export default function Dashboard() {
           />
           Dashboard
         </h1>
+
         <p className="page-sub">Tổng quan hệ thống quản lý sản xuất</p>
       </div>
 
       {/* Alerts */}
+
       {(pending > 0 ||
         purPending > 0 ||
         designPend > 0 ||
         reportPend > 0 ||
         lowStock > 0 ||
         pendingOrders > 0) && (
-        <div className="dash-alerts">
+        <div className="dashboard-page-alerts">
           {pending > 0 && (
             <Link
               to={ROUTES.ADMIN.WAREHOUSE}
-              className="dash-alert dash-alert--yellow"
+              className="dashboard-page-alert dashboard-page-alert-yellow"
             >
               <AlertTriangle
                 size={14}
                 strokeWidth={2}
                 style={{ marginRight: 6 }}
               />
-              {pending} yêu cầu SX chờ Thủ kho kiểm kê
+              {pending} yêu cầu sản xuất chờ Thủ kho kiểm kê
             </Link>
           )}
+
           {purPending > 0 && (
             <Link
               to={ROUTES.ADMIN.PURCHASING}
-              className="dash-alert dash-alert--orange"
+              className="dashboard-page-alert dashboard-page-alert-orange"
             >
               <ShoppingCart
                 size={14}
@@ -231,28 +298,31 @@ export default function Dashboard() {
               {purPending} đơn mua hàng chờ xử lý
             </Link>
           )}
+
           {designPend > 0 && (
             <Link
               to={ROUTES.ADMIN.TECHNICAL}
-              className="dash-alert dash-alert--blue"
+              className="dashboard-page-alert dashboard-page-alert-blue"
             >
               <Ruler size={14} strokeWidth={2} style={{ marginRight: 6 }} />
               {designPend} yêu cầu bản thiết kế chờ Kỹ thuật
             </Link>
           )}
+
           {reportPend > 0 && (
             <Link
               to={ROUTES.ADMIN.WAREHOUSE}
-              className="dash-alert dash-alert--purple"
+              className="dashboard-page-alert dashboard-page-alert-purple"
             >
               <Package size={14} strokeWidth={2} style={{ marginRight: 6 }} />
               {reportPend} lô thành phẩm chờ Thủ kho nhận
             </Link>
           )}
+
           {lowStock > 0 && (
             <Link
               to={ROUTES.ADMIN.WAREHOUSE}
-              className="dash-alert dash-alert--red"
+              className="dashboard-page-alert dashboard-page-alert-red"
             >
               <AlertTriangle
                 size={14}
@@ -262,10 +332,11 @@ export default function Dashboard() {
               {lowStock} loại vật tư sắp hết tồn kho
             </Link>
           )}
+
           {pendingOrders > 0 && (
             <Link
               to={ROUTES.ADMIN.ORDERS}
-              className="dash-alert dash-alert--yellow"
+              className="dashboard-page-alert dashboard-page-alert-yellow"
             >
               <ClipboardList
                 size={14}
@@ -279,7 +350,8 @@ export default function Dashboard() {
       )}
 
       {/* Stats */}
-      <div className="dash-stats">
+
+      <div className="dashboard-page-stats">
         <StatCard
           icon={Package}
           value={materials.length}
@@ -287,6 +359,7 @@ export default function Dashboard() {
           color="blue"
           to={ROUTES.ADMIN.WAREHOUSE}
         />
+
         <StatCard
           icon={ClipboardList}
           value={productionRequests.length}
@@ -294,6 +367,7 @@ export default function Dashboard() {
           color="purple"
           to={ROUTES.ADMIN.WAREHOUSE}
         />
+
         <StatCard
           icon={ShoppingCart}
           value={purchaseRequests.length}
@@ -301,6 +375,7 @@ export default function Dashboard() {
           color="orange"
           to={ROUTES.ADMIN.PURCHASING}
         />
+
         <StatCard
           icon={Warehouse}
           value={handoverOrders.length}
@@ -308,6 +383,7 @@ export default function Dashboard() {
           color="magenta"
           to={ROUTES.ADMIN.FACTORY}
         />
+
         <StatCard
           icon={Gift}
           value={totalFin}
@@ -315,6 +391,7 @@ export default function Dashboard() {
           color="green"
           to={ROUTES.ADMIN.FINISHED_GOODS}
         />
+
         <StatCard
           icon={Zap}
           value={inProd}
@@ -322,6 +399,7 @@ export default function Dashboard() {
           color="yellow"
           to={ROUTES.ADMIN.FACTORY}
         />
+
         <StatCard
           icon={ClipboardList}
           value={orders.length}
@@ -329,6 +407,7 @@ export default function Dashboard() {
           color="cyan"
           to={ROUTES.ADMIN.ORDERS}
         />
+
         <StatCard
           icon={Banknote}
           value={totalOrderValue.toLocaleString("vi-VN") + "₫"}
@@ -338,8 +417,9 @@ export default function Dashboard() {
         />
       </div>
 
-      <div className="dash-bottom">
+      <div className="dashboard-page-bottom">
         {/* Yêu cầu SX gần nhất */}
+
         <RecentTable
           title="Yêu cầu sản xuất gần nhất"
           icon={Clock}
@@ -348,11 +428,18 @@ export default function Dashboard() {
           columns={["Sản phẩm", "SL", "Ngày tạo", "Trạng thái"]}
           renderRow={(r) => (
             <>
-              <td><strong>{r.productName}</strong></td>
-              <td>{r.productQty}</td>
-              <td>{formatDate(r.createdAt)}</td>
               <td>
-                <span className={`badge ${statusCls[r.status] || "badge--gray"}`}>
+                <strong>{r.productName}</strong>
+              </td>
+
+              <td>{r.productQty}</td>
+
+              <td>{formatDate(r.createdAt)}</td>
+
+              <td>
+                <span
+                  className={`badge ${statusCls[r.status] || "badge--gray"}`}
+                >
                   {statusLabel[r.status] || r.status}
                 </span>
               </td>
@@ -362,25 +449,44 @@ export default function Dashboard() {
         />
 
         {/* Đơn hàng gần nhất */}
+
         <RecentTable
           title="Đơn hàng gần nhất"
           icon={ClipboardList}
           gradient="green"
           data={recentOrders}
-          columns={["Khách hàng", "Sản phẩm", "Tổng tiền", "Ngày đặt", "Trạng thái"]}
+          columns={[
+            "Khách hàng",
+
+            "Sản phẩm",
+
+            "Tổng tiền",
+
+            "Ngày đặt",
+
+            "Trạng thái",
+          ]}
           renderRow={(o) => (
             <>
-              <td><strong>{o.name}</strong></td>
+              <td>
+                <strong>{o.name}</strong>
+              </td>
+
               <td>
                 <small>
                   {(o.cart || []).length} SP:{" "}
                   {(o.cart || []).map((i) => i.name).join(", ")}
                 </small>
               </td>
+
               <td>{Number(o.total).toLocaleString("vi-VN")}₫</td>
+
               <td>{formatDate(o.createdAt)}</td>
+
               <td>
-                <span className={`badge ${orderStatusCls[o.status] || "badge--gray"}`}>
+                <span
+                  className={`badge ${orderStatusCls[o.status] || "badge--gray"}`}
+                >
                   {orderStatusLabel[o.status] || o.status}
                 </span>
               </td>

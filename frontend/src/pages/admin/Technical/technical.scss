@@ -28,7 +28,6 @@
 }
 
 // ── Shared admin styles (dùng chung cho tất cả trang admin) ──────────────────
-
 .page-header {
   margin-bottom: 28px;
 
@@ -46,33 +45,299 @@
 }
 
 .admin-card {
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
-  margin-bottom: 28px;
+  margin-bottom: 30px;
+  position: relative;
   overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #e8eaff;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.07);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 32px rgba(79, 70, 229, 0.13);
+  }
+
+  // Header mặc định
   &__header {
+    position: relative;
     display: flex;
-    gap: 7px;
-    padding: 18px 24px;
-    border-bottom: 1px solid #f0f0f0;
-    background: #fafafa;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 22px;
+    color: #ffffff;
+    background: linear-gradient(120deg, #6366f1, #8b5cf6);
+    border-bottom: none;
 
-    span {
-      font-size: 20px;
+    svg {
+      flex-shrink: 0;
+      padding: 7px;
+      width: 36px;
+      height: 36px;
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 11px;
     }
 
     h2 {
-      font-size: 17px;
-      font-weight: 700;
-      color: #1a1a2e;
       margin: 0;
+      color: #ffffff;
+      font-size: 23px;
+      font-weight: 700;
+      line-height: 1.5;
     }
   }
 
   &__body {
-    padding: 24px;
+    padding: 20px 22px;
+    background: linear-gradient(180deg, #ffffff 0%, #fcfcff 100%);
+  }
+
+  // Header màu xanh dương
+  &--gradient-blue &__header {
+    background: linear-gradient(120deg, #2563eb, #06b6d4);
+  }
+
+  // Header màu xanh lá
+  &--gradient-green &__header {
+    background: linear-gradient(120deg, #059669, #34d399);
+  }
+
+  // Header màu cam
+  &--gradient-orange &__header {
+    background: linear-gradient(120deg, #ea580c, #fbbf24);
+  }
+
+  // Header màu tím
+  &--gradient-purple &__header {
+    background: linear-gradient(120deg, #7c3aed, #c084fc);
+  }
+
+  // Header màu hồng
+  &--gradient-pink &__header {
+    background: linear-gradient(120deg, #db2777, #fb7185);
+  }
+}
+
+// TABLE
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e5e7ff;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.data-table {
+  width: 100%;
+  min-width: 520px;
+  border-collapse: separate;
+  border-spacing: 0;
+  color: #475569;
+  font-size: 13px;
+
+  thead {
+    background: linear-gradient(120deg, #eef2ff, #f5f3ff);
+
+    th {
+      padding: 14px 15px;
+      color: #4338ca;
+      font-size: 13px;
+      font-weight: 800;
+      text-align: left;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      border-bottom: 2px solid #c7d2fe;
+    }
+  }
+
+  tbody {
+    tr {
+      transition:
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+
+      &:nth-child(even) {
+        background: #fafaff;
+      }
+
+      &:hover {
+        background: #eef2ff;
+        box-shadow: inset 4px 0 0 #818cf8;
+      }
+
+      &:last-child td {
+        border-bottom: none;
+      }
+    }
+
+    td {
+      padding: 14px 15px;
+      vertical-align: middle;
+      border-bottom: 1px solid #eef0ff;
+      line-height: 1.6;
+
+      strong {
+        color: #312e81;
+        font-weight: 700;
+      }
+
+      small {
+        display: block;
+        max-width: 220px;
+        color: #64748b;
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+      }
+    }
+  }
+}
+
+// EMPTY STATE
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 110px;
+  margin: 0;
+  padding: 24px;
+  color: #818cf8;
+  background: linear-gradient(135deg, #f5f3ff, #eff6ff);
+  border: 1px dashed #c7d2fe;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+}
+
+// VIEW MORE BUTTON
+.dashboard-page-view-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+  margin-top: 15px;
+  padding: 12px 16px;
+  color: #ffffff;
+  background: linear-gradient(110deg, #6366f1, #8b5cf6);
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 5px 12px rgba(99, 102, 241, 0.2);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+  &:hover {
+    background: linear-gradient(110deg, #4f46e5, #7c3aed);
+    box-shadow: 0 8px 18px rgba(99, 102, 241, 0.3);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+// VIEW ALL LINK
+.dashboard-page-view-all-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 11px 12px;
+  color: #4f46e5;
+  background: linear-gradient(110deg, #eef2ff, #f5f3ff);
+  border: 1px solid #e0e7ff;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.25s ease;
+
+  &:hover {
+    color: #ffffff;
+    background: linear-gradient(110deg, #4f46e5, #9333ea);
+    border-color: transparent;
+    box-shadow: 0 5px 14px rgba(99, 102, 241, 0.2);
+  }
+}
+
+// STATUS BADGES
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.4;
+  white-space: nowrap;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+
+  &--yellow {
+    color: #92400e;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-color: #fcd34d;
+  }
+
+  &--blue {
+    color: #1d4ed8;
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    border-color: #93c5fd;
+  }
+
+  &--orange {
+    color: #c2410c;
+    background: linear-gradient(135deg, #ffedd5, #fed7aa);
+    border-color: #fdba74;
+  }
+
+  &--teal {
+    color: #0f766e;
+    background: linear-gradient(135deg, #ccfbf1, #99f6e4);
+    border-color: #5eead4;
+  }
+
+  &--purple {
+    color: #6d28d9;
+    background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+    border-color: #c4b5fd;
+  }
+
+  &--green {
+    color: #15803d;
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    border-color: #86efac;
+  }
+
+  &--red {
+    color: #b91c1c;
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    border-color: #fca5a5;
+  }
+
+  &--gray {
+    color: #475569;
+    background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+    border-color: #cbd5e1;
   }
 }
 

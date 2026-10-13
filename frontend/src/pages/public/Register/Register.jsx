@@ -1,8 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { register } from "../../../api/authApi";
 import { ROUTES } from "../../../constants/router";
 import "./register.scss";
+
+// Danh sách hình ảnh background tự động chuyển đổi sau mỗi 3 giây
+const BRAND_IMAGES = [
+  "/images/brand1.jpeg",
+  "/images/brand2.jpeg",
+  "/images/brand3.jpeg",
+];
 
 export default function Register() {
   const navigate = useNavigate();
@@ -16,6 +23,18 @@ export default function Register() {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Hiệu ứng tự động chuyển ảnh sau mỗi 4 giây
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentImageIndex(
+        (prevIndex) => (prevIndex + 1) % BRAND_IMAGES.length,
+      );
+    }, 4000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,11 +73,14 @@ export default function Register() {
     <div className="register-page">
       {/* BÊN TRÁI - 65% */}
       <div className="register-brand">
-        <img
-          src="/images/brand.png"
-          alt="Nguyễn Sơn Tùng"
-          className="register-brand-image"
-        />
+        {BRAND_IMAGES.map((imgSrc, index) => (
+          <img
+            key={index}
+            src={imgSrc}
+            alt="Nội Thất Việt"
+            className={`register-brand-image ${index === currentImageIndex ? "active" : ""}`}
+          />
+        ))}
       </div>
 
       {/* BÊN PHẢI - 35% */}
@@ -74,7 +96,7 @@ export default function Register() {
           <div className="register-logo">
             <div className="register-logo-image">
               <img
-                src="/images/logo.png"
+                src="/images/logo.jpeg"
                 alt="Nguyễn Sơn Tùng"
                 className="register-logo-image"
               />

@@ -1,6 +1,18 @@
 .address-fields {
   width: 100%;
 
+  &__error {
+    font-weight: 500;
+    color: #dc2626 !important;
+    line-height: 1.5;
+  }
+
+  &__group {
+    small.address-fields__error {
+      font-size: 13px;
+    }
+  }
+
   &__alert {
     display: flex;
     align-items: center;

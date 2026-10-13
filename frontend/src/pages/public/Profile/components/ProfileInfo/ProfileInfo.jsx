@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-
 import { updateMyProfile } from "../../../../../api/authApi";
 import { setUser } from "../../../../../redux/userSlice";
 
 import "./profileInfo.scss";
 
-// Form thông tin cá nhân: họ tên, email (không sửa được), sđt, địa chỉ.
+// Form thông tin cá nhân: họ tên, email (không sửa được), sđt.
 // Khởi tạo state thẳng từ currentUser; muốn nạp lại dữ liệu thì đổi user
 // thì component cha chỉ cần đổi `key` để React dựng lại form này.
 export default function ProfileInfo({ currentUser }) {
@@ -14,7 +13,6 @@ export default function ProfileInfo({ currentUser }) {
 
   const [name, setName] = useState(currentUser?.name || "");
   const [phone, setPhone] = useState(currentUser?.phone || "");
-  const [address, setAddress] = useState(currentUser?.address || "");
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -31,7 +29,6 @@ export default function ProfileInfo({ currentUser }) {
       const res = await updateMyProfile(currentUser.id, {
         name,
         phone,
-        address,
       });
 
       dispatch(setUser(res.data.user));
@@ -74,17 +71,6 @@ export default function ProfileInfo({ currentUser }) {
           value={phone || ""}
           onChange={(e) => setPhone(e.target.value)}
           placeholder="Nhập số điện thoại"
-        />
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="profile-address">Địa chỉ</label>
-        <textarea
-          id="profile-address"
-          rows={3}
-          value={address || ""}
-          onChange={(e) => setAddress(e.target.value)}
-          placeholder="Nhập địa chỉ nhận hàng"
         />
       </div>
 

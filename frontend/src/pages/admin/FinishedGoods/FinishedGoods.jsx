@@ -13,9 +13,9 @@ import { formatDate } from "../../../utils/formatDate";
 import "../Technical/technical.scss";
 import "./finishedGoods.scss";
 
-function AdminCard({ title, icon, children }) {
+function AdminCard({ title, icon, gradient, children }) {
   return (
-    <div className="admin-card">
+    <div className={`admin-card admin-card--gradient-${gradient}`}>
       <div className="admin-card__header">
         <span>{icon}</span>
         <h2>{title}</h2>
@@ -28,18 +28,52 @@ function AdminCard({ title, icon, children }) {
 export default function FinishedGoods() {
   const { finishedGoods, productionReports, deliverToCustomer } = useApp();
 
-  const totalQty = finishedGoods.reduce((s, g) => s + g.qty, 0);
-  const totalTypes = finishedGoods.length;
-  const delivered = productionReports.filter(
-    (r) => r.status === "delivered",
+  // A report marked as received is also an inventory lot. Keep it visible here
+  // if the finished-goods API did not return its corresponding inventory row.
+  const inventoryGoods = [...finishedGoods];
+  productionReports
+    .filter((report) =>
+      ["in_warehouse", "delivered", "handed_over"].includes(report.status),
+    )
+    .forEach((report) => {
+      const normalizedName = (report.productName || "").trim().toLowerCase();
+      if (
+        !normalizedName ||
+        inventoryGoods.some(
+          (good) => good.name?.trim().toLowerCase() === normalizedName,
+        )
+      ) {
+        return;
+      }
+
+      inventoryGoods.push({
+        id: `report-${report.id}`,
+        name: report.productName,
+        qty: Number(report.finishedQty || 0),
+        unit: "cái",
+        receivedAt: report.createdAt,
+        status:
+          report.status === "handed_over" ? "handed_over" : "in_warehouse",
+        handedOver: report.status === "handed_over",
+      });
+    });
+
+  const totalQty = inventoryGoods.reduce((s, g) => s + Number(g.qty || 0), 0);
+  const totalTypes = inventoryGoods.length;
+  const delivered = productionReports.filter((r) =>
+    ["in_warehouse", "delivered", "handed_over"].includes(r.status),
   ).length;
 
   const [showAllInventory, setShowAllInventory] = useState(false);
   const [showAllReports, setShowAllReports] = useState(false);
 
   // Sort by newest first
-  const sortedFinishedGoods = [...finishedGoods].sort((a, b) => new Date(b.receivedAt) - new Date(a.receivedAt));
-  const sortedProductionReports = [...productionReports].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  const sortedFinishedGoods = [...inventoryGoods].sort(
+    (a, b) => new Date(b.receivedAt) - new Date(a.receivedAt),
+  );
+  const sortedProductionReports = [...productionReports].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+  );
 
   return (
     <div className="fg-page">
@@ -79,10 +113,11 @@ export default function FinishedGoods() {
 
       {/* ── Tồn kho thành phẩm ──────────────────────────────────────────────── */}
       <AdminCard
+        gradient="green"
         title="Tồn kho thành phẩm"
         icon={<Store size={18} strokeWidth={2} />}
       >
-        {finishedGoods.length === 0 ? (
+        {inventoryGoods.length === 0 ? (
           <p className="empty-state">
             Chưa có thành phẩm nào trong kho.
             <br />
@@ -105,61 +140,73 @@ export default function FinishedGoods() {
                   </tr>
                 </thead>
                 <tbody>
-                  {sortedFinishedGoods.slice(0, showAllInventory ? undefined : 5).map((g, i) => (
-                    <tr key={g.id}>
-                      <td>{i + 1}</td>
-                      <td>
-                        <strong>{g.name}</strong>
-                      </td>
-                      <td>{g.unit}</td>
-                      <td>
-                        <span className="fg-qty">{g.qty}</span>
-                      </td>
-                      <td>{formatDate(g.receivedAt)}</td>
-                      <td>
-                        <div className="fg-status-row">
-                          {g.handedOver ? (
-                            <span className="badge badge--blue">Đã bàn giao</span>
-                          ) : (
-                            <>
-                              <span className="badge badge--green">
-                                Trong kho
+                  {sortedFinishedGoods
+                    .slice(0, showAllInventory ? undefined : 5)
+                    .map((g, i) => (
+                      <tr key={g.id}>
+                        <td>{i + 1}</td>
+                        <td>
+                          <strong>{g.name}</strong>
+                        </td>
+                        <td>{g.unit}</td>
+                        <td>
+                          <span className="fg-qty">{g.qty}</span>
+                        </td>
+                        <td>{formatDate(g.receivedAt)}</td>
+                        <td>
+                          <div className="fg-status-row">
+                            {g.status === "handed_over" || g.handedOver ? (
+                              <span className="badge badge--blue">
+                                Đã bàn giao
                               </span>
-                              <button
-                                type="button"
-                                className="btn-action btn-action--purple"
-                                onClick={() => deliverToCustomer(g)}
-                              >
-                                <Truck
-                                  size={13}
-                                  strokeWidth={2}
-                                  style={{ marginRight: 4 }}
-                                />
-                                Bàn giao cho khách hàng
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                            ) : (
+                              <>
+                                <span className="badge badge--green">
+                                  Trong kho
+                                </span>
+                                <button
+                                  type="button"
+                                  className="btn-action btn-action--purple"
+                                  onClick={() => deliverToCustomer(g)}
+                                >
+                                  <Truck
+                                    size={13}
+                                    strokeWidth={2}
+                                    style={{ marginRight: 4 }}
+                                  />
+                                  Bàn giao cho khách hàng
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
-            {finishedGoods.length > 5 && (
+            {inventoryGoods.length > 5 && (
               <button
                 className="dash-view-more"
                 onClick={() => setShowAllInventory(!showAllInventory)}
               >
                 {showAllInventory ? (
                   <>
-                    <ChevronUp size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+                    <ChevronUp
+                      size={14}
+                      strokeWidth={2}
+                      style={{ marginRight: 4 }}
+                    />
                     Thu gọn
                   </>
                 ) : (
                   <>
-                    <ChevronDown size={14} strokeWidth={2} style={{ marginRight: 4 }} />
-                    Xem thêm ({finishedGoods.length - 5} mục nữa)
+                    <ChevronDown
+                      size={14}
+                      strokeWidth={2}
+                      style={{ marginRight: 4 }}
+                    />
+                    Xem thêm ({inventoryGoods.length - 5} mục nữa)
                   </>
                 )}
               </button>
@@ -170,6 +217,7 @@ export default function FinishedGoods() {
 
       {/* ── Lịch sử báo cáo SX ───────────────────────────────────────────────── */}
       <AdminCard
+        gradient="blue"
         title="Lịch sử báo cáo sản xuất"
         icon={<ChartNoAxesColumn size={18} strokeWidth={2} />}
       >
@@ -191,41 +239,52 @@ export default function FinishedGoods() {
                   </tr>
                 </thead>
                 <tbody>
-                  {sortedProductionReports.slice(0, showAllReports ? undefined : 5).map((r, i) => (
-                    <tr key={r.id}>
-                      <td>{i + 1}</td>
-                      <td>
-                        <strong>{r.productName}</strong>
-                      </td>
-                      <td>
-                        <span className="badge badge--green">
-                          {r.finishedQty} cái
-                        </span>
-                      </td>
-                      <td>
-                        {r.scrapItems?.length > 0 ? (
-                          <ul className="material-list-inline">
-                            {r.scrapItems.map((s, si) => (
-                              <li key={si}>
-                                {s.name}: {s.qty} {s.unit}
-                              </li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <span className="badge badge--gray">Không có</span>
-                        )}
-                      </td>
-                      <td>{r.note || "—"}</td>
-                      <td>{formatDate(r.createdAt)}</td>
-                      <td>
-                        {r.status === "delivered" ? (
-                          <span className="badge badge--green">Đã bàn giao</span>
-                        ) : (
-                          <span className="badge badge--yellow">Chờ thủ kho</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                  {sortedProductionReports
+                    .slice(0, showAllReports ? undefined : 5)
+                    .map((r, i) => (
+                      <tr key={r.id}>
+                        <td>{i + 1}</td>
+                        <td>
+                          <strong>{r.productName}</strong>
+                        </td>
+                        <td>
+                          <span className="badge badge--green">
+                            {r.finishedQty} cái
+                          </span>
+                        </td>
+                        <td>
+                          {r.scrapItems?.length > 0 ? (
+                            <ul className="material-list-inline">
+                              {r.scrapItems.map((s, si) => (
+                                <li key={si}>
+                                  {s.name}: {s.qty} {s.unit}
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <span className="badge badge--gray">Không có</span>
+                          )}
+                        </td>
+                        <td>{r.note || "—"}</td>
+                        <td>{formatDate(r.createdAt)}</td>
+                        <td>
+                          {r.status === "handed_over" ? (
+                            <span className="badge badge--blue">
+                              Đã bàn giao
+                            </span>
+                          ) : r.status === "delivered" ||
+                            r.status === "in_warehouse" ? (
+                            <span className="badge badge--green">
+                              Đang trong kho
+                            </span>
+                          ) : (
+                            <span className="badge badge--yellow">
+                              Chờ thủ kho
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
@@ -236,12 +295,20 @@ export default function FinishedGoods() {
               >
                 {showAllReports ? (
                   <>
-                    <ChevronUp size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+                    <ChevronUp
+                      size={14}
+                      strokeWidth={2}
+                      style={{ marginRight: 4 }}
+                    />
                     Thu gọn
                   </>
                 ) : (
                   <>
-                    <ChevronDown size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+                    <ChevronDown
+                      size={14}
+                      strokeWidth={2}
+                      style={{ marginRight: 4 }}
+                    />
                     Xem thêm ({productionReports.length - 5} mục nữa)
                   </>
                 )}

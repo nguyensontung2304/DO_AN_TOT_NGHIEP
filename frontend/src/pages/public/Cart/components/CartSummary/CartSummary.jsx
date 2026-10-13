@@ -1,4 +1,5 @@
 import "./cartSummary.scss";
+import { Truck, ShieldCheck } from "lucide-react";
 
 // Sidebar: tóm tắt đơn hàng + nút hành động theo bước hiện tại.
 function CartSummary({
@@ -49,9 +50,13 @@ function CartSummary({
         </div>
 
         <div className="cart-summary__note">
-          🚚 Miễn phí giao hàng &amp; lắp đặt trong 50km
-          <br />
-          🛡️ Bảo hành 5 năm chính hãng
+          <div className="cart-summary__note-text">
+            <Truck size={20} />
+            Miễn phí giao hàng &amp; lắp đặt trong 50km
+          </div>
+          <div className="cart-summary__note-text">
+            <ShieldCheck size={20} /> Bảo hành 5 năm chính hãng
+          </div>
         </div>
 
         {step === "cart" && (

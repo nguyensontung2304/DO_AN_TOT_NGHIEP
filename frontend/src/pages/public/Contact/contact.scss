@@ -84,25 +84,33 @@
     max-width: 760px;
     margin: 0 auto;
 
-    > span {
+    span {
       position: relative;
       display: inline-block;
       margin-bottom: 14px;
-      padding-left: 38px;
+      padding: 0 38px;
+      color: #b43a2f;
       font-size: 13px;
       font-weight: 700;
       letter-spacing: 2px;
-      color: #b43a2f;
 
-      &::before {
+      &::before,
+      &::after {
         content: "";
         position: absolute;
-        left: 0;
         top: 50%;
         width: 26px;
         height: 2px;
         background: #b43a2f;
         transform: translateY(-50%);
+      }
+
+      &::before {
+        left: 0;
+      }
+
+      &::after {
+        right: 0;
       }
     }
 

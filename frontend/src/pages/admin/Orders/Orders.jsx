@@ -1,7 +1,5 @@
 import { useState } from "react";
 import {
-  Inbox,
-  CheckCircle,
   Check,
   Ban,
   User,
@@ -10,7 +8,7 @@ import {
   Mail,
   FileText,
   ClipboardList,
-  Wrench,
+  Loader2,
 } from "lucide-react";
 import { useApp } from "../../../context/useApp";
 import { getProductById } from "../../../api";
@@ -36,8 +34,8 @@ function OrderStatusBadge({ status }) {
     pending: { label: "Chờ xác nhận", cls: "badge--yellow" },
     confirmed: { label: "Đã xác nhận", cls: "badge--blue" },
     processing: { label: "Đang sản xuất", cls: "badge--purple" },
-    shipping: { label: "Đã giao hàng", cls: "badge--blue" },
     done: { label: "Hoàn thành", cls: "badge--green" },
+    shipping: { label: "Đang giao hàng", cls: "badge--blue" },
     cancelled: { label: "Đã hủy", cls: "badge--red" },
   };
   const s = map[status] || { label: status, cls: "badge--gray" };
@@ -50,9 +48,7 @@ export default function Orders() {
   const pendingOrders = orders.filter((o) => o.status === "pending");
   const confirmedOrders = orders.filter((o) => o.status === "confirmed");
   const processingOrders = orders.filter((o) => o.status === "processing");
-  const doneOrders = orders.filter(
-    (o) => o.status === "done" || o.status === "shipping",
-  );
+  const doneOrders = orders.filter((o) => o.status === "done");
 
   const [confirmingId, setConfirmingId] = useState(null);
 
@@ -100,7 +96,6 @@ export default function Orders() {
     }
   };
 
-  const handleComplete = (order) => updateOrderStatus(order.id, "done");
   const handleCancel = (order) => updateOrderStatus(order.id, "cancelled");
 
   const formatDate = (d) =>
@@ -149,22 +144,27 @@ export default function Orders() {
       </div>
 
       <AdminCard
-        title="Đơn hàng mới"
-        icon={<Inbox size={18} strokeWidth={2} />}
-        gradient="blue"
+        title="Tất cả đơn hàng"
+        icon={<ClipboardList size={18} strokeWidth={2} />}
+        gradient="purple"
       >
-        {pendingOrders.length === 0 ? (
+        {orders.length === 0 ? (
           <p className="empty-state">Chưa có đơn hàng nào.</p>
         ) : (
           <div className="orders-list">
-            {pendingOrders.map((order) => (
+            {orders.map((order) => (
               <OrderItemCard
                 key={order.id}
                 order={order}
-                onConfirm={handleConfirm}
-                onCancel={handleCancel}
+                onConfirm={
+                  order.status === "pending" ? handleConfirm : undefined
+                }
+                onCancel={
+                  ["pending", "processing"].includes(order.status)
+                    ? handleCancel
+                    : undefined
+                }
                 confirming={confirmingId === order.id}
-                // actionMsg={actionMsg[order.id]}
                 formatDate={formatDate}
                 formatCurrency={formatCurrency}
               />
@@ -172,66 +172,6 @@ export default function Orders() {
           </div>
         )}
       </AdminCard>
-
-      {confirmedOrders.length > 0 && (
-        <AdminCard
-          title="Đã xác nhận — chờ Kỹ thuật xử lý"
-          icon={<CheckCircle size={18} strokeWidth={2} />}
-          gradient="teal"
-        >
-          <div className="orders-list">
-            {confirmedOrders.map((order) => (
-              <OrderItemCard
-                key={order.id}
-                order={order}
-                onCancel={handleCancel}
-                formatDate={formatDate}
-                formatCurrency={formatCurrency}
-              />
-            ))}
-          </div>
-        </AdminCard>
-      )}
-
-      {processingOrders.length > 0 && (
-        <AdminCard
-          title="Đang sản xuất"
-          icon={<Wrench size={18} strokeWidth={2} />}
-          gradient="purple"
-        >
-          <div className="orders-list">
-            {processingOrders.map((order) => (
-              <OrderItemCard
-                key={order.id}
-                order={order}
-                onComplete={handleComplete}
-                onCancel={handleCancel}
-                formatDate={formatDate}
-                formatCurrency={formatCurrency}
-              />
-            ))}
-          </div>
-        </AdminCard>
-      )}
-
-      {doneOrders.length > 0 && (
-        <AdminCard
-          title="Đơn hàng hoàn thành"
-          icon={<CheckCircle size={18} strokeWidth={2} />}
-          gradient="green"
-        >
-          <div className="orders-list">
-            {doneOrders.map((order) => (
-              <OrderItemCard
-                key={order.id}
-                order={order}
-                formatDate={formatDate}
-                formatCurrency={formatCurrency}
-              />
-            ))}
-          </div>
-        </AdminCard>
-      )}
     </div>
   );
 }
@@ -239,7 +179,6 @@ export default function Orders() {
 function OrderItemCard({
   order,
   onConfirm,
-  onComplete,
   onCancel,
   loading,
   confirming,
@@ -356,15 +295,6 @@ function OrderItemCard({
                 Xác nhận đơn
               </>
             )}
-          </button>
-        )}
-        {order.status === "processing" && onComplete && (
-          <button
-            className="btn-action btn-action--green"
-            onClick={() => onComplete(order)}
-          >
-            <Check size={14} strokeWidth={2} style={{ marginRight: 4 }} />
-            Đánh dấu hoàn thành
           </button>
         )}
         {["pending", "processing"].includes(order.status) && onCancel && (

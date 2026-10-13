@@ -11,8 +11,63 @@
       background: var(--card-bg, #fff);
       border: 1px solid var(--border, #e0e0e0);
       border-radius: 8px;
+      transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
       padding: 16px;
       text-align: center;
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(
+          circle at 10% 20%,
+          rgba(192, 57, 43, 0.08),
+          transparent 28%
+        ),
+        radial-gradient(
+          circle at 90% 80%,
+          rgba(37, 99, 235, 0.08),
+          transparent 30%
+        ),
+        #f8f9fc;
+
+      &::before {
+        content: "";
+        position: absolute;
+        top: -120px;
+        right: -100px;
+        width: 250px;
+        height: 200px;
+        border-radius: 50%;
+        background: rgba(192, 57, 43, 0.05);
+        transition: transform 0.4s ease;
+        pointer-events: none;
+      }
+
+      &::after {
+        content: "";
+        position: absolute;
+        bottom: -140px;
+        left: -100px;
+        width: 250px;
+        height: 200px;
+        border-radius: 50%;
+        background: rgba(37, 99, 235, 0.05);
+        transition: transform 0.4s ease;
+        pointer-events: none;
+      }
+
+      &:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 45px rgba(26, 26, 46, 0.13);
+
+        &::before {
+          transform: scale(1.25);
+        }
+
+        &::after {
+          transform: scale(1.2);
+        }
+      }
 
       strong {
         display: block;
