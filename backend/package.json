@@ -8,7 +8,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "migrate": "node migrate-links.mjs"
+    "migrate": "node migrate-links.mjs",
+    "generate-models": "node scripts/generate-models.js",
+    "db:sync": "node scripts/db-sync.js",
+    "db:seed": "node scripts/db-sync.js --seed"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +24,8 @@
     }
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.117.3",
+    "@vercel/functions": "^3.10.1",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
