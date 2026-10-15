@@ -13,6 +13,12 @@ import {
 
 import { verifyToken } from "../middlewares/auth.middleware.js";
 import upload from "../middlewares/uploadAvatar.middleware.js";
+import {
+  forgotPassword,
+  validateResetPasswordLink,
+  resetPassword,
+} from "../controller/password-reset.controller.js";
+import { passwordResetRateLimit } from "../middlewares/password-reset.middleware.js";
 
 const router = express.Router();
 
@@ -24,6 +30,14 @@ router.post("/login", login);
 
 // refresh-token
 router.post("/refresh-token", refreshToken);
+
+router.post("/forgot-password", passwordResetRateLimit(10), forgotPassword);
+router.post(
+  "/reset-password/validate",
+  passwordResetRateLimit(60),
+  validateResetPasswordLink,
+);
+router.post("/reset-password", passwordResetRateLimit(20), resetPassword);
 
 // Các API dưới đây cần đăng nhập (gửi access token)
 // logout

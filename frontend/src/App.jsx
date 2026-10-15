@@ -22,6 +22,8 @@ import Login from "./pages/public/Login/Login";
 import Register from "./pages/public/Register/Register";
 import ProductDetail from "./pages/public/ProductDetail/ProductDetail";
 import Profile from "./pages/public/Profile/Profile";
+import ForgotPassword from "./pages/public/ForgotPassword/ForgotPassword";
+import ResetPassword from "./pages/public/ResetPassword/ResetPassword";
 
 // ADMIN LAYOUT
 import AdminLayout from "./layouts/admin/AdminLayout";
@@ -97,6 +99,14 @@ function App() {
           <Route path={ROUTES.USER.CONTACT} element={<Contact />} />
           <Route path={ROUTES.USER.LOGIN} element={<Login />} />
           <Route path={ROUTES.USER.REGISTER} element={<Register />} />
+          <Route
+            path={ROUTES.USER.FORGOT_PASSWORD}
+            element={<ForgotPassword />}
+          />
+          <Route
+            path={ROUTES.USER.RESET_PASSWORD}
+            element={<ResetPassword />}
+          />
 
           {/* ── Trang cần đăng nhập: PrivateLayout chặn trước khi render ──── */}
           <Route element={<PrivateLayout />}>
@@ -108,7 +118,10 @@ function App() {
 
             {/* Tương tự: tab hồ sơ và tab đổi mật khẩu có 2 URL khác nhau */}
             <Route path={ROUTES.USER.PROFILE} element={<Profile />} />
-            <Route path={ROUTES.USER.PROFILE_ADDRESS_BOOK} element={<Profile />} />
+            <Route
+              path={ROUTES.USER.PROFILE_ADDRESS_BOOK}
+              element={<Profile />}
+            />
             <Route
               path={ROUTES.USER.PROFILE_CHANGE_PASSWORD}
               element={<Profile />}

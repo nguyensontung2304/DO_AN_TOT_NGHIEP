@@ -552,7 +552,6 @@ export default function Home() {
         data-aos="fade-up"
         data-aos-duration="1000"
         data-aos-delay="300"
-        tion
         className="home-cta"
       >
         <div className="home-cta-inner">

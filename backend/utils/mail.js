@@ -4,10 +4,7 @@ import transporter, { isMailConfigured } from "../config/mail.js";
 
 const { Order, OrderItem, Product, User } = models;
 
-// ==================================================
 // ESCAPE HTML
-// ==================================================
-
 function escapeHtml(text) {
   return String(text ?? "")
     .replaceAll("&", "&amp;")
@@ -17,17 +14,11 @@ function escapeHtml(text) {
     .replaceAll("'", "&#39;");
 }
 
-// ==================================================
 // FORMAT GIÁ
-// ==================================================
-
 const formatPrice = (price) =>
   `${Number(price || 0).toLocaleString("vi-VN")} đ`;
 
-// ==================================================
 // TẠO HTML EMAIL
-// ==================================================
-
 function buildOrderEmailHtml(order) {
   const orderDate = order.createdAt
     ? new Date(order.createdAt).toLocaleString("vi-VN", {
@@ -771,11 +762,7 @@ function buildOrderEmailHtml(order) {
 </html>
   `;
 }
-
-// ==================================================
 // GỬI EMAIL XÁC NHẬN ĐƠN HÀNG
-// ==================================================
-
 export async function sendOrderConfirmationEmail(orderId) {
   if (!isMailConfigured) {
     console.warn(
@@ -852,4 +839,102 @@ export async function sendOrderConfirmationEmail(orderId) {
   } catch (error) {
     console.error("Gửi email đơn hàng thất bại:", error);
   }
+}
+
+// Reset password phải báo lỗi cho caller để hủy token nếu SMTP không nhận thư.
+// URL lấy từ CLIENT_URL tin cậy; token trong fragment không bị gửi vào log HTTP frontend.
+export async function sendPasswordResetEmail(user, token) {
+  const resetUrl = new URL("/reset-password", process.env.CLIENT_URL);
+  resetUrl.hash = new URLSearchParams({ token }).toString();
+  const link = resetUrl.toString();
+  const info = await transporter.sendMail({
+    from: process.env.MAIL_FROM || process.env.MAIL_USER,
+    to: user.email,
+    subject: "[Nội Thất Việt] Yêu cầu đặt lại mật khẩu",
+    text: `Xin chào ${user.name},
+Nội Thất Việt nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn.
+Vui lòng truy cập đường dẫn bên dưới để tạo mật khẩu mới:
+${link}
+Lưu ý:
+- Đường dẫn chỉ có hiệu lực trong 15 phút.
+- Đường dẫn chỉ được sử dụng một lần.
+- Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email. Mật khẩu hiện tại của bạn vẫn được giữ nguyên.
+Trân trọng,
+Đội ngũ Nội Thất Việt`,
+    html: `
+<div style="margin:0;padding:32px 12px;background:#f5f2ed;font-family:Arial,Helvetica,sans-serif;color:#333333;">
+  <div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e8e0d6;">
+    <!-- HEADER -->
+    <div style="padding:28px 24px;text-align:center;background:#493629;">
+      <div style="font-size:26px;font-weight:bold;letter-spacing:1px;color:#ffffff;">
+        NỘI THẤT VIỆT
+      </div>
+      <div style="margin-top:8px;font-size:12px;letter-spacing:2px;color:#e5d2bc;">
+        KIẾN TẠO KHÔNG GIAN SỐNG
+      </div>
+    </div>
+    <!-- CONTENT -->
+    <div style="padding:36px 30px 30px;">
+      <div style="margin-bottom:20px;text-align:center;">
+        <div style="display:inline-block;width:58px;height:58px;line-height:58px;border-radius:50%;background:#f3ebe2;font-size:28px;color:#8b6548;">
+          &#128274;
+        </div>
+      </div>
+      <h2 style="margin:0 0 18px;text-align:center;font-size:24px;line-height:1.4;color:#493629;">
+        Đặt lại mật khẩu
+      </h2>
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.8;">
+        Xin chào <strong>${escapeHtml(user.name)}</strong>,
+      </p>
+      <p style="margin:0 0 18px;font-size:15px;line-height:1.8;color:#555555;">
+        Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản Nội Thất Việt của bạn.
+        Nhấn vào nút bên dưới để thiết lập mật khẩu mới và tiếp tục sử dụng tài khoản.
+      </p>
+      <div style="margin:28px 0;text-align:center;">
+        <a
+          href="${escapeHtml(link)}"
+          style="display:inline-block;padding:15px 30px;background:#8b6548;color:#ffffff;text-decoration:none;font-size:15px;font-weight:bold;border-radius:6px;"
+        >
+          ĐẶT LẠI MẬT KHẨU
+        </a>
+      </div>
+      <div style="margin:24px 0;padding:16px 18px;background:#faf7f3;border-left:4px solid #b28a65;border-radius:4px;">
+        <p style="margin:0 0 8px;font-size:14px;font-weight:bold;color:#493629;">
+          Lưu ý bảo mật
+        </p>
+        <p style="margin:0;font-size:13px;line-height:1.8;color:#666666;">
+          • Liên kết có hiệu lực trong <strong>15 phút</strong>.<br>
+          • Liên kết chỉ sử dụng được <strong>một lần</strong>.<br>
+          • Nếu bạn không yêu cầu đặt lại mật khẩu, hãy bỏ qua email này. Mật khẩu hiện tại vẫn được giữ nguyên.
+        </p>
+      </div>
+      <p style="margin:24px 0 8px;font-size:13px;line-height:1.7;color:#777777;">
+        Nếu nút bên trên không hoạt động, bạn có thể sao chép đường dẫn sau và mở bằng trình duyệt:
+      </p>
+      <p style="margin:0;padding:12px;background:#f7f7f7;border:1px solid #eeeeee;border-radius:4px;font-size:12px;line-height:1.7;word-break:break-all;">
+        <a href="${escapeHtml(link)}" style="color:#8b6548;text-decoration:underline;">
+          ${escapeHtml(link)}
+        </a>
+      </p>
+      <p style="margin:24px 0 0;font-size:14px;line-height:1.8;color:#555555;">
+        Cảm ơn bạn đã tin tưởng và đồng hành cùng Nội Thất Việt.
+      </p>
+    </div>
+    <!-- FOOTER -->
+    <div style="padding:20px 24px;background:#f8f5f1;border-top:1px solid #eee5dc;text-align:center;">
+      <p style="margin:0 0 8px;font-size:13px;font-weight:bold;color:#493629;">
+        NỘI THẤT VIỆT
+      </p>
+      <p style="margin:0;font-size:12px;line-height:1.8;color:#888888;">
+        Không gian đẹp, cuộc sống trọn vẹn hơn.<br>
+        Đây là email tự động, vui lòng không trả lời email này.
+      </p>
+    </div>
+  </div>
+</div>
+`,
+    disableFileAccess: true,
+    disableUrlAccess: true,
+  });
+  if (!info.accepted?.length) throw new Error("SMTP_REJECTED");
 }

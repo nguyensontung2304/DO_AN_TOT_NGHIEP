@@ -13,6 +13,8 @@ export const ROUTES = {
     PROFILE: "/profile",
     PROFILE_CHANGE_PASSWORD: "/profile/change-password",
     PROFILE_ADDRESS_BOOK: "/profile/address-book",
+    FORGOT_PASSWORD: "/forgot-password",
+    RESET_PASSWORD: "/reset-password",
   },
   ADMIN: {
     DASHBOARD: "/admin",

@@ -1,67 +1,83 @@
-import _sequelize from 'sequelize';
+import _sequelize from "sequelize";
 const { Model, Sequelize } = _sequelize;
 
 export default class User extends Model {
   static init(sequelize, DataTypes) {
-  return super.init({
-    id: {
-      autoIncrement: true,
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true
-    },
-    name: {
-      type: DataTypes.STRING(30),
-      allowNull: false
-    },
-    email: {
-      type: DataTypes.STRING(50),
-      allowNull: false,
-      unique: "users_email_key"
-    },
-    password: {
-      type: DataTypes.STRING(255),
-      allowNull: false
-    },
-    phone: {
-      type: DataTypes.STRING(10),
-      allowNull: true
-    },
-    refresh_token: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    role: {
-      type: DataTypes.STRING(20),
-      allowNull: false,
-      defaultValue: "user"
-    },
-    avatar: {
-      type: DataTypes.STRING(500),
-      allowNull: true
-    }
-  }, {
-    sequelize,
-    tableName: 'users',
-    schema: 'public',
-    timestamps: true,
-    paranoid: true,
-    indexes: [
+    return super.init(
       {
-        name: "users_email_key",
-        unique: true,
-        fields: [
-          { name: "email" },
-        ]
+        id: {
+          autoIncrement: true,
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          primaryKey: true,
+        },
+        name: {
+          type: DataTypes.STRING(30),
+          allowNull: false,
+        },
+        email: {
+          type: DataTypes.STRING(50),
+          allowNull: false,
+          unique: "users_email_key",
+        },
+        password: {
+          type: DataTypes.STRING(255),
+          allowNull: false,
+        },
+        phone: {
+          type: DataTypes.STRING(10),
+          allowNull: true,
+        },
+        refresh_token: {
+          type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        role: {
+          type: DataTypes.STRING(20),
+          allowNull: false,
+          defaultValue: "user",
+        },
+        avatar: {
+          type: DataTypes.STRING(500),
+          allowNull: true,
+        },
+        reset_password_token_hash: {
+          type: DataTypes.STRING(64),
+          allowNull: true,
+        },
+        reset_password_expires_at: {
+          type: DataTypes.DATE,
+          allowNull: true,
+        },
+        reset_password_requested_at: {
+          type: DataTypes.DATE,
+          allowNull: true,
+        },
+        auth_version: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          defaultValue: 0,
+        },
       },
       {
-        name: "users_pkey",
-        unique: true,
-        fields: [
-          { name: "id" },
-        ]
+        sequelize,
+        tableName: "users",
+        schema: "public",
+        timestamps: true,
+        paranoid: true,
+        indexes: [
+          {
+            name: "users_email_key",
+            unique: true,
+            fields: [{ name: "email" }],
+          },
+          {
+            name: "users_pkey",
+            unique: true,
+            fields: [{ name: "id" }],
+          },
+        ],
       },
-    ]
-  });
+    );
   }
 }

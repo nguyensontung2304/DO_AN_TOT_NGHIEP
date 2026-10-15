@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
+import { ArrowLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { register } from "../../../api/authApi";
 import { ROUTES } from "../../../constants/router";
 import "./register.scss";
 
-// Danh sách hình ảnh background tự động chuyển đổi sau mỗi 3 giây
 const BRAND_IMAGES = [
   "/images/brand1.jpeg",
   "/images/brand2.jpeg",
@@ -25,13 +25,13 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Hiệu ứng tự động chuyển ảnh sau mỗi 4 giây
+  // Tự động chuyển ảnh sau mỗi 5 giây
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentImageIndex(
         (prevIndex) => (prevIndex + 1) % BRAND_IMAGES.length,
       );
-    }, 4000);
+    }, 5000);
 
     return () => clearInterval(timer);
   }, []);
@@ -70,53 +70,66 @@ export default function Register() {
   };
 
   return (
-    <div className="register-page">
-      {/* BÊN TRÁI - 65% */}
+    <div className="register">
+      {/* BÊN TRÁI - BRAND & SLIDER ẢNH */}
       <div className="register-brand">
         {BRAND_IMAGES.map((imgSrc, index) => (
           <img
             key={index}
             src={imgSrc}
             alt="Nội Thất Việt"
-            className={`register-brand-image ${index === currentImageIndex ? "active" : ""}`}
+            className={`register-brand-image ${
+              index === currentImageIndex ? "active" : ""
+            }`}
           />
         ))}
       </div>
 
-      {/* BÊN PHẢI - 35% */}
+      {/* BÊN PHẢI - PANEL */}
       <div className="register-panel">
         <div className="register-card">
           <button
             className="register-back"
+            type="button"
             onClick={() => navigate(ROUTES.USER.HOME)}
           >
-            ← Về trang chủ
+            <ArrowLeft size={18} /> Về trang chủ
           </button>
 
           <div className="register-logo">
             <div className="register-logo-image">
               <img
                 src="/images/logo.jpeg"
-                alt="Nguyễn Sơn Tùng"
-                className="register-logo-image"
+                alt="Nội Thất Việt"
+                className="register-logo-image-img"
               />
             </div>
 
             <span className="register-logo-text">
-              <strong>Nội Thất</strong>
-              <em> Việt</em>
+              <strong className="register-logo-text-strong">Nội Thất</strong>
+              <em className="register-logo-text-em"> Việt</em>
             </span>
 
-            <p>Tạo tài khoản để đặt hàng</p>
+            <p className="register-logo-description">
+              Tạo tài khoản để đặt hàng
+            </p>
           </div>
 
           <form className="register-form" onSubmit={handleSubmit}>
             {/* HỌ VÀ TÊN */}
             <div className="register-form-group">
-              <label>Họ và tên</label>
+              <label
+                className="register-form-group-label"
+                htmlFor="register-name"
+              >
+                Họ và tên
+              </label>
 
               <input
+                id="register-name"
+                className="register-form-group-input"
                 type="text"
+                name="name"
                 value={form.name}
                 onChange={(e) =>
                   setForm((f) => ({
@@ -125,6 +138,7 @@ export default function Register() {
                   }))
                 }
                 placeholder="Nguyễn Sơn Tùng"
+                autoComplete="name"
                 autoFocus
                 required
               />
@@ -132,10 +146,18 @@ export default function Register() {
 
             {/* EMAIL */}
             <div className="register-form-group">
-              <label>Email</label>
+              <label
+                className="register-form-group-label"
+                htmlFor="register-email"
+              >
+                Email
+              </label>
 
               <input
+                id="register-email"
+                className="register-form-group-input"
                 type="email"
+                name="email"
                 value={form.email}
                 onChange={(e) =>
                   setForm((f) => ({
@@ -144,16 +166,25 @@ export default function Register() {
                   }))
                 }
                 placeholder="sontung@gmail.com"
+                autoComplete="email"
                 required
               />
             </div>
 
             {/* MẬT KHẨU */}
             <div className="register-form-group">
-              <label>Mật khẩu</label>
+              <label
+                className="register-form-group-label"
+                htmlFor="register-password"
+              >
+                Mật khẩu
+              </label>
 
               <input
+                id="register-password"
+                className="register-form-group-input"
                 type="password"
+                name="password"
                 value={form.password}
                 onChange={(e) =>
                   setForm((f) => ({
@@ -162,16 +193,25 @@ export default function Register() {
                   }))
                 }
                 placeholder="Ít nhất 6 ký tự"
+                autoComplete="new-password"
                 required
               />
             </div>
 
             {/* XÁC NHẬN MẬT KHẨU */}
             <div className="register-form-group">
-              <label>Xác nhận mật khẩu</label>
+              <label
+                className="register-form-group-label"
+                htmlFor="register-confirm"
+              >
+                Xác nhận mật khẩu
+              </label>
 
               <input
+                id="register-confirm"
+                className="register-form-group-input"
                 type="password"
+                name="confirm"
                 value={form.confirm}
                 onChange={(e) =>
                   setForm((f) => ({
@@ -180,15 +220,24 @@ export default function Register() {
                   }))
                 }
                 placeholder="Nhập lại mật khẩu"
+                autoComplete="new-password"
                 required
               />
             </div>
 
-            {/* ERROR */}
-            {error && <p className="register-error">{error}</p>}
+            {/* THÔNG BÁO LỖI */}
+            {error && (
+              <p className="register-error" role="alert">
+                {error}
+              </p>
+            )}
 
-            {/* BUTTON */}
-            <button className="register-btn" type="submit" disabled={loading}>
+            {/* NÚT ĐĂNG KÝ */}
+            <button
+              className="register-button"
+              type="submit"
+              disabled={loading}
+            >
               {loading ? "Đang đăng ký..." : "Đăng ký"}
             </button>
           </form>

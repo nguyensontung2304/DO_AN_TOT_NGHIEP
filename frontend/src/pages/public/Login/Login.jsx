@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
+import { ArrowLeft } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { login } from "../../../api/authApi";
 import { setUser } from "../../../redux/userSlice";
+
 import { ROUTES } from "../../../constants/router";
 import "./login.scss";
 
@@ -18,7 +20,7 @@ const ADMIN_COMPONENT_PATHS = {
   chat: "/admin/chat",
 };
 
-// Danh sách hình ảnh background tự động chuyển đổi sau mỗi 3 giây
+// Danh sách hình ảnh background tự động chuyển đổi sau mỗi 4 giây
 const BRAND_IMAGES = [
   "/images/brand1.jpeg",
   "/images/brand2.jpeg",
@@ -37,18 +39,18 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Hiệu ứng tự động chuyển ảnh sau mỗi 4 giây
+  // Tự động chuyển ảnh sau mỗi 5 giây
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentImageIndex(
         (prevIndex) => (prevIndex + 1) % BRAND_IMAGES.length,
       );
-    }, 4000);
+    }, 5000);
 
     return () => clearInterval(timer);
   }, []);
 
-  // Quyết định chuyển hướng sau khi có user (đăng nhập thành công hoặc đã đăng nhập rồi)
+  // Chuyển hướng sau khi đăng nhập thành công hoặc đã đăng nhập
   useEffect(() => {
     if (!currentUser?.id) return;
 
@@ -116,51 +118,60 @@ export default function Login() {
   };
 
   return (
-    <div className="login-page">
-      {/* BÊN TRÁI - 65% (Slider ảnh nền tự động chuyển sau 3s) */}
+    <div className="login">
+      {/* BÊN TRÁI - BRAND & SLIDER ẢNH */}
       <div className="login-brand">
         {BRAND_IMAGES.map((imgSrc, index) => (
           <img
             key={index}
             src={imgSrc}
             alt="Nội Thất Việt"
-            className={`login-brand-image ${index === currentImageIndex ? "active" : ""}`}
+            className={`login-brand-image ${
+              index === currentImageIndex ? "active" : ""
+            }`}
           />
         ))}
       </div>
 
-      {/* BÊN PHẢI - 35% */}
+      {/* BÊN PHẢI - PANEL */}
       <div className="login-panel">
         <div className="login-card">
           <button
             className="login-back"
+            type="button"
             onClick={() => navigate(ROUTES.USER.HOME)}
           >
-            ← Về trang chủ
+            <ArrowLeft size={18} /> Về trang chủ
           </button>
 
           <div className="login-logo">
             <div className="login-logo-image">
               <img
                 src="/images/logo.jpeg"
-                alt="Nguyễn Sơn Tùng"
-                className="pub-header__logo-image"
+                alt="Nội Thất Việt"
+                className="login-logo-image-img"
               />
             </div>
 
             <span className="login-logo-text">
-              <strong>Nội Thất</strong>
-              <em> Việt</em>
+              <strong className="login-logo-text-strong">Nội Thất</strong>
+              <em className="login-logo-text-em"> Việt</em>
             </span>
 
-            <p>Đăng nhập để đặt hàng</p>
+            <p className="login-logo-description">Đăng nhập để đặt hàng</p>
           </div>
 
           <form className="login-form" onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label>Email</label>
+            <div className="login-form-group">
+              <label className="login-form-group-label" htmlFor="login-email">
+                Email
+              </label>
+
               <input
+                id="login-email"
+                className="login-form-group-input"
                 type="email"
+                name="email"
                 value={form.email}
                 onChange={(e) =>
                   setForm((f) => ({
@@ -169,15 +180,25 @@ export default function Login() {
                   }))
                 }
                 placeholder="email@example.com"
+                autoComplete="email"
                 autoFocus
                 required
               />
             </div>
 
-            <div className="form-group">
-              <label>Mật khẩu</label>
+            <div className="login-form-group">
+              <label
+                className="login-form-group-label"
+                htmlFor="login-password"
+              >
+                Mật khẩu
+              </label>
+
               <input
+                id="login-password"
+                className="login-form-group-input"
                 type="password"
+                name="password"
                 value={form.password}
                 onChange={(e) =>
                   setForm((f) => ({
@@ -186,16 +207,25 @@ export default function Login() {
                   }))
                 }
                 placeholder="Nhập mật khẩu"
+                autoComplete="current-password"
                 required
               />
             </div>
 
-            {error && <p className="login-error">{error}</p>}
+            {error && (
+              <p className="login-error" role="alert">
+                {error}
+              </p>
+            )}
 
-            <button className="login-btn" type="submit" disabled={loading}>
+            <button className="login-button" type="submit" disabled={loading}>
               {loading ? "Đang đăng nhập..." : "Đăng nhập"}
             </button>
           </form>
+
+          <p className="login-switch">
+            <Link to={ROUTES.USER.FORGOT_PASSWORD}>Quên mật khẩu?</Link>
+          </p>
 
           <p className="login-switch">
             Chưa có tài khoản?{" "}
