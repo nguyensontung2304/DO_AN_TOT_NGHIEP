@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-
+import { MapPin } from "lucide-react";
 import AddressFields from "../../../../../components/public/AddressFields/AddressFields";
-
 import {
   getAddress,
   createAddress,
@@ -9,8 +8,7 @@ import {
   deleteAddress,
   setDefaultAddress,
 } from "../../../../../api/addressApi";
-
-import "./AddressBook.scss";
+import "./addressBook.scss";
 
 const initialForm = {
   label: "",
@@ -257,6 +255,7 @@ function AddressBook({ currentUser }) {
             onClick={() => openEditor()}
             disabled={saving}
           >
+            <MapPin size={18} />
             Thêm địa chỉ ngay
           </button>
         </div>

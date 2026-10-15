@@ -583,8 +583,8 @@ export default function Cart() {
 
   return (
     <div className="cart-page">
-      <div className="cart-inner">
-        <div className="cart-breadcrumb">
+      <div className="cart-page__inner">
+        <div className="cart-page__breadcrumb">
           <Link to={ROUTES.USER.HOME}>Trang chủ</Link>
           <span>›</span>
           <span>Giỏ hàng</span>
@@ -604,25 +604,25 @@ export default function Cart() {
           )}
         </div>
 
-        <div className="cart-tabs">
+        <div className="cart-page__tabs">
           <NavLink
             to={ROUTES.USER.CART}
             end
             className={({ isActive }) =>
-              `cart-tab ${isActive ? "cart-tab--active" : ""}`
+              `cart-page__tab ${isActive ? "cart-page__tab--active" : ""}`
             }
           >
             <ShoppingCart size={20} strokeWidth={1.8} />
             Giỏ hàng
             {cart.length > 0 && (
-              <span className="cart-tab__badge">{cart.length}</span>
+              <span className="cart-page__tab-badge">{cart.length}</span>
             )}
           </NavLink>
 
           <NavLink
             to={ROUTES.USER.CART_ORDERS}
             className={({ isActive }) =>
-              `cart-tab ${isActive ? "cart-tab--active" : ""}`
+              `cart-page__tab ${isActive ? "cart-page__tab--active" : ""}`
             }
           >
             <Package size={20} strokeWidth={1.8} />
@@ -631,7 +631,7 @@ export default function Cart() {
         </div>
 
         {isOrdersTab && (
-          <div className="orders-panel">
+          <div className="cart-page__orders-panel">
             <OrdersView
               isLoggedIn={!!currentUser}
               loading={ordersLoading}
@@ -646,14 +646,13 @@ export default function Cart() {
         {!isOrdersTab && (
           <>
             {cart.length === 0 ? (
-              <div className="cart-empty">
+              <div className="cart-page__empty">
                 <ShoppingCart size={48} strokeWidth={1.8} />
                 <h2>Giỏ hàng trống</h2>
                 <p>Bạn chưa thêm sản phẩm nào vào giỏ.</p>
-
                 <Link
                   to={ROUTES.USER.PRODUCT_LIST}
-                  className="cart-btn cart-btn--primary"
+                  className="cart-page__button cart-page__button--primary"
                 >
                   Khám phá sản phẩm
                 </Link>
@@ -662,11 +661,11 @@ export default function Cart() {
               <>
                 <CartSteps currentStep={step} />
 
-                <div className="cart-layout">
-                  <div className="cart-main">
+                <div className="cart-page__layout">
+                  <div className="cart-page__main">
                     {step === "checkout" ? (
                       !formInitialized ? (
-                        <div className="cart-empty">
+                        <div className="cart-page__empty">
                           <LoaderCircle size={36} />
                           <p>Đang tải địa chỉ giao hàng...</p>
                         </div>

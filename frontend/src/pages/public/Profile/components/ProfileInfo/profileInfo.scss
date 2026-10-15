@@ -1,3 +1,231 @@
-// Form thông tin cá nhân chỉ dùng kiểu chung của trang hồ sơ,
-// nên file này giữ nguyên phần form + nút + thông báo.
-@use "../shared/form";
+/* 1. FORM THÔNG TIN CÁ NHÂN */
+.profile-info {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+
+  /* 1.1. NHÓM TRƯỜNG NHẬP */
+  &__group {
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  /* 1.2. NHÃN TRƯỜNG NHẬP */
+  &__label {
+    display: block;
+    margin: 0;
+    color: #20243a;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  /* 1.3. Ô NHẬP */
+  &__input {
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+    display: block;
+    padding: 12px 14px;
+    border: 1px solid #d9dde5;
+    border-radius: 10px;
+    outline: none;
+    color: #20243a;
+    background: #ffffff;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+    transition:
+      border-color 0.25s ease,
+      box-shadow 0.25s ease;
+
+    &::placeholder {
+      color: #a0a5b1;
+      opacity: 1;
+    }
+
+    &:hover:not(:disabled) {
+      border-color: #b9bdc9;
+    }
+
+    &:focus {
+      border-color: #c4473a;
+      box-shadow: 0 0 0 3px rgba(196, 71, 58, 0.1);
+    }
+
+    &:disabled {
+      color: #858b9b;
+      background: #f5f6f8;
+      border-color: #e5e7ec;
+      cursor: not-allowed;
+      opacity: 1;
+    }
+  }
+
+  /* 1.4. Ô NHẬP BỊ VÔ HIỆU HÓA */
+  &__input--disabled {
+    color: #858b9b;
+    background: #f5f6f8;
+    cursor: not-allowed;
+  }
+
+  /* 1.5. GHI CHÚ DƯỚI Ô NHẬP */
+  &__hint {
+    margin: -2px 0 0;
+    color: #858b9b;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  /* 1.6. THÔNG BÁO */
+  &__message {
+    width: 100%;
+    margin: 0;
+    padding: 12px 14px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+
+    /* 1.6.1. THÔNG BÁO LỖI */
+    &--error {
+      color: #b42318;
+      background: #fff1f0;
+      border-color: #ffd6d2;
+    }
+
+    /* 1.6.2. THÔNG BÁO THÀNH CÔNG */
+    &--success {
+      color: #18794e;
+      background: #ecfdf3;
+      border-color: #b7ebc6;
+    }
+  }
+
+  /* 1.7. KHU VỰC NÚT */
+  &__actions {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
+  /* 1.8. NÚT LƯU THAY ĐỔI */
+  &__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 10px 20px;
+    border: 1px solid #2563eb;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #60a5fa 0%, #2563eb 50%, #1d4ed8 100%);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    letter-spacing: 0.2px;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 2px 5px rgba(37, 99, 235, 0.18);
+    transition:
+      background 0.2s ease,
+      box-shadow 0.2s ease,
+      transform 0.2s ease,
+      border-color 0.2s ease;
+
+    &:hover:not(:disabled) {
+      border-color: #1d4ed8;
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8, #1e40af);
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.4);
+      transform: translateY(-1px);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+      box-shadow: 0 1px 3px rgba(37, 99, 235, 0.18);
+    }
+
+    &:focus-visible {
+      outline: 3px solid rgba(59, 130, 246, 0.3);
+      outline-offset: 3px;
+    }
+
+    &:disabled {
+      border-color: #cbd5e1;
+      background: #e2e8f0;
+      color: #94a3b8;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+  }
+}
+
+/* 2. RESPONSIVE — MÀN HÌNH TABLET */
+@media (max-width: 768px) {
+  .profile-info {
+    gap: 18px;
+
+    &__actions {
+      width: 100%;
+    }
+
+    &__button {
+      min-width: 0;
+      width: 100%;
+    }
+  }
+}
+
+/* 3. RESPONSIVE — ĐIỆN THOẠI */
+@media (max-width: 480px) {
+  .profile-info {
+    gap: 16px;
+
+    &__group {
+      gap: 7px;
+    }
+
+    &__label {
+      font-size: 13px;
+    }
+
+    &__input {
+      min-height: 44px;
+      padding: 11px 12px;
+      font-size: 13px;
+    }
+
+    &__hint {
+      font-size: 11px;
+    }
+
+    &__message {
+      padding: 10px 12px;
+      font-size: 12px;
+    }
+
+    &__button {
+      min-height: 44px;
+      padding: 11px 18px;
+      font-size: 13px;
+    }
+  }
+}
+
+/* 4. HỖ TRỢ GIẢM CHUYỂN ĐỘNG */
+@media (prefers-reduced-motion: reduce) {
+  .profile-info,
+  .profile-info * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

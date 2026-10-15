@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
+import { Camera, LoaderCircle } from "lucide-react";
 import { useDispatch } from "react-redux";
-
 import { updateMyAvatar } from "../../../../../api/authApi";
 import { setUser } from "../../../../../redux/userSlice";
-
 import "./avatarUpload.scss";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -34,7 +33,7 @@ export default function AvatarUpload({ currentUser }) {
     }
 
     if (file.size > MAX_SIZE) {
-      return "Ảnh không được vượt quá 5MB.";
+      return "Ảnh không được vượt quá 4MB.";
     }
 
     return null;
@@ -73,7 +72,9 @@ export default function AvatarUpload({ currentUser }) {
       console.error("Lỗi upload avatar:", err);
 
       setPreview("");
-      setError(err.response?.data?.message || "Không thể cập nhật ảnh đại diện.");
+      setError(
+        err.response?.data?.message || "Không thể cập nhật ảnh đại diện.",
+      );
     } finally {
       setLoading(false);
       e.target.value = "";
@@ -98,11 +99,22 @@ export default function AvatarUpload({ currentUser }) {
 
       <label
         htmlFor="avatar-input"
-        className={`profile-avatar-upload__button ${
-          loading ? "disabled" : ""
-        }`}
+        className={`profile-avatar-upload__button ${loading ? "disabled" : ""}`}
       >
-        {loading ? "Đang tải ảnh..." : "📷 Đổi ảnh đại diện"}
+        {loading ? (
+          <>
+            <LoaderCircle
+              size={18}
+              className="profile-avatar-upload__button-icon spinning"
+            />
+            Đang tải ảnh...
+          </>
+        ) : (
+          <>
+            <Camera size={18} className="profile-avatar-upload__button-icon" />
+            Đổi ảnh đại diện
+          </>
+        )}
       </label>
 
       <input
@@ -114,7 +126,7 @@ export default function AvatarUpload({ currentUser }) {
         hidden
       />
 
-      <small>JPG, PNG, WEBP · Tối đa 5MB</small>
+      <small>JPG, PNG, WEBP · Tối đa 4MB</small>
 
       {error && <p className="profile-error">{error}</p>}
       {success && <p className="profile-success">{success}</p>}

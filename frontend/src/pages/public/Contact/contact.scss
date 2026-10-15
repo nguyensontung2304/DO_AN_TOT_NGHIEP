@@ -592,11 +592,16 @@
 
     &__content {
       span {
-        font-size: 29px;
+        font-size: 32px;
+        letter-spacing: 3px;
+
+        &::after {
+          width: 65px;
+        }
       }
 
       h1 {
-        font-size: 28px;
+        font-size: 30px;
       }
 
       p {

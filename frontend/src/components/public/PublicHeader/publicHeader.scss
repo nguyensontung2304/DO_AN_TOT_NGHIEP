@@ -149,7 +149,7 @@
     }
   }
 
-  // ── User menu ─────────────────────────────────────────────────────────────
+  // User menu
   &__user {
     position: relative;
   }
@@ -310,32 +310,191 @@
     }
   }
 
+  // Responsive header trên màn hình nhỏ
   @media (max-width: 768px) {
-    &__nav {
-      display: none;
-      position: absolute;
-      top: 68px;
-      left: 0;
-      right: 0;
-      background: #fff;
-      flex-direction: column;
-      align-items: flex-start;
-      padding: 16px 24px;
-      gap: 16px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    .pub-header {
+      &__inner {
+        width: 100%;
+        height: 60px;
+        padding: 0 12px;
+        gap: 12px;
+        box-sizing: border-box;
+      }
 
-      &.open {
+      // Ẩn menu ngang, hiện lại khi bấm icon 3 gạch
+      &__nav {
+        display: none;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        right: 0;
+        width: 100%;
+        box-sizing: border-box;
+
+        background: #fff;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 16px;
+        gap: 16px;
+
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+        &.open {
+          display: flex;
+        }
+
+        a {
+          width: 100%;
+          box-sizing: border-box;
+        }
+      }
+
+      // Icon 3 gạch
+      &__burger {
         display: flex;
+        flex-shrink: 0;
+        flex-direction: column;
+        justify-content: center;
+        gap: 5px;
+        padding: 6px;
+      }
+
+      // Khu vực bên phải được phép co lại
+      &__actions {
+        min-width: 0;
+        gap: 8px;
+        margin-left: auto;
+        flex-shrink: 1;
+      }
+
+      &__logo {
+        min-width: 0;
+        gap: 6px;
+        font-size: 18px;
+
+        &-image {
+          width: 28px;
+          height: 28px;
+          flex-shrink: 0;
+        }
+      }
+
+      &__cart {
+        flex-shrink: 0;
+        font-size: 20px;
+      }
+
+      &__user {
+        min-width: 0;
+        flex-shrink: 1;
+      }
+
+      &__user-btn {
+        min-width: 0;
+        max-width: 140px;
+        gap: 5px;
+        padding: 4px 7px 4px 4px;
+      }
+
+      &__user-name {
+        min-width: 0;
+        max-width: 75px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
     }
+  }
 
-    &__burger {
-      display: flex;
-    }
+  // Màn hình cực nhỏ
+  @media (max-width: 400px) {
+    .pub-header {
+      &__inner {
+        height: auto;
+        min-height: 0;
+        padding: 10px 12px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 8px;
+      }
 
-    &__login-btn {
-      font-size: 12px;
-      padding: 6px 12px;
+      // Hàng 1: logo Nội Thất Việt
+      &__logo {
+        order: 1;
+        flex: 0 0 100%;
+        min-width: 0;
+        gap: 8px;
+        font-size: 25px;
+
+        &-image {
+          width: 30px;
+          height: 30px;
+          flex-shrink: 0;
+        }
+      }
+
+      // Hàng 2: giỏ hàng, hồ sơ, menu
+      &__actions {
+        order: 2;
+        width: 100%;
+        min-width: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-top: 10px;
+      }
+
+      &__burger {
+        order: 1;
+        flex-shrink: 0;
+        display: flex;
+        justify-content: flex-start;
+        margin-right: auto;
+      }
+
+      &__cart {
+        order: 2;
+        margin-left: auto;
+      }
+
+      &__user {
+        order: 3;
+        min-width: 0;
+      }
+
+      &__user-btn {
+        max-width: 150px;
+      }
+
+      &__user-name {
+        max-width: 70px;
+      }
+
+      // Menu mở ra nằm bên dưới header
+      &__nav {
+        top: 100%;
+        left: 0;
+        right: 0;
+        width: 100%;
+        z-index: 101;
+
+        a {
+          padding: 10px 12px;
+          border-radius: 8px;
+          transition:
+            color 0.2s ease,
+            background-color 0.2s ease,
+            padding-left 0.2s ease;
+
+          &.active {
+            color: #2563eb;
+            background-color: #eff6ff;
+            font-weight: 600;
+          }
+        }
+      }
     }
   }
 }

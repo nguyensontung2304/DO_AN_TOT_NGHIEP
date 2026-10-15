@@ -1252,10 +1252,14 @@
         &-brand {
           font-size: 32px;
           letter-spacing: 3px;
+
+          &::after {
+            width: 65px;
+          }
         }
 
         &-title {
-          font-size: 31px;
+          font-size: 30px;
         }
 
         &-description {

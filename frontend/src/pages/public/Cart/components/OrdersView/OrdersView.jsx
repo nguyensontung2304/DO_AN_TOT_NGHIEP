@@ -13,7 +13,6 @@ import {
 
 import { Link } from "react-router-dom";
 import { ROUTES } from "../../../../../constants/router";
-
 import "./ordersView.scss";
 
 // Nhãn + màu của từng trạng thái đơn hàng

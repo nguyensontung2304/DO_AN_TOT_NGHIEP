@@ -1110,12 +1110,16 @@
       &-overlay {
         &-content {
           &-brand {
-            font-size: 13px;
-            letter-spacing: 2.5px;
+            font-size: 32px;
+            letter-spacing: 3px;
+
+            &::after {
+              width: 65px;
+            }
           }
 
           &-title {
-            font-size: 32px;
+            font-size: 30px;
           }
 
           &-desc {

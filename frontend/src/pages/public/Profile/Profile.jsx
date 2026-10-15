@@ -6,7 +6,6 @@ import ProfileSidebar from "./components/ProfileSidebar/ProfileSidebar";
 import ProfileInfo from "./components/ProfileInfo/ProfileInfo";
 import ChangePassword from "./components/ChangePassword/ChangePassword";
 import AddressBook from "./components/AddressBook/AddressBook";
-
 import "./profile.scss";
 
 const TAB_TITLES = {

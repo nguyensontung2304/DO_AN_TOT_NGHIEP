@@ -1,85 +1,317 @@
-// ── Buttons ────────────────────────────────────────────────────────────────────
-.cart-btn {
+/* ==================================================
+   1. TRANG GIỎ HÀNG
+================================================== */
+.cart-page {
+  min-height: 70vh;
+  padding: 40px 24px 80px;
+  background: #f7f8fa;
+  box-sizing: border-box;
+}
+
+.cart-page *,
+.cart-page *::before,
+.cart-page *::after {
+  box-sizing: border-box;
+}
+
+.cart-page__inner {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ==================================================
+   2. ĐƯỜNG DẪN ĐIỀU HƯỚNG
+================================================== */
+.cart-page__breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  color: #888;
+  font-size: 13px;
+}
+
+.cart-page__breadcrumb a {
+  color: #c0392b;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.cart-page__breadcrumb a:hover {
+  color: #a93226;
+  text-decoration: underline;
+}
+
+.cart-page__breadcrumb span {
+  color: #bbb;
+}
+
+/* ==================================================
+   3. THANH TAB GIỎ HÀNG / ĐƠN HÀNG
+================================================== */
+.cart-page__tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 28px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.cart-page__tab {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   padding: 12px 24px;
+  margin-bottom: -2px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: #888;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.cart-page__tab:hover {
+  color: #c0392b;
+}
+
+.cart-page__tab--active {
+  border-bottom-color: #c0392b;
+  color: #c0392b;
+}
+
+.cart-page__tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 10px;
+  background: #c0392b;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ==================================================
+   4. KHU VỰC LỊCH SỬ ĐƠN HÀNG
+================================================== */
+.cart-page__orders-panel {
+  width: 100%;
+  min-width: 0;
+}
+
+/* ==================================================
+   5. BỐ CỤC GIỎ HÀNG VÀ TÓM TẮT
+================================================== */
+.cart-page__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  align-items: start;
+  gap: 28px;
+  width: 100%;
+}
+
+.cart-page__main {
+  min-width: 0;
+  padding: 28px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* ==================================================
+   6. NÚT BẤM
+================================================== */
+.cart-page__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: 2px solid transparent;
   border-radius: 9px;
+  font-family: inherit;
   font-size: 15px;
   font-weight: 700;
+  text-align: center;
   text-decoration: none;
-  border: 2px solid transparent;
   cursor: pointer;
-  transition: all 0.2s;
-
-  &--primary {
-    background: #c0392b;
-    color: #fff;
-    border-color: #c0392b;
-
-    &:hover {
-      background: #a93226;
-      border-color: #a93226;
-      transform: translateY(-1px);
-    }
-  }
-
-  &--outline {
-    background: transparent;
-    color: #c0392b;
-    border-color: #c0392b;
-
-    &:hover {
-      background: #c0392b;
-      color: #fff;
-    }
-  }
-
-  &--full {
-    width: 100%;
-  }
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 
-// ── Empty state ────────────────────────────────────────────────────────────────
-.cart-empty {
-  text-align: center;
-  padding: 80px 24px;
+.cart-page__button--primary {
+  border-color: #c0392b;
+  background: #c0392b;
+  color: #fff;
+}
+
+.cart-page__button--primary:hover {
+  transform: translateY(-1px);
+  border-color: #a93226;
+  background: #a93226;
+  color: #fff;
+}
+
+/* ==================================================
+   7. TRẠNG THÁI GIỎ HÀNG TRỐNG / ĐANG TẢI
+================================================== */
+.cart-page__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   max-width: 400px;
   margin: 0 auto;
+  padding: 80px 24px;
+  text-align: center;
+}
 
-  span {
-    font-size: 72px;
-    display: block;
-    margin-bottom: 20px;
-  }
+.cart-page__empty > svg {
+  flex-shrink: 0;
+  margin-bottom: 20px;
+  color: #c0392b;
+}
 
-  h2 {
-    font-size: 24px;
-    font-weight: 800;
-    color: #1a1a2e;
-    margin-bottom: 10px;
-  }
+.cart-page__empty > svg.lucide-loader-circle {
+  animation: cart-page-spin 1s linear infinite;
+}
 
-  p {
-    color: #888;
-    margin-bottom: 28px;
-    font-size: 15px;
+.cart-page__empty h2 {
+  margin: 0 0 10px;
+  color: #1a1a2e;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.cart-page__empty p {
+  margin: 0 0 28px;
+  color: #888;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+@keyframes cart-page-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
-// ── Tiêu đề khối ───────────────────────────────────────────────────────────────
+/* ==================================================
+   8. TIÊU ĐỀ VÀ SỐ LƯỢNG DÙNG TRONG TRANG GIỎ HÀNG
+================================================== */
 .cart-section-title {
-  font-size: 20px;
-  font-weight: 800;
-  color: #1a1a2e;
-  margin-bottom: 24px;
   display: flex;
   align-items: center;
   gap: 10px;
+  margin-bottom: 24px;
+  color: #1a1a2e;
+  font-size: 20px;
+  font-weight: 800;
 }
 
 .cart-count {
+  color: #888;
   font-size: 14px;
   font-weight: 500;
-  color: #888;
+}
+
+/* ==================================================
+   9. RESPONSIVE - TABLET
+================================================== */
+@media (max-width: 900px) {
+  .cart-page__layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+
+  .cart-page__main {
+    padding: 24px;
+  }
+}
+
+/* ==================================================
+   10. RESPONSIVE - MOBILE
+================================================== */
+@media (max-width: 600px) {
+  .cart-page {
+    padding: 28px 16px 56px;
+  }
+
+  .cart-page__breadcrumb {
+    gap: 6px;
+    margin-bottom: 20px;
+    font-size: 12px;
+  }
+
+  .cart-page__tabs {
+    margin-bottom: 22px;
+  }
+
+  .cart-page__tab {
+    flex: 1;
+    gap: 6px;
+    padding: 12px 8px;
+    font-size: 13px;
+  }
+
+  .cart-page__tab > svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .cart-page__main {
+    padding: 18px;
+    border-radius: 12px;
+  }
+
+  .cart-page__empty {
+    padding: 56px 16px;
+  }
+
+  .cart-page__empty h2 {
+    font-size: 21px;
+  }
+
+  .cart-page__button {
+    width: 100%;
+    padding: 12px 16px;
+  }
+}
+
+@media (max-width: 380px) {
+  .cart-page {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .cart-page__tab {
+    font-size: 12px;
+  }
+
+  .cart-page__tab-badge {
+    min-width: 18px;
+    height: 18px;
+    font-size: 10px;
+  }
+
+  .cart-page__main {
+    padding: 14px;
+  }
 }

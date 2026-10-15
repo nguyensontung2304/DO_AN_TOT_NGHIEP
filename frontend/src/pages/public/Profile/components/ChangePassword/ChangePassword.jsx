@@ -1,48 +1,60 @@
 import { useState } from "react";
-
+import { LockKeyhole } from "lucide-react";
 import { changePassword } from "../../../../../api/authApi";
-
-import PasswordField from "./PasswordField";
+import PasswordField from "../../../../../components/public/PasswordField/PasswordField";
 import "./changePassword.scss";
 
-// Đánh giá độ mạnh: <6 yếu, 6–9 trung bình, >=10 mạnh
+// 1. ĐÁNH GIÁ ĐỘ MẠNH MẬT KHẨU
 function getStrength(password) {
   if (password.length >= 10) return "strong";
   if (password.length >= 6) return "medium";
   return "weak";
 }
 
+// 2. NỘI DUNG ĐỘ MẠNH
 const STRENGTH_TEXT = {
   weak: "Yếu",
   medium: "Trung bình",
   strong: "Mạnh",
 };
 
+// 3. COMPONENT ĐỔI MẬT KHẨU
 export default function ChangePassword() {
+  // 3.1. STATE FORM
   const [form, setForm] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
 
+  // 3.2. STATE THÔNG BÁO VÀ TRẠNG THÁI
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // 3.3. STATE HIỆN / ẨN MẬT KHẨU
   const [show, setShow] = useState({
     currentPassword: false,
     newPassword: false,
     confirmPassword: false,
   });
 
-  const updateField = (field) => (value) =>
-    setForm((f) => ({ ...f, [field]: value }));
+  // 3.4. CẬP NHẬT GIÁ TRỊ FORM
+  const updateField = (field) => (value) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
 
-  const toggleShow = (field) => () =>
-    setShow((s) => ({ ...s, [field]: !s[field] }));
+  // 3.5. HIỆN / ẨN MẬT KHẨU
+  const toggleShow = (field) => () => {
+    setShow((prev) => ({ ...prev, [field]: !prev[field] }));
+  };
 
-  // Kiểm tra dữ liệu trước khi gửi. Trả về lỗi hoặc null.
+  // 3.6. KIỂM TRA DỮ LIỆU
   const validate = () => {
+    if (!form.currentPassword) {
+      return "Vui lòng nhập mật khẩu hiện tại.";
+    }
+
     if (form.newPassword.length < 6) {
       return "Mật khẩu mới phải có ít nhất 6 ký tự.";
     }
@@ -51,9 +63,14 @@ export default function ChangePassword() {
       return "Mật khẩu xác nhận không khớp.";
     }
 
+    if (form.currentPassword === form.newPassword) {
+      return "Mật khẩu mới phải khác mật khẩu hiện tại.";
+    }
+
     return null;
   };
 
+  // 3.7. GỬI YÊU CẦU ĐỔI MẬT KHẨU
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -61,6 +78,7 @@ export default function ChangePassword() {
     setSuccess("");
 
     const invalidMessage = validate();
+
     if (invalidMessage) {
       setError(invalidMessage);
       return;
@@ -75,7 +93,18 @@ export default function ChangePassword() {
       });
 
       setSuccess("Đổi mật khẩu thành công!");
-      setForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+
+      setForm({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+
+      setShow({
+        currentPassword: false,
+        newPassword: false,
+        confirmPassword: false,
+      });
     } catch (err) {
       setError(err.response?.data?.message || "Đổi mật khẩu thất bại.");
     } finally {
@@ -83,8 +112,12 @@ export default function ChangePassword() {
     }
   };
 
+  // 3.8. GIAO DIỆN FORM
+  const strength = getStrength(form.newPassword);
+
   return (
-    <form className="profile-form" onSubmit={handleSubmit}>
+    <form className="change-password" onSubmit={handleSubmit}>
+      {/* 3.8.1. MẬT KHẨU HIỆN TẠI */}
       <PasswordField
         id="currentPassword"
         label="Mật khẩu hiện tại"
@@ -95,6 +128,7 @@ export default function ChangePassword() {
         placeholder="Nhập mật khẩu hiện tại"
       />
 
+      {/* 3.8.2. MẬT KHẨU MỚI */}
       <PasswordField
         id="newPassword"
         label="Mật khẩu mới"
@@ -105,6 +139,32 @@ export default function ChangePassword() {
         placeholder="Tối thiểu 6 ký tự"
       />
 
+      {/* 3.8.3. THANH ĐỘ MẠNH MẬT KHẨU */}
+      {form.newPassword && (
+        <div
+          className={`change-password__strength change-password__strength--${strength}`}
+          aria-live="polite"
+        >
+          <div
+            className="change-password__strength-track"
+            role="progressbar"
+            aria-label="Độ mạnh mật khẩu"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={
+              strength === "weak" ? 33 : strength === "medium" ? 66 : 100
+            }
+          >
+            <div className="change-password__strength-bar" />
+          </div>
+
+          <span className="change-password__strength-text">
+            {STRENGTH_TEXT[strength]}
+          </span>
+        </div>
+      )}
+
+      {/* 3.8.4. XÁC NHẬN MẬT KHẨU */}
       <PasswordField
         id="confirmPassword"
         label="Xác nhận mật khẩu mới"
@@ -115,24 +175,37 @@ export default function ChangePassword() {
         placeholder="Nhập lại mật khẩu mới"
       />
 
-      {form.newPassword && (
-        <div className="profile-pw-strength">
-          <div
-            className={`profile-pw-bar profile-pw-bar--${getStrength(
-              form.newPassword,
-            )}`}
-          />
-
-          <span>{STRENGTH_TEXT[getStrength(form.newPassword)]}</span>
-        </div>
+      {/* 3.8.5. THÔNG BÁO LỖI */}
+      {error && (
+        <p
+          className="change-password__message change-password__message--error"
+          role="alert"
+        >
+          {error}
+        </p>
       )}
 
-      {error && <p className="profile-error">{error}</p>}
-      {success && <p className="profile-success">{success}</p>}
+      {/* 3.8.6. THÔNG BÁO THÀNH CÔNG */}
+      {success && (
+        <p
+          className="change-password__message change-password__message--success"
+          role="status"
+        >
+          {success}
+        </p>
+      )}
 
-      <button className="profile-btn" type="submit" disabled={loading}>
-        {loading ? "Đang xử lý..." : "🔒 Đổi mật khẩu"}
-      </button>
+      {/* 3.8.7. NÚT ĐỔI MẬT KHẨU */}
+      <div className="change-password__actions">
+        <button
+          className="change-password__button"
+          type="submit"
+          disabled={loading}
+        >
+          <LockKeyhole size={18} strokeWidth={2} />
+          <span>{loading ? "Đang xử lý..." : "Đổi mật khẩu"}</span>
+        </button>
+      </div>
     </form>
   );
 }

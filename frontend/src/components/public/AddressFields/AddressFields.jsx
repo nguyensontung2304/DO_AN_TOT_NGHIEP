@@ -140,11 +140,22 @@ function AddressFields({
     if (name === "provinceCode") {
       setProvinceCode(value);
 
+      const provinceName =
+        event.target.selectedOptions?.[0]?.textContent?.trim() || "";
+
       onChange?.({
         target: {
           name: "provinceCode",
           value,
           type: "select-one",
+        },
+      });
+
+      onChange?.({
+        target: {
+          name: "provinceName",
+          value: provinceName,
+          type: "text",
         },
       });
 
@@ -161,6 +172,19 @@ function AddressFields({
     }
 
     onChange?.(event);
+
+    if (name === "wardCode") {
+      const wardName =
+        event.target.selectedOptions?.[0]?.textContent?.trim() || "";
+
+      onChange?.({
+        target: {
+          name: "wardName",
+          value: wardName,
+          type: "text",
+        },
+      });
+    }
   };
 
   const renderError = (field) =>
