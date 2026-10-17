@@ -139,7 +139,6 @@ export default function AdminHeader() {
   // KIỂM TRA QUYỀN ADMIN
   const isRootAdmin =
     currentUser?.isRootAdmin === true ||
-    currentUser?.is_root_admin === true ||
     currentUser?.email?.trim().toLowerCase() === "admin@gmail.com";
 
   const permissions = Array.isArray(currentUser?.permissions)

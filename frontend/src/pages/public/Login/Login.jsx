@@ -4,7 +4,6 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { login } from "../../../api/authApi";
 import { setUser } from "../../../redux/userSlice";
-
 import { ROUTES } from "../../../constants/router";
 import "./login.scss";
 
@@ -55,10 +54,7 @@ export default function Login() {
     if (!currentUser?.id) return;
 
     if (currentUser.role === "admin") {
-      const isRoot =
-        currentUser.isRootAdmin === true ||
-        currentUser.is_root_admin === true ||
-        currentUser.email?.toLowerCase() === "admin@gmail.com";
+      const isRootAdmin = currentUser.isRootAdmin === true;
 
       const permissions = Array.isArray(currentUser.permissions)
         ? currentUser.permissions
@@ -66,7 +62,7 @@ export default function Login() {
 
       let targetPath = ROUTES.ADMIN.DASHBOARD;
 
-      if (!isRoot) {
+      if (!isRootAdmin) {
         const firstAllowedPath = permissions
           .map((code) => ADMIN_COMPONENT_PATHS[code])
           .find(Boolean);
@@ -106,7 +102,7 @@ export default function Login() {
       localStorage.setItem("userId", JSON.stringify(user.id));
       localStorage.setItem("accessToken", response.data.accessToken);
       localStorage.setItem("refreshToken", response.data.refreshToken);
-      localStorage.setItem("userRole", user.role || "user");
+      localStorage.setItem("userRole", user.role);
 
       dispatch(setUser(user));
       window.dispatchEvent(new Event("userChanged"));
