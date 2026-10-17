@@ -517,11 +517,14 @@ export async function register(req, res) {
 // POST /login - đăng nhập, body: { email, password }
 export async function login(req, res) {
   const { email, password } = req.body;
+  console.log("=======> email: ", email);
+  console.log("=======> password: ", password);
 
   // 1. Tìm tài khoản theo email
   const matchUser = await User.findOne({
     where: { email },
   });
+  console.log("=======> matchUser: ", matchUser);
 
   if (!matchUser) {
     return res.status(400).json({
@@ -531,6 +534,7 @@ export async function login(req, res) {
 
   // 2. Kiểm tra mật khẩu
   const isMatchPassword = await bcrypt.compare(password, matchUser.password);
+  console.log("=======> isMatchPassword: ", isMatchPassword);
 
   if (!isMatchPassword) {
     return res.status(400).json({
@@ -539,15 +543,14 @@ export async function login(req, res) {
   }
 
   // 3. Chỉ tài khoản admin gốc được cấp toàn bộ quyền.
-  // Cấu hình ADMIN_ROOT_EMAIL trong file .env (mặc định admin@gmail.com).
-  const rootEmail = (process.env.ADMIN_ROOT_EMAIL || "admin@gmail.com")
-    .trim()
-    .toLowerCase();
+  // Cấu hình ADMIN_ROOT_EMAIL trong file .env .
+  const RootAdminEmail = process.env.ADMIN_ROOT_EMAIL.trim().toLowerCase();
+  console.log("=======> isRootAdminEmail: ", RootAdminEmail);
 
   const isRootAdmin =
     matchUser.role === "admin" &&
-    (matchUser.email.trim().toLowerCase() === rootEmail ||
-      matchUser.email.trim().toLowerCase() === "admin@gmail.com");
+    matchUser.email.trim().toLowerCase() === RootAdminEmail;
+  console.log("=======> isRootAdmin: ", isRootAdmin);
 
   // 4. Lấy quyền component từ database
   let permissions = [];
@@ -558,6 +561,7 @@ export async function login(req, res) {
       const components = await AdminComponent.findAll({
         attributes: ["code"],
       });
+      console.log("=======> components: ", components);
 
       const defaultCodes = [
         "dashboard",
@@ -576,9 +580,10 @@ export async function login(req, res) {
           ...defaultCodes,
         ]),
       );
+      console.log("=======> permissions: ", permissions);
     } else {
       // Admin thông thường: chỉ lấy các quyền đã được cấp
-      const assignedPermissions = await UserAdminPermission.findAll({
+      const RegularAdmin = await UserAdminPermission.findAll({
         where: {
           user_id: matchUser.id,
         },
@@ -591,10 +596,12 @@ export async function login(req, res) {
           },
         ],
       });
+      console.log("=======> RegularAdmin: ", RegularAdmin);
 
-      permissions = assignedPermissions
-        .map((permission) => permission.component?.code)
-        .filter(Boolean);
+      permissions = RegularAdmin.map(
+        (permission) => permission.component?.code,
+      ).filter(Boolean);
+      console.log("=======> permissions: ", permissions);
     }
   }
 
@@ -617,11 +624,14 @@ export async function login(req, res) {
       ["id", "DESC"],
     ],
   });
+  console.log("=======> addressList: ", addressList);
 
   const addresses = addressList.map((item) => item.toJSON());
+  console.log("=======> addresses: ", addresses);
 
   const defaultAddress =
     addresses.find((item) => item.is_default) || addresses[0] || null;
+  console.log("=======> defaultAddress: ", defaultAddress);
 
   // 8. Trả thông tin user kèm địa chỉ từ bảng addresses
   return res.status(200).json({
@@ -762,7 +772,7 @@ export async function getMyProfile(req, res) {
       );
     } else {
       // Admin thường chỉ nhận quyền đã được cấp
-      const assignedPermissions = await UserAdminPermission.findAll({
+      const RegularAdmin = await UserAdminPermission.findAll({
         where: {
           user_id: user.id,
         },
@@ -776,9 +786,9 @@ export async function getMyProfile(req, res) {
         ],
       });
 
-      permissions = assignedPermissions
-        .map((permission) => permission.component?.code)
-        .filter(Boolean);
+      permissions = RegularAdmin.map(
+        (permission) => permission.component?.code,
+      ).filter(Boolean);
     }
   }
 
