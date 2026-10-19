@@ -10,6 +10,7 @@ import {
   RefreshCcw,
   Phone,
   Wrench,
+  ChevronRight,
 } from "lucide-react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -194,11 +195,20 @@ export default function ProductDetail() {
       <div className="pd-page-breadcrumb">
         <div className="pd-page-breadcrumb-inner">
           <Link to={ROUTES.USER.HOME}>Trang chủ</Link>
-          <span>›</span>
+          <span>
+            {" "}
+            <ChevronRight size={20} />
+          </span>
           <Link to={ROUTES.USER.PRODUCT_LIST}>Sản phẩm</Link>
-          <span>›</span>
+          <span>
+            {" "}
+            <ChevronRight size={20} />
+          </span>
           <span>{product.categoryName}</span>
-          <span>›</span>
+          <span>
+            {" "}
+            <ChevronRight size={20} />
+          </span>
           <span className="pd-page-breadcrumb-current">{product.name}</span>
         </div>
       </div>

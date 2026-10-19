@@ -1,4 +1,12 @@
 import { useRef, useState, useEffect, useCallback } from "react";
+import {
+  ShoppingCart,
+  UserRound,
+  LogOut,
+  ChevronDown,
+  Package,
+  Menu,
+} from "lucide-react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { clearUser } from "../../../redux/userSlice";
@@ -139,7 +147,7 @@ export default function PublicHeader() {
             aria-label={`Giỏ hàng (${cartCount})`}
             onClick={() => navigate(ROUTES.USER.CART)}
           >
-            🛒
+            <ShoppingCart size={22} strokeWidth={1.8} />
             {cartCount > 0 && (
               <span className="pub-header__cart-badge">{cartCount}</span>
             )}
@@ -176,7 +184,9 @@ export default function PublicHeader() {
                   {currentUser.name}
                 </span>
 
-                <span className="pub-header__user-caret">▾</span>
+                <span className="pub-header__user-caret">
+                  <ChevronDown size={20} />
+                </span>
               </button>
 
               {userDropdown && (
@@ -193,14 +203,26 @@ export default function PublicHeader() {
                     className="pub-header__dropdown-item"
                     onClick={() => setUserDropdown(false)}
                   >
-                    👤 Hồ sơ
+                    <UserRound size={18} />
+                    <span>Hồ sơ</span>
+                  </Link>
+
+                  <Link
+                    to={ROUTES.USER.CART_ORDERS}
+                    className="pub-header__dropdown-item"
+                    onClick={() => setUserDropdown(false)}
+                  >
+                    <Package size={20} />
+
+                    <span>Đơn hàng cảu tôi</span>
                   </Link>
 
                   <button
                     className="pub-header__dropdown-item pub-header__dropdown-item--danger"
                     onClick={handleLogout}
                   >
-                    🚪 Đăng xuất
+                    <LogOut size={18} />
+                    <span>Đăng xuất</span>
                   </button>
                 </div>
               )}
@@ -210,11 +232,10 @@ export default function PublicHeader() {
           <button
             className="pub-header__burger"
             aria-label="Menu"
+            aria-expanded={menuOpen}
             onClick={() => setMenuOpen((value) => !value)}
           >
-            <span />
-            <span />
-            <span />
+            <Menu size={24} strokeWidth={2} />
           </button>
         </div>
       </div>

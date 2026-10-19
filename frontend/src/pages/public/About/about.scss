@@ -709,18 +709,19 @@
     isolation: isolate;
     overflow: hidden;
     padding: 96px 24px;
-    background:
-      radial-gradient(
-        circle at 12% 15%,
-        rgba(94, 234, 212, 0.13),
-        transparent 30%
-      ),
-      radial-gradient(
-        circle at 88% 85%,
-        rgba(56, 189, 248, 0.13),
-        transparent 32%
-      ),
-      linear-gradient(120deg, #0b1f33 0%, #123e52 52%, #126b70 100%);
+    // background:
+    //   radial-gradient(
+    //     circle at 12% 15%,
+    //     rgba(94, 234, 212, 0.13),
+    //     transparent 30%
+    //   ),
+    //   radial-gradient(
+    //     circle at 88% 85%,
+    //     rgba(56, 189, 248, 0.13),
+    //     transparent 32%
+    //   ),
+    //   linear-gradient(120deg, #0b1f33 0%, #123e52 52%, #126b70 100%);
+    background: linear-gradient(135deg, #353568 0%, #252550 45%, #1b5b91 100%);
     text-align: center;
 
     &::before,
@@ -844,14 +845,14 @@
           transition:
             transform 0.25s ease,
             background 0.25s ease,
-            box-shadow 0.25s ease;
+            box-shadow 0.25s ease,
+            color 0.25s ease;
 
           &:hover {
             transform: translateY(-4px);
-            background: #ccfbf1;
-            border-color: #ccfbf1;
-            color: #0b1f33;
-            box-shadow: 0 14px 32px rgba(45, 212, 191, 0.2);
+            background: linear-gradient(135deg, #8585ff 0%, #4d9fff 100%);
+            color: #ffffff;
+            box-shadow: 0 14px 32px rgba(101, 133, 255, 0.45);
           }
 
           &-icon {
@@ -954,7 +955,7 @@
   }
 
   // RESPONSIVE 600PX
-  @media (max-width: 600px) {
+  @media (max-width: 768px) {
     &-intro {
       min-height: 400px;
       background-position: center;
@@ -964,16 +965,19 @@
           width: calc(100% - 40px);
 
           &-brand {
-            font-size: 15px;
-            letter-spacing: 3px;
+            font-size: 42px;
+
+            &::after {
+              width: 90px;
+            }
           }
 
           &-title {
-            font-size: 38px;
+            font-size: 36px;
           }
 
           &-desc {
-            font-size: 15px;
+            font-size: 16px;
           }
         }
       }
@@ -1110,15 +1114,19 @@
       &-overlay {
         &-content {
           &-brand {
-            font-size: 13px;
-            letter-spacing: 2.5px;
+            font-size: 32px;
+            letter-spacing: 3px;
+
+            &::after {
+              width: 70px;
+            }
           }
 
           &-title {
-            font-size: 32px;
+            font-size: 31px;
           }
 
-          &-desc {
+          &-description {
             font-size: 14px;
           }
         }

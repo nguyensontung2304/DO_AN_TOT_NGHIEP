@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { changePassword } from "../../../../../api/authApi";
 
-import PasswordField from "./PasswordField";
+import PasswordField from "../../../../../components/public/PasswordField/PasswordField";
 import "./changePassword.scss";
 
 // Đánh giá độ mạnh: <6 yếu, 6–9 trung bình, >=10 mạnh

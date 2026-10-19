@@ -1,4 +1,9 @@
-import { Package, ShoppingCart, LoaderCircle } from "lucide-react";
+import {
+  Package,
+  ShoppingCart,
+  LoaderCircle,
+  ChevronRight,
+} from "lucide-react";
 import { useEffect, useState, useCallback } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -37,7 +42,6 @@ function getLocalOrders(userId) {
 
 function saveLocalOrder(userId, order) {
   const prev = getLocalOrders(userId);
-
   localStorage.setItem(ORDERS_KEY(userId), JSON.stringify([order, ...prev]));
 }
 
@@ -73,11 +77,9 @@ export default function Cart() {
   const { pathname } = useLocation();
 
   const currentUser = useSelector((state) => state.user.currentUser);
-
   const { addOrder, pushGlobalNotify } = useApp();
 
   const isOrdersTab = pathname === ROUTES.USER.CART_ORDERS;
-
   const step = pathname === ROUTES.USER.CART_CHECKOUT ? "checkout" : "cart";
 
   const [justOrdered, setJustOrdered] = useState(false);
@@ -92,12 +94,10 @@ export default function Cart() {
   const [expandedOrder, setExpandedOrder] = useState(null);
 
   // ĐỊA CHỈ NGƯỜI DÙNG
-  // currentUser.address là địa chỉ mặc định.
   const profileAddress = currentUser?.address
     ? normalizeAddress(currentUser.address)
     : null;
 
-  // Danh sách địa chỉ đã lưu.
   const addresses = Array.isArray(currentUser?.addresses)
     ? currentUser.addresses.map(normalizeAddress)
     : [];
@@ -109,6 +109,7 @@ export default function Cart() {
     profileAddress?.wardCode &&
     profileAddress?.addressLine?.trim(),
   );
+
   // FORM THANH TOÁN
   const [form, setForm] = useState({
     name: "",
@@ -122,12 +123,9 @@ export default function Cart() {
   });
 
   const [formErrors, setFormErrors] = useState(EMPTY_ERRORS);
-
   const [formInitialized, setFormInitialized] = useState(false);
 
-  // Hỗ trợ cả hai cách gọi:
-  // updateForm("name", "Nguyễn Văn A")
-  // updateForm(event)
+  // Hỗ trợ updateForm("name", value) và updateForm(event).
   const updateForm = useCallback((fieldOrEvent, value) => {
     let field;
     let nextValue;
@@ -174,7 +172,7 @@ export default function Cart() {
     }));
   }, []);
 
-  // Điền dữ liệu địa chỉ mặc định vào form.
+  // Điền địa chỉ mặc định vào form.
   useEffect(() => {
     if (step !== "checkout" || formInitialized || !currentUser) {
       return;
@@ -197,7 +195,7 @@ export default function Cart() {
     setFormInitialized(true);
   }, [step, currentUser, formInitialized]);
 
-  // Khi quay lại giỏ hàng, cho phép khởi tạo form ở lần checkout sau.
+  // Quay lại giỏ hàng thì cho phép khởi tạo form lần sau.
   useEffect(() => {
     if (step === "cart") {
       setFormInitialized(false);
@@ -253,7 +251,6 @@ export default function Cart() {
       setLoading(true);
 
       const res = await getCartByUserId(currentUser.id);
-
       setCart(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error("Lỗi lấy giỏ hàng:", error);
@@ -322,7 +319,7 @@ export default function Cart() {
     0,
   );
 
-  // CẬP NHẬT GIỎ HÀNG
+  // XÓA SẢN PHẨM
   const removeCartItem = async (productId) => {
     if (!currentUser?.id) return;
 
@@ -338,6 +335,7 @@ export default function Cart() {
     }
   };
 
+  // CẬP NHẬT SỐ LƯỢNG
   const updateCartQuantity = async (productId, newQty) => {
     if (newQty <= 0) {
       await removeCartItem(productId);
@@ -366,6 +364,7 @@ export default function Cart() {
     }
   };
 
+  // XÓA GIỎ HÀNG TRÊN SERVER
   const clearCartOnServer = async () => {
     if (!currentUser?.id) return;
 
@@ -379,6 +378,7 @@ export default function Cart() {
       console.error("Lỗi xóa giỏ hàng sau đặt hàng:", error);
     }
   };
+
   // ĐẶT HÀNG
   const handleOrder = async () => {
     if (!currentUser) {
@@ -393,16 +393,12 @@ export default function Cart() {
       return;
     }
 
-    // Không gọi API nếu form không hợp lệ.
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     const name = String(form.name).trim();
     const phone = String(form.phone).trim();
     const addressLine = String(form.addressLine).trim();
 
-    // Lấy tên địa phương nếu mã được chọn trùng địa chỉ đã lưu.
     const matchingSavedAddress = addresses.find(
       (item) =>
         item.provinceCode === String(form.provinceCode) &&
@@ -555,11 +551,11 @@ export default function Cart() {
     navigate(ROUTES.USER.CART_CHECKOUT);
   };
 
-  // GIAO DIỆN
+  // GIAO DIỆN: ĐANG TẢI
   if (loading) {
     return (
-      <div className="cart-page">
-        <div className="cart-empty">
+      <div className="cart">
+        <div className="cart__empty cart__empty--loading">
           <LoaderCircle size={48} strokeWidth={1.8} />
           <h2>Đang tải giỏ hàng...</h2>
         </div>
@@ -567,9 +563,10 @@ export default function Cart() {
     );
   }
 
+  // GIAO DIỆN: ĐẶT HÀNG THÀNH CÔNG
   if (justOrdered) {
     return (
-      <div className="cart-page">
+      <div className="cart">
         <OrderSuccess
           form={form}
           onViewOrders={() => {
@@ -582,56 +579,68 @@ export default function Cart() {
   }
 
   return (
-    <div className="cart-page">
-      <div className="cart-inner">
-        <div className="cart-breadcrumb">
+    <div className="cart">
+      <div className="cart__inner">
+        {/* BREADCRUMB */}
+        <div className="cart__breadcrumb">
           <Link to={ROUTES.USER.HOME}>Trang chủ</Link>
-          <span>›</span>
+
+          <span>
+            <ChevronRight size={20} />
+          </span>
+
           <span>Giỏ hàng</span>
 
           {isOrdersTab && (
             <>
-              <span>›</span>
+              <span>
+                <ChevronRight size={20} />
+              </span>
               <span>Đơn hàng của tôi</span>
             </>
           )}
 
           {step === "checkout" && (
             <>
-              <span>›</span>
+              <span>
+                <ChevronRight size={20} />
+              </span>
               <span>Thanh toán</span>
             </>
           )}
         </div>
 
-        <div className="cart-tabs">
+        {/* TABS */}
+        <div className="cart__tabs">
           <NavLink
             to={ROUTES.USER.CART}
             end
             className={({ isActive }) =>
-              `cart-tab ${isActive ? "cart-tab--active" : ""}`
+              `cart__tab ${isActive ? "cart__tab--active" : ""}`
             }
           >
             <ShoppingCart size={20} strokeWidth={1.8} />
-            Giỏ hàng
+            <span>Giỏ hàng</span>
+
             {cart.length > 0 && (
-              <span className="cart-tab__badge">{cart.length}</span>
+              <span className="cart__tab-badge">{cart.length}</span>
             )}
           </NavLink>
 
           <NavLink
             to={ROUTES.USER.CART_ORDERS}
             className={({ isActive }) =>
-              `cart-tab ${isActive ? "cart-tab--active" : ""}`
+              `cart__tab ${isActive ? "cart__tab--active" : ""}`
             }
           >
             <Package size={20} strokeWidth={1.8} />
-            Đơn hàng của tôi
+            <span>Đơn hàng của tôi</span>
           </NavLink>
         </div>
 
+        {/* ĐƠN HÀNG CỦA TÔI */}
         {isOrdersTab && (
-          <div className="orders-panel">
+          <div className="cart__orders-panel">
             <OrdersView
               isLoggedIn={!!currentUser}
               loading={ordersLoading}
@@ -643,17 +652,18 @@ export default function Cart() {
           </div>
         )}
 
+        {/* GIỎ HÀNG / THANH TOÁN */}
         {!isOrdersTab && (
           <>
             {cart.length === 0 ? (
-              <div className="cart-empty">
+              <div className="cart__empty">
                 <ShoppingCart size={48} strokeWidth={1.8} />
                 <h2>Giỏ hàng trống</h2>
                 <p>Bạn chưa thêm sản phẩm nào vào giỏ.</p>
 
                 <Link
                   to={ROUTES.USER.PRODUCT_LIST}
-                  className="cart-btn cart-btn--primary"
+                  className="cart__btn cart__btn--primary"
                 >
                   Khám phá sản phẩm
                 </Link>
@@ -662,11 +672,11 @@ export default function Cart() {
               <>
                 <CartSteps currentStep={step} />
 
-                <div className="cart-layout">
-                  <div className="cart-main">
+                <div className="cart__layout">
+                  <div className="cart__main">
                     {step === "checkout" ? (
                       !formInitialized ? (
-                        <div className="cart-empty">
+                        <div className="cart__empty cart__empty--loading">
                           <LoaderCircle size={36} />
                           <p>Đang tải địa chỉ giao hàng...</p>
                         </div>

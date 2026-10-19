@@ -57,7 +57,6 @@
       max-width: 1200px;
       min-height: 48px;
       display: flex;
-      align-items: center;
       flex-wrap: wrap;
       gap: 9px;
       margin: 0 auto;
@@ -491,7 +490,7 @@
       position: absolute;
       bottom: 0;
       left: 0;
-      width: 42px;
+      width: 50px;
       height: 3px;
       border-radius: 99px;
       background: linear-gradient(90deg, #c4473a, #f3a184);
@@ -1026,7 +1025,7 @@
         position: absolute;
         bottom: 0;
         left: 0;
-        width: 48px;
+        width: 60px;
         height: 4px;
         border-radius: 99px;
         background: linear-gradient(90deg, #c4473a, #f3a184);

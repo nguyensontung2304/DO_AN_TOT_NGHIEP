@@ -1,9 +1,21 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
+import {
+  Search,
+  X,
+  ShoppingCart,
+  LockKeyhole,
+  Clock,
+  MessageCircle,
+  Star,
+  Frown,
+  CheckCircle,
+  ChevronRight,
+  ChevronLeft,
+} from "lucide-react";
 
 import { getProducts, addToCart } from "../../../api";
-
 import { ROUTES, getPath } from "../../../constants/router";
 
 import "./products.scss";
@@ -53,14 +65,14 @@ function ProductCard({ product }) {
   return (
     <div className="product-card">
       {product.badge && (
-        <span className="product-card__badge">{product.badge}</span>
+        <span className="product-card-badge">{product.badge}</span>
       )}
 
       <Link
         to={getPath(ROUTES.USER.PRODUCT_DETAIL, {
           id: product.id,
         })}
-        className="product-card__img"
+        className="product-card-image"
         aria-label={`Xem chi tiết ${product.name}`}
       >
         {product.image ? (
@@ -70,10 +82,10 @@ function ProductCard({ product }) {
         )}
       </Link>
 
-      <div className="product-card__body">
-        <span className="product-card__cat">{product.categoryName}</span>
+      <div className="product-card-body">
+        <span className="product-card-category">{product.categoryName}</span>
 
-        <h3 className="product-card__name">
+        <h3 className="product-card-name">
           <Link
             to={getPath(ROUTES.USER.PRODUCT_DETAIL, {
               id: product.id,
@@ -83,9 +95,9 @@ function ProductCard({ product }) {
           </Link>
         </h3>
 
-        <p className="product-card__desc">{product.description}</p>
+        <p className="product-card-description">{product.description}</p>
 
-        <div className="product-card__price">
+        <div className="product-card-price">
           <strong>{Number(product.price).toLocaleString("vi-VN")}₫</strong>
 
           {product.old_price && (
@@ -93,55 +105,50 @@ function ProductCard({ product }) {
           )}
 
           {discount && (
-            <span className="product-card__discount">-{discount}%</span>
+            <span className="product-card-discount">-{discount}%</span>
           )}
         </div>
 
-        <div className="product-card__evaluate">
-          <span className="evaluate">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              className="icon"
-            >
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-            </svg>
+        <div className="product-card-evaluate">
+          <span className="product-card-evaluate-item">
+            <MessageCircle className="product-card-evaluate-icon" />
             {product.commentsCount || 0}
           </span>
-          <span className="evaluate">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              className="icon"
-            >
-              <path d="m12 3 2.75 5.57 6.15.9-4.45 4.33 1.05 6.12L12 17.03l-5.5 2.89 1.05-6.12L3.1 9.47l6.15-.9L12 3Z" />
-            </svg>
+
+          <span className="product-card-evaluate-item">
+            <Star className="product-card-evaluate-icon" />
             {product.ratingsCount || 0}
           </span>
         </div>
 
-        <div className="product-card__btns">
+        <div className="product-card-buttons">
           <Link
             to={getPath(ROUTES.USER.PRODUCT_DETAIL, {
               id: product.id,
             })}
-            className="product-card__detail-btn"
+            className="product-card-detail-btn"
           >
             Chi tiết
           </Link>
 
           {currentUser ? (
             <button
-              className={`product-card__btn ${
-                added ? "product-card__btn--added" : ""
+              className={`product-card-btn ${
+                added ? "product-card-btn-added" : ""
               }`}
               onClick={handleAdd}
             >
-              {added ? "✅ Đã thêm!" : "🛒 Thêm giỏ"}
+              {added ? (
+                <>
+                  <CheckCircle size={16} />
+                  Đã thêm!
+                </>
+              ) : (
+                <>
+                  <ShoppingCart size={16} />
+                  Thêm giỏ
+                </>
+              )}
             </button>
           ) : (
             <Link
@@ -149,9 +156,10 @@ function ProductCard({ product }) {
               state={{
                 from: ROUTES.USER.PRODUCT_LIST,
               }}
-              className="product-card__btn product-card__btn--guest"
+              className="product-card-btn product-card-btn-guest"
             >
-              🔒 Đăng nhập
+              <LockKeyhole size={15} />
+              Đăng nhập
             </Link>
           )}
         </div>
@@ -168,15 +176,13 @@ export default function Products() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // ── Toàn bộ bộ lọc lấy từ query string ────────────────────────────────────
-  // URL là nguồn duy nhất: F5, copy link hay nút back đều giữ nguyên bộ lọc,
-  // và link do footer/Home tạo ra mở thẳng được danh mục tương ứng.
+  // TOÀN BỘ BỘ LỌC LẤY TỪ QUERY STRING
   const activeCategory = searchParams.get("category") || ALL_CATEGORY;
   const search = searchParams.get("search") || "";
   const sortBy = searchParams.get("sort") || DEFAULT_SORT;
   const currentPage = Math.max(1, Number(searchParams.get("page")) || 1);
 
-  // Ghi bộ lọc mới lên URL. Giá trị rỗng sẽ bị xoá khỏi query cho URL gọn.
+  // CẬP NHẬT QUERY STRING
   const updateParams = (patch, { replace = false } = {}) => {
     const next = new URLSearchParams(searchParams);
 
@@ -188,17 +194,11 @@ export default function Products() {
       }
     });
 
-    // replace: gõ tìm kiếm không nhét mỗi chữ cái vào history
     setSearchParams(next, { replace });
   };
 
-  // Tổng số sản phẩm sau khi BE lọc
   const [total, setTotal] = useState(0);
-
-  // Tổng số trang do BE tính
   const [totalPages, setTotalPages] = useState(1);
-
-  // Danh sách category do BE trả về
   const [categories, setCategories] = useState([]);
 
   // GET PRODUCTS
@@ -206,18 +206,13 @@ export default function Products() {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-
         setError("");
 
         const response = await getProducts({
           category: activeCategory === ALL_CATEGORY ? "" : activeCategory,
-
           search: search.trim(),
-
           sort: sortBy,
-
           page: currentPage,
-
           limit: PRODUCTS_PER_PAGE,
         });
 
@@ -225,28 +220,17 @@ export default function Products() {
 
         console.log("=======> GET PRODUCTS:", response);
 
-        // Products
         setProducts(Array.isArray(data.products) ? data.products : []);
-
-        // Total
         setTotal(Number(data.total) || 0);
-
-        // Total pages
         setTotalPages(Number(data.totalPages) || 1);
-
-        // Categories
         setCategories(Array.isArray(data.categories) ? data.categories : []);
       } catch (error) {
         console.error("Lỗi lấy sản phẩm:", error);
 
         setError("Không thể tải danh sách sản phẩm");
-
         setProducts([]);
-
         setTotal(0);
-
         setTotalPages(1);
-
         setCategories([]);
       } finally {
         setLoading(false);
@@ -268,11 +252,8 @@ export default function Products() {
     }
 
     const pages = [];
-
     const delta = 2;
-
     const left = currentPage - delta;
-
     const right = currentPage + delta;
 
     pages.push(1);
@@ -298,10 +279,9 @@ export default function Products() {
   if (loading) {
     return (
       <div className="products-page">
-        <div className="products-page__inner">
-          <div className="products-empty">
-            <span>⏳</span>
-
+        <div className="products-page-inner">
+          <div className="products-page-empty">
+            <Clock size={40} />
             <p>Đang tải sản phẩm...</p>
           </div>
         </div>
@@ -313,10 +293,9 @@ export default function Products() {
   if (error) {
     return (
       <div className="products-page">
-        <div className="products-page__inner">
-          <div className="products-empty">
-            <span>😕</span>
-
+        <div className="products-page-inner">
+          <div className="products-page-empty">
+            <Frown size={40} />
             <p>{error}</p>
           </div>
         </div>
@@ -327,10 +306,10 @@ export default function Products() {
   // RENDER
   return (
     <div className="products-page">
-      {/* Intro Banner */}
-      <section className="product-intro">
-        <div className="product-intro__overlay">
-          <div className="product-intro__content">
+      {/* INTRO BANNER */}
+      <section className="products-page-intro">
+        <div className="products-page-intro-overlay">
+          <div className="products-page-intro-content">
             <span>
               NỘI THẤT <em>VIỆT</em>
             </span>
@@ -346,8 +325,8 @@ export default function Products() {
       </section>
 
       {/* HERO */}
-      <section className="products-page__hero">
-        <div className="products-page__hero-inner">
+      <section className="products-page-hero">
+        <div className="products-page-hero-inner">
           <span>VỀ CHÚNG TÔI</span>
 
           <h1>Tất cả sản phẩm</h1>
@@ -356,20 +335,18 @@ export default function Products() {
         </div>
       </section>
 
-      <div className="products-page__inner">
+      <div className="products-page-inner">
         {/* TOOLBAR */}
-        <div className="products-toolbar">
+        <div className="products-page-toolbar">
           {/* SEARCH */}
-
-          <div className="products-search">
-            <span>🔍</span>
+          <div className="products-page-search">
+            <Search size={18} />
 
             <input
               type="text"
               placeholder="Tìm sản phẩm..."
               value={search}
               onChange={(e) => {
-                // Tìm kiếm mới → về trang 1
                 updateParams(
                   { search: e.target.value, page: "" },
                   { replace: true },
@@ -384,18 +361,16 @@ export default function Products() {
                 }}
                 aria-label="Xóa"
               >
-                ✕
+                <X size={16} />
               </button>
             )}
           </div>
 
           {/* SORT */}
-
           <select
-            className="products-sort"
+            className="products-page-sort"
             value={sortBy}
             onChange={(e) => {
-              // Sort mới → về trang 1
               updateParams({
                 sort: e.target.value === DEFAULT_SORT ? "" : e.target.value,
                 page: "",
@@ -403,21 +378,16 @@ export default function Products() {
             }}
           >
             <option value="default">Sắp xếp mặc định</option>
-
             <option value="price-asc">Giá: Thấp → Cao</option>
-
             <option value="price-desc">Giá: Cao → Thấp</option>
-
             <option value="name">Tên A → Z</option>
           </select>
         </div>
 
         {/* CATEGORY */}
-        <div className="products-cats">
-          {/* TẤT CẢ */}
-
+        <div className="products-page-categories">
           <button
-            className={`products-cat-btn ${
+            className={`products-page-category-btn ${
               activeCategory === ALL_CATEGORY ? "active" : ""
             }`}
             onClick={() => {
@@ -425,15 +395,13 @@ export default function Products() {
             }}
           >
             Tất cả
-            <span className="products-cat-count">{total}</span>
+            <span className="products-page-category-count">{total}</span>
           </button>
-
-          {/* CATEGORY TỪ BE */}
 
           {categories.map((category) => (
             <button
               key={category.name}
-              className={`products-cat-btn ${
+              className={`products-page-category-btn ${
                 activeCategory === category.name ? "active" : ""
               }`}
               onClick={() => {
@@ -445,13 +413,15 @@ export default function Products() {
             >
               {category.name}
 
-              <span className="products-cat-count">{category.count}</span>
+              <span className="products-page-category-count">
+                {category.count}
+              </span>
             </button>
           ))}
         </div>
 
         {/* COUNT */}
-        <p className="products-result-count">
+        <p className="products-page-result-count">
           {total === 0
             ? "Không có sản phẩm nào"
             : `Hiển thị ${products.length} / ${total} sản phẩm — Trang ${currentPage}/${totalPages}`}
@@ -459,13 +429,13 @@ export default function Products() {
 
         {/* EMPTY */}
         {products.length === 0 ? (
-          <div className="products-empty">
-            <span>😕</span>
+          <div className="products-page-empty">
+            <Frown size={40} />
 
             <p>Không tìm thấy sản phẩm phù hợp.</p>
 
             <button
-              className="btn-clear"
+              className="products-page-clear-btn"
               onClick={() => {
                 updateParams({
                   search: "",
@@ -481,7 +451,7 @@ export default function Products() {
         ) : (
           <>
             {/* PRODUCT GRID */}
-            <div className="products-grid">
+            <div className="products-page-grid">
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -490,32 +460,28 @@ export default function Products() {
             {/* PAGINATION */}
             {totalPages > 1 && (
               <div className="pagination">
-                {/* TRANG TRƯỚC */}
-
                 <button
-                  className="pagination__btn pagination__btn--nav"
+                  className="pagination-btn pagination-btn-nav"
                   onClick={() => goToPage(currentPage - 1)}
                   disabled={currentPage === 1}
                   aria-label="Trang trước"
                 >
-                  ‹
+                  <ChevronLeft size={20} />
                 </button>
-
-                {/* SỐ TRANG */}
 
                 {getPageNumbers().map((page, idx) =>
                   page === "..." ? (
                     <span
                       key={`ellipsis-${idx}`}
-                      className="pagination__ellipsis"
+                      className="pagination-ellipsis"
                     >
                       …
                     </span>
                   ) : (
                     <button
                       key={page}
-                      className={`pagination__btn ${
-                        currentPage === page ? "pagination__btn--active" : ""
+                      className={`pagination-btn ${
+                        currentPage === page ? "pagination-btn-active" : ""
                       }`}
                       onClick={() => goToPage(page)}
                       aria-label={`Trang ${page}`}
@@ -526,14 +492,13 @@ export default function Products() {
                   ),
                 )}
 
-                {/* TRANG TIẾP */}
                 <button
-                  className="pagination__btn pagination__btn--nav"
+                  className="pagination-btn pagination-btn-nav"
                   onClick={() => goToPage(currentPage + 1)}
                   disabled={currentPage === totalPages}
                   aria-label="Trang tiếp"
                 >
-                  ›
+                  <ChevronRight size={20} />
                 </button>
               </div>
             )}

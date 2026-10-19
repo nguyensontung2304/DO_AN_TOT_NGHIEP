@@ -1,5 +1,11 @@
 import "./cartSummary.scss";
-import { Truck, ShieldCheck } from "lucide-react";
+import {
+  Truck,
+  ShieldCheck,
+  ArrowRight,
+  LockKeyhole,
+  CheckCircle,
+} from "lucide-react";
 
 // Sidebar: tóm tắt đơn hàng + nút hành động theo bước hiện tại.
 function CartSummary({
@@ -11,72 +17,92 @@ function CartSummary({
   onConfirmOrder,
 }) {
   return (
-    <aside className="cart-sidebar">
-      <div className="cart-summary">
-        <h3>Tổng đơn hàng</h3>
+    <aside className="cart-summary">
+      {/* Tiêu đề */}
+      <h3 className="cart-summary__title">Tổng đơn hàng</h3>
 
-        <div className="cart-summary__rows">
-          {cart.map((item) => (
-            <div key={item.productId} className="cart-summary__row">
-              <div className="cart-summary__product">
-                {item.image && (
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="cart-summary__image"
-                  />
-                )}
+      {/* Danh sách sản phẩm */}
+      <div className="cart-summary__list">
+        {cart.map((item) => (
+          <div key={item.productId} className="cart-summary__item">
+            <div className="cart-summary__product">
+              {item.image && (
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="cart-summary__product-image"
+                />
+              )}
 
-                <span>
-                  {item.name} × {item.qty}
-                </span>
-              </div>
-
-              <span>
-                {(Number(item.price) * Number(item.qty)).toLocaleString(
-                  "vi-VN",
-                )}
-                ₫
+              <span className="cart-summary__product-name">
+                {item.name} × {item.qty}
               </span>
             </div>
-          ))}
-        </div>
 
-        <div className="cart-summary__divider" />
-
-        <div className="cart-summary__total">
-          <span>Tổng cộng</span>
-          <strong>{cartTotal.toLocaleString("vi-VN")}₫</strong>
-        </div>
-
-        <div className="cart-summary__note">
-          <div className="cart-summary__note-text">
-            <Truck size={20} />
-            Miễn phí giao hàng &amp; lắp đặt trong 50km
+            <span className="cart-summary__item-price">
+              {(Number(item.price) * Number(item.qty)).toLocaleString("vi-VN")}{" "}
+              ₫
+            </span>
           </div>
-          <div className="cart-summary__note-text">
-            <ShieldCheck size={20} /> Bảo hành 5 năm chính hãng
-          </div>
-        </div>
-
-        {step === "cart" && (
-          <button
-            className="cart-btn cart-btn--primary cart-btn--full"
-            onClick={onProceedCheckout}
-          >
-            {isLoggedIn ? "Tiến hành đặt hàng →" : "🔒 Đăng nhập để đặt hàng"}
-          </button>
-        )}
-
-        {step === "checkout" && (
-          <button
-            className="cart-btn cart-btn--primary cart-btn--full"
-            onClick={onConfirmOrder}
-          >
-            ✅ Xác nhận đặt hàng
-          </button>
-        )}
+        ))}
       </div>
+
+      {/* Đường phân cách */}
+      <div className="cart-summary__divider" />
+
+      {/* Tổng tiền */}
+      <div className="cart-summary__total">
+        <span className="cart-summary__total-label">Tổng cộng</span>
+
+        <strong className="cart-summary__total-price">
+          {cartTotal.toLocaleString("vi-VN")} ₫
+        </strong>
+      </div>
+
+      {/* Chính sách */}
+      <div className="cart-summary__policies">
+        <div className="cart-summary__policy">
+          <Truck size={20} className="cart-summary__policy-icon" />
+          <span>Miễn phí giao hàng &amp; lắp đặt trong 50km</span>
+        </div>
+
+        <div className="cart-summary__policy">
+          <ShieldCheck size={20} className="cart-summary__policy-icon" />
+          <span>Bảo hành 5 năm chính hãng</span>
+        </div>
+      </div>
+
+      {/* Hành động theo bước */}
+      {step === "cart" && (
+        <button
+          type="button"
+          className="cart-summary__button"
+          onClick={onProceedCheckout}
+        >
+          {isLoggedIn ? (
+            <>
+              <span>Tiến hành đặt hàng</span>
+              <ArrowRight size={18} />
+            </>
+          ) : (
+            <>
+              <LockKeyhole size={18} />
+              <span>Đăng nhập để đặt hàng</span>
+            </>
+          )}
+        </button>
+      )}
+
+      {step === "checkout" && (
+        <button
+          type="button"
+          className="cart-summary__button"
+          onClick={onConfirmOrder}
+        >
+          <CheckCircle size={18} />
+          <span>Xác nhận đặt hàng</span>
+        </button>
+      )}
     </aside>
   );
 }

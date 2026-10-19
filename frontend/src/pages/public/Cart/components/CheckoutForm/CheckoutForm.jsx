@@ -1,11 +1,14 @@
-import { ClipboardList, CheckCircle, AlertTriangle } from "lucide-react";
+import {
+  ClipboardList,
+  CheckCircle,
+  AlertTriangle,
+  ArrowLeft,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { ROUTES } from "../../../../../constants/router";
 import AddressFields from "../../../../../components/public/AddressFields/AddressFields";
 import "./checkoutForm.scss";
 
-// BƯỚC 2: form thông tin đặt hàng + tóm tắt đơn.
-// Nếu hồ sơ đã đủ thông tin thì form được điền sẵn và hiện banner xanh.
 function CheckoutForm({
   cart,
   form,
@@ -16,37 +19,42 @@ function CheckoutForm({
   onBack,
 }) {
   return (
-    <>
-      <h2 className="cart-section-title">
-        <ClipboardList size={20} /> Thông tin đặt hàng
+    <section className="checkout-form">
+      {/* Tiêu đề */}
+      <h2 className="checkout-form__title">
+        <ClipboardList size={20} />
+        <span>Thông tin đặt hàng</span>
       </h2>
 
+      {/* Thông báo hồ sơ */}
       {profileComplete ? (
-        <div className="checkout-profile-banner checkout-profile-banner--filled">
-          <div>
-            <CheckCircle size={20} color="green" />
-          </div>
-          <span>
+        <div className="checkout-form__profile-banner checkout-form__profile-banner--filled">
+          <CheckCircle className="checkout-form__profile-icon" size={20} />
+
+          <p className="checkout-form__profile-message">
             Thông tin từ hồ sơ của bạn đã được điền sẵn. Bạn có thể chỉnh sửa
             nếu cần.
-          </span>
+          </p>
         </div>
       ) : (
-        <div className="checkout-profile-banner checkout-profile-banner--empty">
-          <div>
-            <AlertTriangle size={20} color="#EAB308" />
-          </div>
-          <span>
+        <div className="checkout-form__profile-banner checkout-form__profile-banner--empty">
+          <AlertTriangle className="checkout-form__profile-icon" size={20} />
+
+          <p className="checkout-form__profile-message">
             Bạn chưa cập nhật hồ sơ. Vui lòng điền đầy đủ thông tin bên dưới để
             đặt hàng.{" "}
-            <Link to={ROUTES.USER.PROFILE} className="checkout-profile-link">
+            <Link
+              to={ROUTES.USER.PROFILE}
+              className="checkout-form__profile-link"
+            >
               Cập nhật hồ sơ ngay
             </Link>
-          </span>
+          </p>
         </div>
       )}
 
-      <div className="checkout-form">
+      {/* Thông tin người nhận */}
+      <div className="checkout-form__fields">
         <AddressFields
           form={form}
           address={address}
@@ -54,9 +62,15 @@ function CheckoutForm({
           formErrors={formErrors}
         />
 
-        <div className="checkout-form__group">
-          <label>Ghi chú (không bắt buộc)</label>
+        {/* Ghi chú */}
+        <div className="checkout-form__note">
+          <label className="checkout-form__note-label" htmlFor="checkout-note">
+            Ghi chú (không bắt buộc)
+          </label>
+
           <textarea
+            id="checkout-note"
+            className="checkout-form__note-input"
             rows={3}
             value={form.note}
             onChange={(e) => onChangeField("note", e.target.value)}
@@ -64,29 +78,34 @@ function CheckoutForm({
           />
         </div>
 
-        <div className="checkout-order-summary">
-          <h3>Tóm tắt đơn hàng</h3>
+        {/* Tóm tắt đơn hàng */}
+        <section className="checkout-form__summary">
+          <h3 className="checkout-form__summary-title">Tóm tắt đơn hàng</h3>
 
-          <div className="checkout-order-list">
+          <div className="checkout-form__product-list">
             {cart.map((item) => (
-              <div key={item.productId} className="checkout-order-row">
-                <div className="checkout-order-product">
-                  <div className="checkout-order-img">
+              <div key={item.productId} className="checkout-form__product">
+                <div className="checkout-form__product-info">
+                  <div className="checkout-form__product-image">
                     <img src={item.image} alt={item.name} />
 
-                    <span className="checkout-order-qty">×{item.qty}</span>
+                    <span className="checkout-form__product-quantity">
+                      ×{item.qty}
+                    </span>
                   </div>
 
-                  <div className="checkout-order-info">
-                    <span className="checkout-order-name">{item.name}</span>
+                  <div className="checkout-form__product-details">
+                    <span className="checkout-form__product-name">
+                      {item.name}
+                    </span>
 
-                    <span className="checkout-order-price">
+                    <span className="checkout-form__product-price">
                       {Number(item.price).toLocaleString("vi-VN")} ₫ / sản phẩm
                     </span>
                   </div>
                 </div>
 
-                <strong className="checkout-order-total">
+                <strong className="checkout-form__product-total">
                   {(Number(item.price) * Number(item.qty)).toLocaleString(
                     "vi-VN",
                   )}{" "}
@@ -95,13 +114,19 @@ function CheckoutForm({
               </div>
             ))}
           </div>
-        </div>
+        </section>
       </div>
 
-      <button className="cart-btn-back" onClick={onBack}>
-        ← Quay lại giỏ hàng
+      {/* Quay lại giỏ hàng */}
+      <button
+        type="button"
+        className="checkout-form__back-button"
+        onClick={onBack}
+      >
+        <ArrowLeft size={18} />
+        <span>Quay lại giỏ hàng</span>
       </button>
-    </>
+    </section>
   );
 }
 

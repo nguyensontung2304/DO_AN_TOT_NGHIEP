@@ -346,7 +346,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div
+        {/* <div
           className="home-hero-visual"
           data-aos="fade-left"
           data-aos-duration="1000"
@@ -393,6 +393,18 @@ export default function Home() {
               </div>
             );
           })}
+        </div> */}
+        <div
+          className="home-hero-visual"
+          data-aos="fade-left"
+          data-aos-duration="1000"
+          data-aos-delay="300"
+        >
+          <img
+            src="/images/home.jpeg"
+            alt="Nội thất cao cấp"
+            className="home-hero-visual-image"
+          />
         </div>
       </section>
 
