@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
-
+import {
+  MapPin,
+  Plus,
+  RotateCw,
+  Pencil,
+  Star,
+  Trash2,
+  X,
+  Check,
+} from "lucide-react";
 import AddressFields from "../../../../../components/public/AddressFields/AddressFields";
-
 import {
   getAddress,
   createAddress,
@@ -9,8 +17,7 @@ import {
   deleteAddress,
   setDefaultAddress,
 } from "../../../../../api/addressApi";
-
-import "./AddressBook.scss";
+import "./addressBook.scss";
 
 const initialForm = {
   label: "",
@@ -23,25 +30,12 @@ const initialForm = {
 };
 
 function AddressBook({ currentUser }) {
-  // Danh sách địa chỉ lấy trực tiếp từ API
   const [addresses, setAddresses] = useState([]);
-
-  // Trạng thái tải dữ liệu
   const [loading, setLoading] = useState(true);
-
-  // Trạng thái lưu, sửa, xóa hoặc đặt mặc định
   const [saving, setSaving] = useState(false);
-
-  // Lỗi tải danh sách
   const [error, setError] = useState("");
-
-  // Lỗi thao tác
   const [actionError, setActionError] = useState("");
-
-  // Modal thêm hoặc sửa địa chỉ
   const [editor, setEditor] = useState(null);
-
-  // Dữ liệu form
   const [form, setForm] = useState(initialForm);
 
   // Chuyển lỗi API thành thông báo dễ đọc
@@ -55,16 +49,13 @@ function AddressBook({ currentUser }) {
     );
   };
 
-  // Lấy danh sách địa chỉ từ backend
+  // Lấy danh sách địa chỉ
   const fetchAddress = async () => {
     setLoading(true);
     setError("");
 
     try {
       const response = await getAddress();
-
-      // API hiện tại trả về một mảng địa chỉ.
-      // Hỗ trợ cả trường hợp dữ liệu được bọc trong data.
       const result = response?.data ?? response;
 
       const list = Array.isArray(result)
@@ -87,7 +78,6 @@ function AddressBook({ currentUser }) {
     }
   };
 
-  // Tải danh sách khi component được mở
   useEffect(() => {
     fetchAddress();
   }, []);
@@ -109,7 +99,7 @@ function AddressBook({ currentUser }) {
     });
   };
 
-  // Cập nhật dữ liệu khi người dùng nhập
+  // Cập nhật dữ liệu form
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
 
@@ -119,7 +109,7 @@ function AddressBook({ currentUser }) {
         [name]: type === "checkbox" ? checked : value,
       };
 
-      // Khi đổi tỉnh/thành, phải chọn lại phường/xã
+      // Khi đổi tỉnh/thành, chọn lại phường/xã
       if (name === "provinceCode") {
         next.wardCode = "";
       }
@@ -128,7 +118,7 @@ function AddressBook({ currentUser }) {
     });
   };
 
-  // Thêm hoặc cập nhật địa chỉ qua API
+  // Thêm hoặc cập nhật địa chỉ
   const handleSave = async (event) => {
     event.preventDefault();
 
@@ -149,7 +139,6 @@ function AddressBook({ currentUser }) {
         await createAddress(values);
       }
 
-      // Lấy lại dữ liệu mới nhất từ backend
       const refreshed = await fetchAddress();
 
       if (!refreshed) {
@@ -197,52 +186,56 @@ function AddressBook({ currentUser }) {
 
   return (
     <section className="address-book">
-      <div className="address-book__header">
+      {/* Tiêu đề */}
+      <div className="address-book-header">
         <h2>Sổ địa chỉ</h2>
 
         <button
           type="button"
-          className="address-book__add"
+          className="address-book-add"
           onClick={() => openEditor()}
           disabled={saving || loading}
         >
-          <span aria-hidden="true">＋</span>
+          <Plus size={18} aria-hidden="true" />
           Thêm địa chỉ
         </button>
       </div>
 
       {/* Lỗi tải danh sách */}
       {error && (
-        <div className="address-book__alert address-book__alert--error">
+        <div className="address-book-alert address-book-alert-error">
           <span>{error}</span>
 
           <button
             type="button"
-            onClick={fetchAddresses}
+            onClick={fetchAddress}
             disabled={loading || saving}
           >
+            <RotateCw size={16} aria-hidden="true" />
             Thử lại
           </button>
         </div>
       )}
 
-      {/* Lỗi thêm, sửa, xóa hoặc đặt mặc định */}
+      {/* Lỗi thao tác */}
       {actionError && (
-        <div className="address-book__alert address-book__alert--error">
+        <div className="address-book-alert address-book-alert-error">
           {actionError}
         </div>
       )}
 
       {/* Trạng thái tải dữ liệu */}
       {loading ? (
-        <div className="address-book__loading">
-          <span className="address-book__spinner" />
+        <div className="address-book-loading">
+          <span className="address-book-spinner" />
           <p>Đang tải danh sách địa chỉ...</p>
         </div>
       ) : !error && addresses.length === 0 ? (
         /* Chưa có địa chỉ */
-        <div className="address-book__empty">
-          <div className="address-book__empty-icon">⌖</div>
+        <div className="address-book-empty">
+          <div className="address-book-empty-icon">
+            <MapPin size={34} aria-hidden="true" />
+          </div>
 
           <h3>Chưa có địa chỉ</h3>
 
@@ -253,41 +246,42 @@ function AddressBook({ currentUser }) {
 
           <button
             type="button"
-            className="address-book__add"
+            className="address-book-add"
             onClick={() => openEditor()}
             disabled={saving}
           >
+            <Plus size={18} aria-hidden="true" />
             Thêm địa chỉ ngay
           </button>
         </div>
       ) : (
         /* Danh sách địa chỉ */
         !error && (
-          <div className="address-book__list">
+          <div className="address-book-list">
             {addresses.map((address) => (
-              <article className="address-book__card" key={address.id}>
-                <div className="address-book__card-header">
-                  <div className="address-book__recipient">
+              <article className="address-book-card" key={address.id}>
+                <div className="address-book-card-header">
+                  <div className="address-book-recipient">
                     <strong>{address.name}</strong>
                     <span>{address.phone}</span>
                   </div>
 
-                  <div className="address-book__badges">
+                  <div className="address-book-badges">
                     {address.label && (
-                      <span className="address-book__badge">
+                      <span className="address-book-badge">
                         {address.label}
                       </span>
                     )}
 
                     {address.isDefault && (
-                      <span className="address-book__badge address-book__badge--default">
+                      <span className="address-book-badge address-book-badge-default">
                         Mặc định
                       </span>
                     )}
                   </div>
                 </div>
 
-                <p className="address-book__full-address">
+                <p className="address-book-full-address">
                   {address.fullAddress ||
                     [
                       address.addressLine,
@@ -298,18 +292,23 @@ function AddressBook({ currentUser }) {
                       .join(", ")}
                 </p>
 
-                <div className="address-book__actions">
+                <div className="address-book-actions">
+                  {/* Sửa địa chỉ */}
                   <button
                     type="button"
+                    className="address-book-action"
                     onClick={() => openEditor(address)}
                     disabled={saving}
                   >
+                    <Pencil size={16} aria-hidden="true" />
                     Sửa
                   </button>
 
+                  {/* Đặt mặc định */}
                   {!address.isDefault && (
                     <button
                       type="button"
+                      className="address-book-action address-book-action-default"
                       onClick={() =>
                         handleAction(
                           () => setDefaultAddress(address.id),
@@ -318,13 +317,15 @@ function AddressBook({ currentUser }) {
                       }
                       disabled={saving}
                     >
+                      <Star size={16} aria-hidden="true" />
                       Đặt làm mặc định
                     </button>
                   )}
 
+                  {/* Xóa địa chỉ */}
                   <button
                     type="button"
-                    className="address-book__delete"
+                    className="address-book-delete"
                     onClick={() => {
                       const confirmed = window.confirm(
                         address.isDefault
@@ -341,6 +342,7 @@ function AddressBook({ currentUser }) {
                     }}
                     disabled={saving}
                   >
+                    <Trash2 size={16} aria-hidden="true" />
                     Xóa
                   </button>
                 </div>
@@ -353,7 +355,7 @@ function AddressBook({ currentUser }) {
       {/* Modal thêm hoặc sửa địa chỉ */}
       {editor !== null && (
         <div
-          className="address-book__overlay"
+          className="address-book-overlay"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget && !saving) {
               setEditor(null);
@@ -361,30 +363,32 @@ function AddressBook({ currentUser }) {
           }}
         >
           <div
-            className="address-book__modal"
+            className="address-book-modal"
             role="dialog"
             aria-modal="true"
             aria-labelledby="address-modal-title"
           >
-            <div className="address-book__modal-header">
+            {/* Tiêu đề modal */}
+            <div className="address-book-modal-header">
               <h3 id="address-modal-title">
                 {editor.id ? "Sửa địa chỉ" : "Thêm địa chỉ"}
               </h3>
 
               <button
                 type="button"
-                className="address-book__close"
+                className="address-book-close"
                 onClick={() => setEditor(null)}
                 disabled={saving}
                 aria-label="Đóng"
               >
-                ×
+                <X size={20} aria-hidden="true" />
               </button>
             </div>
 
             <form onSubmit={handleSave}>
-              <div className="address-book__modal-body">
-                <div className="address-fields__group">
+              {/* Nội dung form */}
+              <div className="address-book-modal-body">
+                <div className="address-book-field-group">
                   <label htmlFor="label">Tên gợi nhớ</label>
 
                   <input
@@ -407,7 +411,7 @@ function AddressBook({ currentUser }) {
                   disabled={saving}
                 />
 
-                <label className="address-book__checkbox">
+                <label className="address-book-checkbox">
                   <input
                     type="checkbox"
                     name="isDefault"
@@ -424,10 +428,11 @@ function AddressBook({ currentUser }) {
                 </label>
               </div>
 
-              <div className="address-book__modal-footer">
+              {/* Nút cuối form */}
+              <div className="address-book-modal-footer">
                 <button
                   type="button"
-                  className="address-book__cancel"
+                  className="address-book-cancel"
                   onClick={() => setEditor(null)}
                   disabled={saving}
                 >
@@ -436,10 +441,17 @@ function AddressBook({ currentUser }) {
 
                 <button
                   type="submit"
-                  className="address-book__save"
+                  className="address-book-save"
                   disabled={saving}
                 >
-                  {saving ? "Đang lưu..." : "Lưu địa chỉ"}
+                  {saving ? (
+                    "Đang lưu..."
+                  ) : (
+                    <>
+                      <Check size={17} aria-hidden="true" />
+                      Lưu địa chỉ
+                    </>
+                  )}
                 </button>
               </div>
             </form>

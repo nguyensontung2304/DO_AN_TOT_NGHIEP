@@ -28,9 +28,6 @@ const DEFAULT_SORT = "default";
 // PRODUCT CARD
 function ProductCard({ product }) {
   const currentUser = useSelector((state) => state.user.currentUser);
-
-  console.log(product);
-
   const [added, setAdded] = useState(false);
 
   const handleAdd = async () => {
@@ -63,16 +60,16 @@ function ProductCard({ product }) {
     : null;
 
   return (
-    <div className="product-card">
+    <article className="product-card">
       {product.badge && (
-        <span className="product-card-badge">{product.badge}</span>
+        <span className="product-card__badge">{product.badge}</span>
       )}
 
       <Link
         to={getPath(ROUTES.USER.PRODUCT_DETAIL, {
           id: product.id,
         })}
-        className="product-card-image"
+        className="product-card__image"
         aria-label={`Xem chi tiết ${product.name}`}
       >
         {product.image ? (
@@ -82,10 +79,10 @@ function ProductCard({ product }) {
         )}
       </Link>
 
-      <div className="product-card-body">
-        <span className="product-card-category">{product.categoryName}</span>
+      <div className="product-card__body">
+        <span className="product-card__category">{product.categoryName}</span>
 
-        <h3 className="product-card-name">
+        <h3 className="product-card__name">
           <Link
             to={getPath(ROUTES.USER.PRODUCT_DETAIL, {
               id: product.id,
@@ -95,9 +92,9 @@ function ProductCard({ product }) {
           </Link>
         </h3>
 
-        <p className="product-card-description">{product.description}</p>
+        <p className="product-card__description">{product.description}</p>
 
-        <div className="product-card-price">
+        <div className="product-card__price">
           <strong>{Number(product.price).toLocaleString("vi-VN")}₫</strong>
 
           {product.old_price && (
@@ -105,36 +102,36 @@ function ProductCard({ product }) {
           )}
 
           {discount && (
-            <span className="product-card-discount">-{discount}%</span>
+            <span className="product-card__discount">-{discount}%</span>
           )}
         </div>
 
-        <div className="product-card-evaluate">
-          <span className="product-card-evaluate-item">
-            <MessageCircle className="product-card-evaluate-icon" />
+        <div className="product-card__evaluate">
+          <span className="product-card__evaluate-item">
+            <MessageCircle className="product-card__evaluate-icon" />
             {product.commentsCount || 0}
           </span>
 
-          <span className="product-card-evaluate-item">
-            <Star className="product-card-evaluate-icon" />
+          <span className="product-card__evaluate-item">
+            <Star className="product-card__evaluate-icon" />
             {product.ratingsCount || 0}
           </span>
         </div>
 
-        <div className="product-card-buttons">
+        <div className="product-card__buttons">
           <Link
             to={getPath(ROUTES.USER.PRODUCT_DETAIL, {
               id: product.id,
             })}
-            className="product-card-detail-btn"
+            className="product-card__detail-button"
           >
             Chi tiết
           </Link>
 
           {currentUser ? (
             <button
-              className={`product-card-btn ${
-                added ? "product-card-btn-added" : ""
+              className={`product-card__button ${
+                added ? "product-card__button--added" : ""
               }`}
               onClick={handleAdd}
             >
@@ -156,7 +153,7 @@ function ProductCard({ product }) {
               state={{
                 from: ROUTES.USER.PRODUCT_LIST,
               }}
-              className="product-card-btn product-card-btn-guest"
+              className="product-card__button product-card__button--guest"
             >
               <LockKeyhole size={15} />
               Đăng nhập
@@ -164,7 +161,7 @@ function ProductCard({ product }) {
           )}
         </div>
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -279,8 +276,8 @@ export default function Products() {
   if (loading) {
     return (
       <div className="products-page">
-        <div className="products-page-inner">
-          <div className="products-page-empty">
+        <div className="products-page__inner">
+          <div className="products-page__empty">
             <Clock size={40} />
             <p>Đang tải sản phẩm...</p>
           </div>
@@ -293,8 +290,8 @@ export default function Products() {
   if (error) {
     return (
       <div className="products-page">
-        <div className="products-page-inner">
-          <div className="products-page-empty">
+        <div className="products-page__inner">
+          <div className="products-page__empty">
             <Frown size={40} />
             <p>{error}</p>
           </div>
@@ -307,9 +304,9 @@ export default function Products() {
   return (
     <div className="products-page">
       {/* INTRO BANNER */}
-      <section className="products-page-intro">
-        <div className="products-page-intro-overlay">
-          <div className="products-page-intro-content">
+      <section className="products-page__intro">
+        <div className="products-page__intro-overlay">
+          <div className="products-page__intro-content">
             <span>
               NỘI THẤT <em>VIỆT</em>
             </span>
@@ -325,8 +322,8 @@ export default function Products() {
       </section>
 
       {/* HERO */}
-      <section className="products-page-hero">
-        <div className="products-page-hero-inner">
+      <section className="products-page__hero">
+        <div className="products-page__hero-inner">
           <span>VỀ CHÚNG TÔI</span>
 
           <h1>Tất cả sản phẩm</h1>
@@ -335,11 +332,11 @@ export default function Products() {
         </div>
       </section>
 
-      <div className="products-page-inner">
+      <div className="products-page__inner">
         {/* TOOLBAR */}
-        <div className="products-page-toolbar">
+        <div className="products-page__toolbar">
           {/* SEARCH */}
-          <div className="products-page-search">
+          <div className="products-page__search">
             <Search size={18} />
 
             <input
@@ -368,7 +365,7 @@ export default function Products() {
 
           {/* SORT */}
           <select
-            className="products-page-sort"
+            className="products-page__sort"
             value={sortBy}
             onChange={(e) => {
               updateParams({
@@ -385,24 +382,28 @@ export default function Products() {
         </div>
 
         {/* CATEGORY */}
-        <div className="products-page-categories">
+        <div className="products-page__categories">
           <button
-            className={`products-page-category-btn ${
-              activeCategory === ALL_CATEGORY ? "active" : ""
+            className={`products-page__category-button ${
+              activeCategory === ALL_CATEGORY
+                ? "products-page__category-button--active"
+                : ""
             }`}
             onClick={() => {
               updateParams({ category: "", page: "" });
             }}
           >
             Tất cả
-            <span className="products-page-category-count">{total}</span>
+            <span className="products-page__category-count">{total}</span>
           </button>
 
           {categories.map((category) => (
             <button
               key={category.name}
-              className={`products-page-category-btn ${
-                activeCategory === category.name ? "active" : ""
+              className={`products-page__category-button ${
+                activeCategory === category.name
+                  ? "products-page__category-button--active"
+                  : ""
               }`}
               onClick={() => {
                 updateParams({
@@ -413,7 +414,7 @@ export default function Products() {
             >
               {category.name}
 
-              <span className="products-page-category-count">
+              <span className="products-page__category-count">
                 {category.count}
               </span>
             </button>
@@ -421,7 +422,7 @@ export default function Products() {
         </div>
 
         {/* COUNT */}
-        <p className="products-page-result-count">
+        <p className="products-page__result-count">
           {total === 0
             ? "Không có sản phẩm nào"
             : `Hiển thị ${products.length} / ${total} sản phẩm — Trang ${currentPage}/${totalPages}`}
@@ -429,13 +430,13 @@ export default function Products() {
 
         {/* EMPTY */}
         {products.length === 0 ? (
-          <div className="products-page-empty">
+          <div className="products-page__empty">
             <Frown size={40} />
 
             <p>Không tìm thấy sản phẩm phù hợp.</p>
 
             <button
-              className="products-page-clear-btn"
+              className="products-page__clear-button"
               onClick={() => {
                 updateParams({
                   search: "",
@@ -451,7 +452,7 @@ export default function Products() {
         ) : (
           <>
             {/* PRODUCT GRID */}
-            <div className="products-page-grid">
+            <div className="products-page__grid">
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -459,9 +460,9 @@ export default function Products() {
 
             {/* PAGINATION */}
             {totalPages > 1 && (
-              <div className="pagination">
+              <div className="products-page__pagination">
                 <button
-                  className="pagination-btn pagination-btn-nav"
+                  className="products-page__pagination-button products-page__pagination-button--nav"
                   onClick={() => goToPage(currentPage - 1)}
                   disabled={currentPage === 1}
                   aria-label="Trang trước"
@@ -473,15 +474,17 @@ export default function Products() {
                   page === "..." ? (
                     <span
                       key={`ellipsis-${idx}`}
-                      className="pagination-ellipsis"
+                      className="products-page__pagination-ellipsis"
                     >
                       …
                     </span>
                   ) : (
                     <button
                       key={page}
-                      className={`pagination-btn ${
-                        currentPage === page ? "pagination-btn-active" : ""
+                      className={`products-page__pagination-button ${
+                        currentPage === page
+                          ? "products-page__pagination-button--active"
+                          : ""
                       }`}
                       onClick={() => goToPage(page)}
                       aria-label={`Trang ${page}`}
@@ -493,7 +496,7 @@ export default function Products() {
                 )}
 
                 <button
-                  className="pagination-btn pagination-btn-nav"
+                  className="products-page__pagination-button products-page__pagination-button--nav"
                   onClick={() => goToPage(currentPage + 1)}
                   disabled={currentPage === totalPages}
                   aria-label="Trang tiếp"

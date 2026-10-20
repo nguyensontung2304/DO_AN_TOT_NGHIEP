@@ -214,7 +214,7 @@ export default function PublicHeader() {
                   >
                     <Package size={20} />
 
-                    <span>Đơn hàng cảu tôi</span>
+                    <span>Đơn hàng của tôi</span>
                   </Link>
 
                   <button

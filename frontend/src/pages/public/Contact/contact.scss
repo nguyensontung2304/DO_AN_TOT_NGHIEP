@@ -350,6 +350,10 @@
   }
 
   &__submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     padding: 14px;
     border: none;
     border-radius: 10px;

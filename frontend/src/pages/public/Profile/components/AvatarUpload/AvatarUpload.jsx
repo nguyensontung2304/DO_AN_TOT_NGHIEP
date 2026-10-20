@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
+import { Camera } from "lucide-react";
 
 import { updateMyAvatar } from "../../../../../api/authApi";
 import { setUser } from "../../../../../redux/userSlice";
@@ -9,9 +10,6 @@ import "./avatarUpload.scss";
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
-// Ảnh đại diện + nút đổi ảnh.
-// Component này tự giữ ảnh xem trước, nên việc giải phóng URL
-// cũng nằm gọn ở đây thay vì rải ở trang cha.
 export default function AvatarUpload({ currentUser }) {
   const dispatch = useDispatch();
 
@@ -20,14 +18,14 @@ export default function AvatarUpload({ currentUser }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Giải phóng URL ảnh xem trước khi đổi hoặc rời component
+  // Giải phóng URL ảnh xem trước khi thay đổi hoặc rời component
   useEffect(() => {
     return () => {
       if (preview) URL.revokeObjectURL(preview);
     };
   }, [preview]);
 
-  // Trả về thông báo lỗi nếu file không hợp lệ, ngược lại null
+  // Kiểm tra file ảnh
   const validateFile = (file) => {
     if (!ALLOWED_TYPES.includes(file.type)) {
       return "Chỉ chấp nhận ảnh JPG, PNG hoặc WEBP.";
@@ -40,14 +38,17 @@ export default function AvatarUpload({ currentUser }) {
     return null;
   };
 
+  // Xử lý chọn và tải ảnh
   const handleChange = async (e) => {
     const file = e.target.files?.[0];
+
     if (!file) return;
 
     setError("");
     setSuccess("");
 
     const invalidMessage = validateFile(file);
+
     if (invalidMessage) {
       setError(invalidMessage);
       e.target.value = "";
@@ -55,16 +56,18 @@ export default function AvatarUpload({ currentUser }) {
     }
 
     const previewUrl = URL.createObjectURL(file);
+
     setPreview(previewUrl);
     setLoading(true);
 
     try {
       const formData = new FormData();
+
       formData.append("avatar", file);
 
       const res = await updateMyAvatar(formData);
 
-      // Backend trả trực tiếp user đã format
+      // Cập nhật thông tin người dùng trong Redux
       dispatch(setUser(res.data));
 
       setPreview("");
@@ -73,7 +76,10 @@ export default function AvatarUpload({ currentUser }) {
       console.error("Lỗi upload avatar:", err);
 
       setPreview("");
-      setError(err.response?.data?.message || "Không thể cập nhật ảnh đại diện.");
+
+      setError(
+        err.response?.data?.message || "Không thể cập nhật ảnh đại diện.",
+      );
     } finally {
       setLoading(false);
       e.target.value = "";
@@ -83,30 +89,34 @@ export default function AvatarUpload({ currentUser }) {
   const avatarUrl = preview || currentUser?.avatar;
 
   return (
-    <div className="profile-avatar-upload">
-      <div className="profile-avatar">
+    <div className="avatar-upload">
+      {/* Ảnh đại diện */}
+      <div className="avatar-upload-image">
         {avatarUrl ? (
           <img
             src={avatarUrl}
             alt="Ảnh đại diện"
-            className="profile-avatar__image"
+            className="avatar-upload-image-content"
           />
         ) : (
           currentUser?.name?.charAt(0).toUpperCase()
         )}
       </div>
 
+      {/* Nút đổi ảnh */}
       <label
-        htmlFor="avatar-input"
-        className={`profile-avatar-upload__button ${
-          loading ? "disabled" : ""
+        htmlFor="avatar-upload-input"
+        className={`avatar-upload-button ${
+          loading ? "avatar-upload-button-disabled" : ""
         }`}
       >
-        {loading ? "Đang tải ảnh..." : "📷 Đổi ảnh đại diện"}
+        <Camera size={18} aria-hidden="true" />
+
+        {loading ? "Đang tải ảnh..." : "Đổi ảnh đại diện"}
       </label>
 
       <input
-        id="avatar-input"
+        id="avatar-upload-input"
         type="file"
         accept="image/jpeg,image/png,image/webp"
         onChange={handleChange}
@@ -114,10 +124,21 @@ export default function AvatarUpload({ currentUser }) {
         hidden
       />
 
-      <small>JPG, PNG, WEBP · Tối đa 5MB</small>
+      {/* Hướng dẫn định dạng ảnh */}
+      <small className="avatar-upload-hint">JPG, PNG, WEBP · Tối đa 5MB</small>
 
-      {error && <p className="profile-error">{error}</p>}
-      {success && <p className="profile-success">{success}</p>}
+      {/* Thông báo */}
+      {error && (
+        <p className="avatar-upload-message avatar-upload-message-error">
+          {error}
+        </p>
+      )}
+
+      {success && (
+        <p className="avatar-upload-message avatar-upload-message-success">
+          {success}
+        </p>
+      )}
     </div>
   );
 }

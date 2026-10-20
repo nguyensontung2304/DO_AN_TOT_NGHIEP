@@ -1,13 +1,11 @@
 import { useState } from "react";
+import { UserRound } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { updateMyProfile } from "../../../../../api/authApi";
 import { setUser } from "../../../../../redux/userSlice";
 
 import "./profileInfo.scss";
 
-// Form thông tin cá nhân: họ tên, email (không sửa được), sđt.
-// Khởi tạo state thẳng từ currentUser; muốn nạp lại dữ liệu thì đổi user
-// thì component cha chỉ cần đổi `key` để React dựng lại form này.
 export default function ProfileInfo({ currentUser }) {
   const dispatch = useDispatch();
 
@@ -41,10 +39,14 @@ export default function ProfileInfo({ currentUser }) {
   };
 
   return (
-    <form className="profile-form" onSubmit={handleSubmit}>
-      <div className="form-group">
-        <label htmlFor="profile-name">Họ và tên</label>
+    <form className="profile-info" onSubmit={handleSubmit}>
+      <div className="profile-info-group">
+        <label className="profile-info-label" htmlFor="profile-name">
+          Họ và tên
+        </label>
+
         <input
+          className="profile-info-input"
           id="profile-name"
           type="text"
           value={name}
@@ -53,9 +55,13 @@ export default function ProfileInfo({ currentUser }) {
         />
       </div>
 
-      <div className="form-group">
-        <label htmlFor="profile-email">Email</label>
+      <div className="profile-info-group">
+        <label className="profile-info-label" htmlFor="profile-email">
+          Email
+        </label>
+
         <input
+          className="profile-info-input profile-info-input-disabled"
           id="profile-email"
           type="email"
           value={currentUser?.email || ""}
@@ -63,9 +69,13 @@ export default function ProfileInfo({ currentUser }) {
         />
       </div>
 
-      <div className="form-group">
-        <label htmlFor="profile-phone">Số điện thoại</label>
+      <div className="profile-info-group">
+        <label className="profile-info-label" htmlFor="profile-phone">
+          Số điện thoại
+        </label>
+
         <input
+          className="profile-info-input"
           id="profile-phone"
           type="text"
           value={phone || ""}
@@ -74,10 +84,20 @@ export default function ProfileInfo({ currentUser }) {
         />
       </div>
 
-      {error && <p className="profile-error">{error}</p>}
-      {success && <p className="profile-success">{success}</p>}
+      {error && (
+        <p className="profile-info-message profile-info-message-error">
+          {error}
+        </p>
+      )}
 
-      <button className="profile-btn" type="submit" disabled={loading}>
+      {success && (
+        <p className="profile-info-message profile-info-message-success">
+          {success}
+        </p>
+      )}
+
+      <button className="profile-info-button" type="submit" disabled={loading}>
+        <UserRound size={18} strokeWidth={2} />
         {loading ? "Đang lưu..." : "Lưu thay đổi"}
       </button>
     </form>

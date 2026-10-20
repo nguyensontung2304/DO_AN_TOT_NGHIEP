@@ -11,6 +11,7 @@ import {
   SquarePen,
   User,
   Map as MapIcon,
+  Upload,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
@@ -329,7 +330,7 @@ export default function Contact() {
                   </div>
 
                   <button type="submit" className="contact-form__submit">
-                    📤 Gửi tin nhắn
+                    <Upload size={20} strokeWidth={1.8} /> Gửi tin nhắn
                   </button>
                 </form>
               )}

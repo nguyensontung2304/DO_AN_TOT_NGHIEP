@@ -1,3 +1,143 @@
-// Form thông tin cá nhân chỉ dùng kiểu chung của trang hồ sơ,
-// nên file này giữ nguyên phần form + nút + thông báo.
-@use "../shared/form";
+// Form thông tin cá nhân
+.profile-info {
+  width: 100%;
+  max-width: 600px;
+  padding: 28px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+
+  // Nhóm trường nhập liệu
+  &-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 22px;
+  }
+
+  // Nhãn trường nhập
+  &-label {
+    color: #374151;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  // Ô nhập liệu
+  &-input {
+    width: 100%;
+    min-height: 46px;
+    padding: 11px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    outline: none;
+    background: #ffffff;
+    color: #1f2937;
+    font-size: 14px;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      background-color 0.2s ease;
+
+    &::placeholder {
+      color: #9ca3af;
+    }
+
+    &:focus {
+      border-color: #27ae60;
+      box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.12);
+    }
+
+    // Ô nhập không được chỉnh sửa
+    &-disabled {
+      background: #f3f4f6;
+      color: #6b7280;
+      border-color: #e5e7eb;
+      cursor: not-allowed;
+    }
+  }
+
+  // Thông báo lỗi và thành công
+  &-message {
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+
+    // Thông báo lỗi
+    &-error {
+      color: #b91c1c;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+    }
+
+    // Thông báo thành công
+    &-success {
+      color: #15803d;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+    }
+  }
+
+  // Nút lưu thông tin
+  &-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #353568 0%, #252550 45%, #1b5b91 100%);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background 0.2s ease,
+      box-shadow 0.2s ease,
+      transform 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #5b5bc4 0%, #3275bd 100%);
+      box-shadow: 0 6px 18px rgba(101, 133, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    &:focus-visible {
+      outline: 3px solid rgba(39, 174, 96, 0.3);
+      outline-offset: 3px;
+    }
+  }
+}
+
+// Responsive điện thoại
+@media (max-width: 576px) {
+  .profile-info {
+    padding: 20px 16px;
+    border-radius: 10px;
+
+    &-group {
+      margin-bottom: 18px;
+    }
+
+    &-input {
+      min-height: 44px;
+    }
+
+    &-button {
+      min-height: 44px;
+    }
+  }
+}
