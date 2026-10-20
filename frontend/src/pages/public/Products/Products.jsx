@@ -168,6 +168,9 @@ function ProductCard({ product }) {
 // PRODUCTS PAGE
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [searchInput, setSearchInput] = useState(
+    searchParams.get("search") || "",
+  );
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -178,6 +181,20 @@ export default function Products() {
   const search = searchParams.get("search") || "";
   const sortBy = searchParams.get("sort") || DEFAULT_SORT;
   const currentPage = Math.max(1, Number(searchParams.get("page")) || 1);
+
+  useEffect(() => {
+    setSearchInput(search);
+  }, [search]);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      if (searchInput !== search) {
+        updateParams({ search: searchInput, page: "" }, { replace: true });
+      }
+    }, 300);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [searchInput]);
 
   // CẬP NHẬT QUERY STRING
   const updateParams = (patch, { replace = false } = {}) => {
@@ -202,7 +219,6 @@ export default function Products() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        setLoading(true);
         setError("");
 
         const response = await getProducts({
@@ -342,19 +358,15 @@ export default function Products() {
             <input
               type="text"
               placeholder="Tìm sản phẩm..."
-              value={search}
-              onChange={(e) => {
-                updateParams(
-                  { search: e.target.value, page: "" },
-                  { replace: true },
-                );
-              }}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
             />
 
-            {search && (
+            {searchInput && (
               <button
                 onClick={() => {
-                  updateParams({ search: "", page: "" });
+                  setSearchInput("");
+                  updateParams({ search: "", page: "" }, { replace: true });
                 }}
                 aria-label="Xóa"
               >

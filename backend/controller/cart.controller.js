@@ -39,6 +39,7 @@ export const getCart = async (req, res) => {
 // ====================== THÊM SẢN PHẨM VÀO GIỎ ======================
 export const addToCart = async (req, res) => {
   const { userId, productId } = req.body;
+  const qty = Math.max(1, Math.floor(Number(req.body.qty) || 1));
 
   // Kiểm tra dữ liệu đầu vào
   if (!userId || !productId) {
@@ -74,7 +75,7 @@ export const addToCart = async (req, res) => {
   if (cartItem) {
     // Đã có trong giỏ -> tăng qty
     if (!cartItem.deletedAt) {
-      cartItem.qty += 1;
+      cartItem.qty += qty;
 
       await cartItem.save();
 
@@ -84,9 +85,9 @@ export const addToCart = async (req, res) => {
       });
     }
 
-    // Đã bị xoá mềm -> hồi sinh dòng cũ với qty = 1
+    // Đã bị xoá mềm -> hồi sinh dòng cũ với số lượng yêu cầu
     // (không cộng vào qty cũ, vì người dùng đã chủ động xoá sản phẩm đó)
-    cartItem.qty = 1;
+    cartItem.qty = qty;
 
     await cartItem.restore();
     await cartItem.save();
@@ -101,7 +102,7 @@ export const addToCart = async (req, res) => {
   const newCartItem = await CartItem.create({
     user_id: userId,
     product_id: productId,
-    qty: 1,
+    qty,
   });
 
   return res.status(201).json({

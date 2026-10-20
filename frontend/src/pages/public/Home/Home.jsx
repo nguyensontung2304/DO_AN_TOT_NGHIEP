@@ -1,7 +1,4 @@
 import {
-  Sofa,
-  TreePine,
-  Palette,
   Truck,
   Trophy,
   BadgeDollarSign,
@@ -13,15 +10,11 @@ import {
   Clock3,
   AlertCircle,
 } from "lucide-react";
-
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-
 import { getProducts, getCategories, addToCart } from "../../../api";
-
 import { ROUTES, getPath } from "../../../constants/router";
-
 import "./home.scss";
 
 // PRODUCT CARD
@@ -231,6 +224,21 @@ export default function Home() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  const images = [
+    "/images/home-image-1.jpeg",
+    "/images/home-image-2.jpeg",
+    "/images/home-image-3.jpeg",
+    "/images/home-image-4.jpeg",
+    "/images/home-image-5.jpeg",
+    "/images/home-image-6.jpeg",
+    "/images/home-image-7.jpeg",
+    "/images/home-image-8.jpeg",
+    "/images/home-image-9.jpeg",
+    "/images/home-image-10.jpeg",
+    "/images/home-image-11.jpeg",
+  ];
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -346,54 +354,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* <div
-          className="home-hero-visual"
-          data-aos="fade-left"
-          data-aos-duration="1000"
-          data-aos-delay="300"
-        >
-          {[
-            {
-              icon: Sofa,
-              label: "Sofa cao cấp",
-              span: "Êm ái & Sang trọng",
-            },
-            {
-              icon: TreePine,
-              label: "Gỗ tự nhiên",
-              span: "100% Gỗ thật",
-            },
-            {
-              icon: Palette,
-              label: "Thiết kế độc quyền",
-              span: "Mẫu mã duy nhất",
-            },
-            {
-              icon: Truck,
-              label: "Giao lắp tận nhà",
-              span: "Miễn phí vận chuyển",
-            },
-          ].map((item, index) => {
-            const Icon = item.icon;
-
-            return (
-              <div
-                key={index}
-                className={`home-hero-visual-card home-hero-visual-card-${index}`}
-              >
-                <div className="home-hero-visual-card-icon">
-                  <Icon size={28} strokeWidth={1.8} />
-                </div>
-
-                <p className="home-hero-visual-card-title">{item.label}</p>
-
-                <span className="home-hero-visual-card-description">
-                  {item.span}
-                </span>
-              </div>
-            );
-          })}
-        </div> */}
         <div
           className="home-hero-visual"
           data-aos="fade-left"
@@ -585,6 +545,50 @@ export default function Home() {
           </Link>
         </div>
       </section>
+
+      {/* IMAGE */}
+      <div className="home-image">
+        <div
+          className={`home-image-slider ${
+            selectedImage ? "home-image-slider--paused" : ""
+          }`}
+        >
+          {[1, 2].map((group) => (
+            <div className="home-image-slider-group" key={group}>
+              {images.map((image, index) => (
+                <img
+                  key={`${group}-${index}`}
+                  src={image}
+                  alt={`Ảnh ${index + 1}`}
+                  onClick={() => setSelectedImage(image)}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
+
+        {selectedImage && (
+          <div
+            className="home-image-modal"
+            onClick={() => setSelectedImage(null)}
+          >
+            <button
+              type="button"
+              className="home-image-modal__close"
+              onClick={() => setSelectedImage(null)}
+              aria-label="Đóng ảnh"
+            >
+              &times;
+            </button>
+
+            <img
+              src={selectedImage}
+              alt="Ảnh nội thất phóng to"
+              onClick={(event) => event.stopPropagation()}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

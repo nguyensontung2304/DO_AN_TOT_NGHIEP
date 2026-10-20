@@ -1,5 +1,4 @@
 .home {
-  margin-bottom: 80px;
   color: #1a1a2e;
   background: #fff;
 
@@ -905,18 +904,6 @@
     isolation: isolate;
     overflow: hidden;
     padding: 96px 24px;
-    // background:
-    //   radial-gradient(
-    //     circle at 12% 15%,
-    //     rgba(94, 234, 212, 0.13),
-    //     transparent 30%
-    //   ),
-    //   radial-gradient(
-    //     circle at 88% 85%,
-    //     rgba(56, 189, 248, 0.13),
-    //     transparent 32%
-    //   ),
-    //   linear-gradient(120deg, #0b1f33 0%, #123e52 52%, #126b70 100%);
     background: linear-gradient(135deg, #353568 0%, #252550 45%, #1b5b91 100%);
     text-align: center;
 
@@ -1048,6 +1035,96 @@
           transform: translateX(4px);
         }
       }
+    }
+  }
+
+  .home-image {
+    width: 100%;
+    overflow: hidden;
+    padding: 20px 0;
+    background: linear-gradient(120deg, #e1eadd 0%, #f2e9dc 50%, #dce9e6 100%);
+
+    &-slider {
+      display: flex;
+      width: max-content;
+      animation: home-image-slide 40s linear infinite;
+
+      &--paused {
+        animation-play-state: paused;
+      }
+
+      &-group {
+        display: flex;
+        flex-shrink: 0;
+        gap: 20px;
+        padding-right: 20px;
+
+        img {
+          display: block;
+          width: 500px;
+          height: 300px;
+          object-fit: cover;
+          flex-shrink: 0;
+          border-radius: 20px;
+          cursor: pointer;
+          transition: transform 0.3s ease;
+
+          &:hover {
+            transform: scale(1.02);
+          }
+        }
+      }
+    }
+
+    &-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      background: rgba(12, 18, 30, 0.85);
+      backdrop-filter: blur(6px);
+
+      img {
+        display: block;
+        max-width: 90vw;
+        max-height: 85vh;
+        object-fit: contain;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+      }
+
+      &__close {
+        position: absolute;
+        top: 24px;
+        right: 32px;
+        width: 44px;
+        height: 44px;
+        border: none;
+        border-radius: 50%;
+        background: #fff;
+        color: #222;
+        font-size: 32px;
+        line-height: 1;
+        cursor: pointer;
+        transition: background 0.2s ease;
+
+        &:hover {
+          background: #e1eadd;
+        }
+      }
+    }
+  }
+
+  @keyframes home-image-slide {
+    from {
+      transform: translateX(0);
+    }
+
+    to {
+      transform: translateX(-50%);
     }
   }
 

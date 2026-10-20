@@ -248,8 +248,6 @@ export default function Cart() {
     }
 
     try {
-      setLoading(true);
-
       const res = await getCartByUserId(currentUser.id);
       setCart(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
@@ -328,7 +326,6 @@ export default function Cart() {
 
       setCart((prev) => prev.filter((item) => item.productId !== productId));
 
-      window.dispatchEvent(new Event("cartUpdated"));
     } catch (error) {
       console.error("Lỗi xóa sản phẩm:", error);
       alert("Không thể xóa sản phẩm.");
@@ -357,7 +354,6 @@ export default function Cart() {
         ),
       );
 
-      window.dispatchEvent(new Event("cartUpdated"));
     } catch (error) {
       console.error("Lỗi cập nhật số lượng:", error);
       alert("Không thể cập nhật số lượng.");
