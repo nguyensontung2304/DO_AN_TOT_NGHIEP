@@ -1,12 +1,15 @@
 import { MessageCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import ChatConversation from "../../../components/public/ChatConversation/ChatConversation";
-import useChatSocket from "../../../hooks/useChatSocket";
 import { sendChatMessage } from "../../../api/socketApi";
 import {
   getConversationList,
   getConversationMessages,
 } from "../../../api/chatAPi";
+import {
+  isConversationUnread,
+  markConversationRead,
+} from "../../../utils/adminChatReadState";
 import "./chat.scss";
 
 const formatTime = (createdAt) => {
@@ -29,6 +32,9 @@ const formatTime = (createdAt) => {
 };
 
 const getInitials = (name) => name?.charAt(0)?.toUpperCase() || "?";
+
+const getUnreadUserIds = (conversationList) =>
+  conversationList.filter(isConversationUnread).map(({ user }) => user.id);
 
 function AdminChat() {
   const [conversations, setConversations] = useState([]);
@@ -75,7 +81,10 @@ function AdminChat() {
       try {
         const data = await getConversationList();
 
-        if (!cancelled) setConversations(data);
+        if (!cancelled) {
+          setConversations(data);
+          setUnreadUserIds(getUnreadUserIds(data));
+        }
       } catch (error) {
         console.error("Lỗi lấy danh sách cuộc trò chuyện:", error);
       } finally {
@@ -109,58 +118,85 @@ function AdminChat() {
   }, [selectedUserId]);
 
   // Nhận tin nhắn mới từ Socket.IO.
-  useChatSocket((message) => {
-    const userId = message.userId;
-    const isSelected = userId === selectedUserIdRef.current;
+  useEffect(() => {
+    const handleNewMessage = (event) => {
+      const message = event.detail;
+      if (!message) return;
+      const userId = message.userId;
+      const isSelected = String(userId) === String(selectedUserIdRef.current);
 
-    const conversationExists = conversationsRef.current.some(
-      (conversation) => conversation.user.id === userId,
-    );
-
-    if (conversationExists) {
-      setConversations((prev) => {
-        const updated = prev.map((conversation) => {
-          if (conversation.user.id !== userId) return conversation;
-
-          return {
-            ...conversation,
-            lastMessage: message,
-          };
-        });
-
-        // Đưa cuộc trò chuyện vừa có tin nhắn lên đầu.
-        const index = updated.findIndex(
-          (conversation) => conversation.user.id === userId,
-        );
-
-        if (index > 0) {
-          const [conversation] = updated.splice(index, 1);
-          updated.unshift(conversation);
-        }
-
-        return updated;
-      });
-    } else {
-      // Khách mới nhắn lần đầu.
-      fetchConversations();
-    }
-
-    if (isSelected) {
-      setMessages((prev) => [...prev, message]);
-    } else if (!message.fromAdmin) {
-      setUnreadUserIds((prev) =>
-        prev.includes(userId) ? prev : [...prev, userId],
+      const conversationExists = conversationsRef.current.some(
+        (conversation) => String(conversation.user.id) === String(userId),
       );
-    }
-  });
+
+      if (conversationExists) {
+        setConversations((prev) => {
+          const updated = prev.map((conversation) => {
+            if (String(conversation.user.id) !== String(userId))
+              return conversation;
+
+            return {
+              ...conversation,
+              lastMessage: message,
+            };
+          });
+
+          // Đưa cuộc trò chuyện vừa có tin nhắn lên đầu.
+          const index = updated.findIndex(
+            (conversation) => String(conversation.user.id) === String(userId),
+          );
+
+          if (index > 0) {
+            const [conversation] = updated.splice(index, 1);
+            updated.unshift(conversation);
+          }
+
+          return updated;
+        });
+      } else {
+        // Khách mới nhắn lần đầu.
+        fetchConversations();
+      }
+
+      if (isSelected) {
+        setMessages((prev) => [...prev, message]);
+        markConversationRead(userId, message.id);
+        window.dispatchEvent(
+          new CustomEvent("admin-chat:read", {
+            detail: { userId, messageId: message.id },
+          }),
+        );
+      } else if (!message.fromAdmin) {
+        setUnreadUserIds((prev) =>
+          prev.some((id) => String(id) === String(userId))
+            ? prev
+            : [...prev, userId],
+        );
+      }
+    };
+
+    window.addEventListener("admin-chat:new-message", handleNewMessage);
+    return () =>
+      window.removeEventListener("admin-chat:new-message", handleNewMessage);
+  }, []);
 
   // Chọn cuộc trò chuyện.
   // Xoá tin nhắn cũ ngay khi bấm chuyển khách, để không thấy nhầm
   // tin của khách trước trong lúc chờ tải khách mới.
   const handleSelectConversation = (userId) => {
+    const conversation = conversationsRef.current.find(
+      (item) => String(item.user.id) === String(userId),
+    );
+    const messageId = conversation?.lastMessage?.id;
+    markConversationRead(userId, messageId);
     setMessages([]);
     setSelectedUserId(userId);
-    setUnreadUserIds((prev) => prev.filter((id) => id !== userId));
+    setUnreadUserIds((prev) =>
+      prev.filter((id) => String(id) !== String(userId)),
+    );
+    window.dispatchEvent(
+      new CustomEvent("admin-chat:read", { detail: { userId, messageId } }),
+    );
   };
 
   // Admin gửi tin nhắn cho khách đang chọn.

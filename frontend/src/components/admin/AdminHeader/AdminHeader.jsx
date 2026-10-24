@@ -24,6 +24,12 @@ import { logout } from "../../../api/authApi";
 import { useApp } from "../../../context/useApp";
 import { ROUTES } from "../../../constants/router";
 import { formatDate } from "../../../utils/formatDate";
+import { getConversationList } from "../../../api/chatAPi";
+import useChatSocket from "../../../hooks/useChatSocket";
+import {
+  isConversationUnread,
+  markConversationRead,
+} from "../../../utils/adminChatReadState";
 
 import "./adminHeader.scss";
 
@@ -121,7 +127,49 @@ export default function AdminHeader() {
 
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
+  const [unreadChatUserIds, setUnreadChatUserIds] = useState([]);
   const notificationRef = useRef(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    getConversationList()
+      .then((conversations) => {
+        if (!cancelled) {
+          setUnreadChatUserIds(
+            conversations
+              .filter(isConversationUnread)
+              .map(({ user }) => user.id),
+          );
+        }
+      })
+      .catch((error) => console.error("Lỗi lấy trạng thái chat:", error));
+
+    const handleChatRead = (event) => {
+      const userId = event.detail?.userId;
+      markConversationRead(userId, event.detail?.messageId);
+      setUnreadChatUserIds((prev) =>
+        prev.filter((id) => String(id) !== String(userId)),
+      );
+    };
+    window.addEventListener("admin-chat:read", handleChatRead);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("admin-chat:read", handleChatRead);
+    };
+  }, []);
+
+  useChatSocket((message) => {
+    if (!message.fromAdmin) {
+      setUnreadChatUserIds((prev) =>
+        prev.some((id) => String(id) === String(message.userId))
+          ? prev
+          : [...prev, message.userId],
+      );
+    }
+    window.dispatchEvent(
+      new CustomEvent("admin-chat:new-message", { detail: message }),
+    );
+  });
 
   const {
     globalNotifications = [],
@@ -356,6 +404,7 @@ export default function AdminHeader() {
       >
         {visibleNavItems.map(({ code, to, label, Icon }) => {
           const badgeCount = getBadgeCount(code);
+          const unreadChatCount = code === "chat" ? unreadChatUserIds.length : 0;
 
           return (
             <NavLink
@@ -375,7 +424,13 @@ export default function AdminHeader() {
                 <Icon size={16} strokeWidth={2} />
               </div>
 
-              <div>{label}</div>
+              <div className="admin-header__nav-label">{label}</div>
+
+              {unreadChatCount > 0 && (
+                <span className="admin-header__nav-badge">
+                  {unreadChatCount > 99 ? "99+" : unreadChatCount}
+                </span>
+              )}
 
               {badgeCount > 0 && (
                 <span className="admin-header__nav-badge">
