@@ -205,6 +205,9 @@ export default function Warehouse() {
       updateMaterialStock(item.materialId, item.qtyToBuy),
     );
     updatePurchaseRequestStatus(pr.id, "stocked");
+    if (pr.productionRequestId != null) {
+      updateProductionRequestStatus(pr.productionRequestId, "pending");
+    }
     flash("📥 Đã nhập kho và cộng vào tồn");
   };
 

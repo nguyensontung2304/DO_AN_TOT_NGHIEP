@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import {
   Package,
   ShoppingCart,
@@ -325,7 +326,7 @@ export default function Cart() {
       await removeFromCart(currentUser.id, productId);
 
       setCart((prev) => prev.filter((item) => item.productId !== productId));
-
+      window.dispatchEvent(new Event("cartUpdated"));
     } catch (error) {
       console.error("Lỗi xóa sản phẩm:", error);
       alert("Không thể xóa sản phẩm.");
@@ -353,7 +354,7 @@ export default function Cart() {
           item.productId === productId ? { ...item, qty: newQty } : item,
         ),
       );
-
+      window.dispatchEvent(new Event("cartUpdated"));
     } catch (error) {
       console.error("Lỗi cập nhật số lượng:", error);
       alert("Không thể cập nhật số lượng.");

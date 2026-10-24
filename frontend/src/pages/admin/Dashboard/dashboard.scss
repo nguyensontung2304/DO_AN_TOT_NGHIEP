@@ -102,8 +102,7 @@
     &::before {
       content: "";
       position: absolute;
-      // top: -120px;
-      top: 0px;
+      top: -120px;
       right: -100px;
       width: 250px;
       height: 200px;
@@ -116,8 +115,7 @@
     &::after {
       content: "";
       position: absolute;
-      bottom: 0px;
-      // bottom: -140px;
+      bottom: -140px;
       left: -100px;
       width: 250px;
       height: 200px;

@@ -54,6 +54,7 @@ export default function CartView({ cart, onUpdateQty, onRemoveItem }) {
                 <button
                   type="button"
                   aria-label="Giảm số lượng"
+                  disabled={Number(item.qty) <= 1}
                   onClick={() => onUpdateQty(item.productId, item.qty - 1)}
                 >
                   <Minus size={14} />
@@ -91,7 +92,7 @@ export default function CartView({ cart, onUpdateQty, onRemoveItem }) {
       </div>
 
       <Link to={ROUTES.USER.PRODUCT_LIST} className="cart-view-continue">
-        ← Tiếp tục mua sắm
+        <ArrowLeft size={18} /> Tiếp tục mua sắm
       </Link>
     </div>
   );

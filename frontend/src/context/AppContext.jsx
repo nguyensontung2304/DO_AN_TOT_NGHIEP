@@ -1615,6 +1615,12 @@ export function AppProvider({ children }) {
 
     apiUpdatePurchaseRequestStatus(id, "stocked").catch(() => null);
 
+    // Sau khi vật tư của yêu cầu SX được nhập kho, đưa yêu cầu về hàng chờ
+    // kiểm kê để Thủ kho xác nhận lại tồn kho và chuyển sang sẵn sàng sản xuất.
+    if (pr.productionRequestId != null) {
+      updateProductionRequestStatus(pr.productionRequestId, "pending");
+    }
+
     pushGlobalNotify("goods_stocked", { productName: pr.productName });
   };
 

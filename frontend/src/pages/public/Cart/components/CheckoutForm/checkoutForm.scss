@@ -72,7 +72,6 @@
   &__fields {
     display: flex;
     flex-direction: column;
-    gap: 24px;
     min-width: 0;
     width: 100%;
   }
@@ -86,9 +85,9 @@
   }
 
   &__note-label {
-    color: #252550;
+    color: #262626;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 500;
   }
 
   &__note-input {
@@ -126,6 +125,7 @@
     border: 1px solid #e5e7eb;
     border-radius: 14px;
     background: #fff;
+    margin-top: 35px;
   }
 
   &__summary-title {
@@ -214,7 +214,7 @@
 
   &__product-name {
     color: #252550;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 700;
     line-height: 1.5;
     overflow-wrap: anywhere;
@@ -222,14 +222,14 @@
 
   &__product-price {
     color: #6b7280;
-    font-size: 12px;
+    font-size: 13px;
     line-height: 1.5;
   }
 
   &__product-total {
     flex-shrink: 0;
     color: #252550;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 800;
     text-align: right;
     overflow-wrap: anywhere;

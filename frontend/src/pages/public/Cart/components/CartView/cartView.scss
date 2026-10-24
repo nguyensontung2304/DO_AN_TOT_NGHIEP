@@ -58,8 +58,7 @@
     transition: color 0.2s ease;
 
     &:hover {
-      color: #1d4ed8;
-      text-decoration: underline;
+      color: #002da8;
     }
 
     &:focus-visible {
@@ -231,6 +230,12 @@
           color: #111827;
         }
 
+        &:disabled {
+          color: #9ca3af;
+          background: #f3f4f6;
+          cursor: not-allowed;
+        }
+
         &:focus-visible {
           position: relative;
           outline: 2px solid #2563eb;
@@ -292,9 +297,7 @@
   }
 }
 
-// ========================================
 // TABLET: 481px - 768px
-// ========================================
 @media (min-width: 481px) and (max-width: 768px) {
   .cart-view {
     gap: 16px;
@@ -383,9 +386,7 @@
   }
 }
 
-// ========================================
 // MOBILE: 361px - 480px
-// ========================================
 @media (max-width: 480px) {
   .cart-view {
     gap: 14px;
@@ -507,9 +508,7 @@
   }
 }
 
-// ========================================
 // SMALL MOBILE: 360px trở xuống
-// ========================================
 @media (max-width: 360px) {
   .cart-view {
     gap: 12px;

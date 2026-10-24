@@ -195,6 +195,8 @@ export default function Technical() {
 
   // View more state
   const [showAllTechnical, setShowAllTechnical] = useState(false);
+  const [showAllPendingDesigns, setShowAllPendingDesigns] = useState(false);
+  const [showAllDoneDesigns, setShowAllDoneDesigns] = useState(false);
 
   useEffect(() => {
     if (
@@ -349,8 +351,14 @@ export default function Technical() {
       };
     });
 
-  const pendingDesigns = designRequests.filter((r) => r.status === "pending");
-  const doneDesigns = designRequests.filter((r) => r.status === "provided");
+  const newestFirst = (a, b) =>
+    new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+  const pendingDesigns = designRequests
+    .filter((r) => r.status === "pending")
+    .sort(newestFirst);
+  const doneDesigns = designRequests
+    .filter((r) => r.status === "provided")
+    .sort(newestFirst);
 
   return (
     <div className="technical-page">
@@ -703,48 +711,69 @@ export default function Technical() {
                       </tr>
                     </thead>
                     <tbody>
-                      {pendingDesigns.map((req, i) => (
-                        <tr key={req.id}>
-                          <td>{i + 1}</td>
-                          <td>
-                            <strong>{req.productName}</strong>
-                          </td>
-                          <td>{req.note || "—"}</td>
-                          <td>{formatDate(req.createdAt)}</td>
-                          <td>
-                            <textarea
-                              rows={2}
-                              placeholder="Mô tả bản thiết kế, thông số kỹ thuật..."
-                              value={designNotes[req.id] || ""}
-                              onChange={(e) =>
-                                setDesignNotes((n) => ({
-                                  ...n,
-                                  [req.id]: e.target.value,
-                                }))
-                              }
-                            />
-                          </td>
-                          <td>
-                            <button
-                              className="btn-action btn-action--green"
-                              disabled={!designNotes[req.id]?.trim()}
-                              onClick={() =>
-                                provideDesign(req.id, designNotes[req.id])
-                              }
-                            >
-                              <Send
-                                size={13}
-                                strokeWidth={2}
-                                style={{ marginRight: 4 }}
+                      {pendingDesigns
+                        .slice(0, showAllPendingDesigns ? undefined : 5)
+                        .map((req, i) => (
+                          <tr key={req.id}>
+                            <td>{i + 1}</td>
+                            <td>
+                              <strong>{req.productName}</strong>
+                            </td>
+                            <td>{req.note || "—"}</td>
+                            <td>{formatDate(req.createdAt)}</td>
+                            <td>
+                              <textarea
+                                rows={2}
+                                placeholder="Mô tả bản thiết kế, thông số kỹ thuật..."
+                                value={designNotes[req.id] || ""}
+                                onChange={(e) =>
+                                  setDesignNotes((n) => ({
+                                    ...n,
+                                    [req.id]: e.target.value,
+                                  }))
+                                }
                               />
-                              Gửi thiết kế
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
+                            </td>
+                            <td>
+                              <button
+                                className="btn-action btn-action--green"
+                                disabled={!designNotes[req.id]?.trim()}
+                                onClick={() =>
+                                  provideDesign(req.id, designNotes[req.id])
+                                }
+                              >
+                                <Send
+                                  size={13}
+                                  strokeWidth={2}
+                                  style={{ marginRight: 4 }}
+                                />
+                                Gửi thiết kế
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
                     </tbody>
                   </table>
                 </div>
+                {pendingDesigns.length > 5 && (
+                  <button
+                    className="dash-view-more"
+                    onClick={() =>
+                      setShowAllPendingDesigns((showAll) => !showAll)
+                    }
+                  >
+                    {showAllPendingDesigns ? (
+                      <>
+                        <ChevronUp size={14} /> Thu gọn
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown size={14} /> Xem thêm (
+                        {pendingDesigns.length - 5} mục nữa)
+                      </>
+                    )}
+                  </button>
+                )}
               </>
             )}
 
@@ -769,19 +798,38 @@ export default function Technical() {
                       </tr>
                     </thead>
                     <tbody>
-                      {doneDesigns.map((req, i) => (
-                        <tr key={req.id}>
-                          <td>{i + 1}</td>
-                          <td>
-                            <strong>{req.productName}</strong>
-                          </td>
-                          <td>{req.designNote}</td>
-                          <td>{formatDate(req.createdAt)}</td>
-                        </tr>
-                      ))}
+                      {doneDesigns
+                        .slice(0, showAllDoneDesigns ? undefined : 5)
+                        .map((req, i) => (
+                          <tr key={req.id}>
+                            <td>{i + 1}</td>
+                            <td>
+                              <strong>{req.productName}</strong>
+                            </td>
+                            <td>{req.designNote}</td>
+                            <td>{formatDate(req.createdAt)}</td>
+                          </tr>
+                        ))}
                     </tbody>
                   </table>
                 </div>
+                {doneDesigns.length > 5 && (
+                  <button
+                    className="dash-view-more"
+                    onClick={() => setShowAllDoneDesigns((showAll) => !showAll)}
+                  >
+                    {showAllDoneDesigns ? (
+                      <>
+                        <ChevronUp size={14} /> Thu gọn
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown size={14} /> Xem thêm (
+                        {doneDesigns.length - 5} mục nữa)
+                      </>
+                    )}
+                  </button>
+                )}
               </>
             )}
           </>

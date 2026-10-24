@@ -1,4 +1,11 @@
-import { ShoppingCart, CheckCircle, Clock } from "lucide-react";
+import { useState } from "react";
+import {
+  ShoppingCart,
+  CheckCircle,
+  Clock,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { formatDate } from "../../../utils/formatDate";
 import { useApp } from "../../../context/useApp";
 import "../Technical/technical.scss";
@@ -20,9 +27,16 @@ function AdminCard({ title, icon, children, gradient }) {
 
 export default function Purchasing() {
   const { purchaseRequests, confirmPurchase } = useApp();
+  const [showAllStocked, setShowAllStocked] = useState(false);
 
   const pending = purchaseRequests.filter((r) => r.status === "pending");
-  const stocked = purchaseRequests.filter((r) => r.status === "stocked");
+  const stocked = purchaseRequests
+    .filter((r) => r.status === "stocked")
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt || 0).getTime() -
+        new Date(a.createdAt || 0).getTime(),
+    );
 
   const totalItems = purchaseRequests.reduce((s, r) => s + r.items.length, 0);
 
@@ -139,27 +153,46 @@ export default function Purchasing() {
                 </tr>
               </thead>
               <tbody>
-                {stocked.map((req, i) => (
-                  <tr key={req.id}>
-                    <td>{i + 1}</td>
-                    <td>
-                      <strong>{req.productName}</strong>
-                    </td>
-                    <td>
-                      <ul className="material-list-inline">
-                        {req.items.map((item, ii) => (
-                          <li key={ii}>
-                            {item.materialName}: {item.qtyToBuy} {item.unit}
-                          </li>
-                        ))}
-                      </ul>
-                    </td>
-                    <td>{formatDate(req.createdAt)}</td>
-                  </tr>
-                ))}
+                {stocked
+                  .slice(0, showAllStocked ? undefined : 5)
+                  .map((req, i) => (
+                    <tr key={req.id}>
+                      <td>{i + 1}</td>
+                      <td>
+                        <strong>{req.productName}</strong>
+                      </td>
+                      <td>
+                        <ul className="material-list-inline">
+                          {req.items.map((item, ii) => (
+                            <li key={ii}>
+                              {item.materialName}: {item.qtyToBuy} {item.unit}
+                            </li>
+                          ))}
+                        </ul>
+                      </td>
+                      <td>{formatDate(req.createdAt)}</td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
+          {stocked.length > 5 && (
+            <button
+              className="dash-view-more"
+              onClick={() => setShowAllStocked((showAll) => !showAll)}
+            >
+              {showAllStocked ? (
+                <>
+                  <ChevronUp size={14} /> Thu gọn
+                </>
+              ) : (
+                <>
+                  <ChevronDown size={14} /> Xem thêm ({stocked.length - 5} mục
+                  nữa)
+                </>
+              )}
+            </button>
+          )}
         </AdminCard>
       )}
     </div>

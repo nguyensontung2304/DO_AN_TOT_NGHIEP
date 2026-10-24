@@ -182,7 +182,7 @@ function AdminChat() {
 
   return (
     <div className="admin-chat">
-      {/* ── Tiêu đề trang ───────────────────────────────────────────────── */}
+      {/* Tiêu đề trang */}
       <div className="admin-chat__heading">
         <div>
           <h2 className="admin-chat__title">
@@ -200,7 +200,7 @@ function AdminChat() {
       </div>
 
       <div className="admin-chat__container">
-        {/* ── Danh sách khách hàng ─────────────────────────────────────── */}
+        {/* Danh sách khách hàng */}
         <aside className="admin-chat__sidebar">
           <div className="admin-chat__sidebar-heading">
             <div>
@@ -275,7 +275,7 @@ function AdminChat() {
           </div>
         </aside>
 
-        {/* ── Nội dung chat ─────────────────────────────────────────────── */}
+        {/*  Nội dung chat */}
         <section className="admin-chat__area">
           {selectedConversation ? (
             <>

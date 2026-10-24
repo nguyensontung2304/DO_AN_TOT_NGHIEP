@@ -1,7 +1,5 @@
 import { Link } from "react-router-dom";
-
 import { useState } from "react";
-
 import {
   Package,
   ClipboardList,
@@ -17,15 +15,10 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-
 import { useApp } from "../../../context/useApp";
-
 import { formatDate } from "../../../utils/formatDate";
-
 import { ROUTES } from "../../../constants/router";
-
 import "../Technical/technical.scss";
-
 import "./dashboard.scss";
 
 function StatCard({ icon: Icon, value, label, color, to }) {

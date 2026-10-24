@@ -63,7 +63,6 @@ export const addToCart = async (req, res) => {
   }
 
   // Tìm xem sản phẩm đã có trong giỏ chưa.
-  //
   // PHẢI truyền `paranoid: false` để tìm cả dòng đã bị xoá mềm.
   // CartItem bật paranoid, nên findOne bình thường không thấy dòng đã xoá.
   // Khi đó code đi vào nhánh create() và insert dòng mới cùng (user_id,
