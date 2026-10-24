@@ -213,30 +213,30 @@ function OrderItemCard({
       <div className="order-card__client">
         <div className="order-card__info-row">
           <span>
-            <User size={13} strokeWidth={2} style={{ marginRight: 4 }} />
-            Khách hàng
+            <User size={16} style={{ marginRight: 6 }} />
+            Khách hàng :
           </span>
           <strong>{order.name}</strong>
         </div>
         <div className="order-card__info-row">
           <span>
-            <Phone size={13} strokeWidth={2} style={{ marginRight: 4 }} />
-            Điện thoại
+            <Phone size={16} style={{ marginRight: 6 }} />
+            Điện thoại :
           </span>
           <strong>{order.phone}</strong>
         </div>
         <div className="order-card__info-row">
           <span>
-            <MapPin size={13} strokeWidth={2} style={{ marginRight: 4 }} />
-            Địa chỉ
+            <MapPin size={16} style={{ marginRight: 6 }} />
+            Địa chỉ :
           </span>
           <strong>{order.address}</strong>
         </div>
         {order.userEmail && (
           <div className="order-card__info-row">
             <span>
-              <Mail size={13} strokeWidth={2} style={{ marginRight: 4 }} />
-              Email
+              <Mail size={16} style={{ marginRight: 6 }} />
+              Email :
             </span>
             <strong>{order.userEmail}</strong>
           </div>

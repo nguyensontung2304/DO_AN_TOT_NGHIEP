@@ -19,9 +19,9 @@ import api from "./api";
  * API: POST /posts/:postId/ratings - data: { rating: 1-5 }
  * Kết quả: Rating (với id, createdAt, user)
  */
-export const createOrUpdateRating = async (productId, data) => {
-  // console.log("=======> productId createOrUpdateRating:", productId);
-  // console.log("=======> data createOrUpdateRating:", data);
+export const postRatingProduct = async (productId, data) => {
+  // console.log("=======> productId postRatingProduct:", productId);
+  // console.log("=======> data postRatingProduct:", data);
 
   const response = await api.post(`/ratings/${productId}`, data);
   return response.data;

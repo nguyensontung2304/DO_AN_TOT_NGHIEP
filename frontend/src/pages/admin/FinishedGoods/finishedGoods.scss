@@ -210,3 +210,29 @@
     flex-shrink: 0;
   }
 }
+
+@media (max-width: 768px) {
+  .fg-summary {
+    gap: 12px;
+    margin-bottom: 20px;
+
+    &__card {
+      padding: 16px 12px;
+
+      strong {
+        font-size: 26px;
+      }
+    }
+  }
+
+  .fg-status-row {
+    align-items: flex-start;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .fg-summary {
+    grid-template-columns: 1fr;
+  }
+}

@@ -14,3 +14,15 @@
     margin: 0 auto;
   }
 }
+
+@media (max-width: 768px) {
+  .admin-layout__main {
+    padding: 24px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-layout__main {
+    padding: 16px 10px;
+  }
+}

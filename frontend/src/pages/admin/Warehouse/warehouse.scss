@@ -245,3 +245,42 @@
     flex-shrink: 0;
   }
 }
+
+@media (max-width: 768px) {
+  .wh-summary {
+    gap: 12px;
+    margin-bottom: 20px;
+
+    &__card {
+      padding: 16px 12px;
+
+      strong {
+        font-size: 26px;
+      }
+    }
+  }
+
+  .wh-mat-form {
+    align-items: stretch;
+
+    input {
+      flex: 1 1 100%;
+      min-width: 0;
+    }
+
+    .btn-submit {
+      width: 100%;
+    }
+  }
+
+  .tech-notify-actions {
+    min-width: 120px;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .wh-summary {
+    grid-template-columns: 1fr;
+  }
+}

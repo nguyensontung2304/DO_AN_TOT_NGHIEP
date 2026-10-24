@@ -49,6 +49,20 @@
     gap: 20px;
   }
 
+  &__menu-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 9px;
+    cursor: pointer;
+  }
+
   &__notify {
     position: relative;
   }
@@ -283,12 +297,140 @@
   }
 
   @media (max-width: 768px) {
+    &__top {
+      position: relative;
+      height: 60px;
+      padding: 0 16px;
+      gap: 12px;
+    }
+
+    &__brand {
+      gap: 8px;
+      min-width: 0;
+
+      > svg {
+        width: 21px;
+        flex-shrink: 0;
+      }
+
+      strong {
+        font-size: 14px;
+      }
+
+      small {
+        font-size: 10px;
+      }
+    }
+
+    &__right {
+      margin-left: auto;
+      gap: 10px;
+    }
+
+    &__menu-toggle {
+      display: inline-flex;
+      flex-shrink: 0;
+    }
+
     &__alert {
-      display: none;
+      display: inline-flex;
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      justify-content: center;
+      font-size: 0;
+
+      svg {
+        margin-right: 0 !important;
+      }
     }
 
     &__username {
       display: none;
+    }
+
+    &__logout {
+      padding: 7px 9px;
+
+      span {
+        display: none;
+      }
+    }
+
+    &__nav {
+      display: none;
+      width: 100%;
+      height: auto;
+      max-height: calc(100dvh - 60px);
+      overflow-y: auto;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 4px;
+      padding: 8px 16px 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+      &.is-open {
+        display: flex;
+      }
+    }
+
+    &__nav-item {
+      min-height: 42px;
+      padding: 10px 12px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    &__top {
+      padding: 0 10px;
+      gap: 8px;
+    }
+
+    &__brand {
+      gap: 6px;
+
+      strong {
+        font-size: 12px;
+      }
+
+      small {
+        font-size: 9px;
+      }
+    }
+
+    &__right {
+      gap: 6px;
+    }
+
+    &__avatar {
+      font-size: 18px;
+    }
+
+    &__user > div {
+      display: none !important;
+    }
+
+    &__menu-toggle {
+      width: 36px;
+      height: 36px;
+    }
+
+    &__logout {
+      padding: 6px;
+    }
+
+    &__nav {
+      padding-right: 10px;
+      padding-left: 10px;
+    }
+
+    &__notify-panel {
+      position: fixed;
+      top: 66px;
+      right: 8px;
+      left: 8px;
+      width: auto;
+      max-width: none;
     }
   }
 }

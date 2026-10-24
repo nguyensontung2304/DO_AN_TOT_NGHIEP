@@ -177,3 +177,24 @@
   color: #aaa;
   font-style: italic;
 }
+
+@media (max-width: 768px) {
+  .pur-summary {
+    gap: 12px;
+    margin-bottom: 20px;
+
+    &__card {
+      padding: 16px 12px;
+
+      strong {
+        font-size: 26px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .pur-summary {
+    grid-template-columns: 1fr;
+  }
+}

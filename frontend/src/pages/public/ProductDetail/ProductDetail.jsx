@@ -19,7 +19,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { getProductById, getProducts, addToCart } from "../../../api";
 import { ROUTES, getPath } from "../../../constants/router";
-import { createOrUpdateRating, getMyRating } from "../../../api/ratingApi";
+import { postRatingProduct, getMyRating } from "../../../api/ratingApi";
 import { RatingStars } from "../../../components/public/RatingStarts/RatingStarts";
 import { CommentSection } from "../../../components/public/CommentSection/CommentSection";
 import "./productDetail.scss";
@@ -121,7 +121,7 @@ export default function ProductDetail() {
     try {
       const response = await getMyRating(id);
 
-      setUserRating(response?.data?.rating || response?.rating || null);
+      setUserRating(response.rating || null);
     } catch (error) {
       console.error("Lỗi tải đánh giá:", error);
       setUserRating(null);
@@ -182,7 +182,7 @@ export default function ProductDetail() {
 
     try {
       setRatingLoading(true);
-      await createOrUpdateRating(id, { rating });
+      await postRatingProduct(id, { rating });
       await fetchUserRating();
       const response = await getProductById(id);
       setProduct(response.data);
@@ -413,7 +413,7 @@ export default function ProductDetail() {
                             size={38}
                             interactive
                             onRate={handleRate}
-                            readonly={ratingLoading || !!userRating}
+                            // readonly={ratingLoading || !!userRating} // dùng để khóa lại không cho đánh giá nữa khi đã đánh giá rồi
                           />
                           {userRating ? (
                             <p className="pd-page-user-rating-note">

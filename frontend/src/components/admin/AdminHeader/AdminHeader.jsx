@@ -15,6 +15,8 @@ import {
   Bell,
   User,
   LogOut,
+  Menu,
+  X,
 } from "lucide-react";
 
 import { clearUser } from "../../../redux/userSlice";
@@ -118,6 +120,7 @@ export default function AdminHeader() {
   const currentUser = useSelector((state) => state.user.currentUser);
 
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showMobileNav, setShowMobileNav] = useState(false);
   const notificationRef = useRef(null);
 
   const {
@@ -331,12 +334,26 @@ export default function AdminHeader() {
             <span>Đăng xuất</span>
           </button>
         </div>
+
+        <button
+          type="button"
+          className="admin-header__menu-toggle"
+          onClick={() => setShowMobileNav((open) => !open)}
+          aria-label={showMobileNav ? "Đóng menu" : "Mở menu"}
+          aria-expanded={showMobileNav}
+          aria-controls="admin-navigation"
+        >
+          {showMobileNav ? <X size={22} /> : <Menu size={22} />}
+        </button>
       </div>
 
       {/* MENU COMPONENT:
           Admin gốc (admin@gmail.com): thấy toàn bộ danh sách để chuyển qua lại giữa các component
           Admin bộ phận: chỉ thấy đúng component mình được cấp quyền */}
-      <nav className="admin-header__nav">
+      <nav
+        id="admin-navigation"
+        className={`admin-header__nav ${showMobileNav ? "is-open" : ""}`}
+      >
         {visibleNavItems.map(({ code, to, label, Icon }) => {
           const badgeCount = getBadgeCount(code);
 
@@ -351,6 +368,7 @@ export default function AdminHeader() {
               onClick={() => {
                 const dept = DEPT_BY_CODE[code];
                 if (dept) markGlobalReadForDept?.(dept);
+                setShowMobileNav(false);
               }}
             >
               <div className="admin-header__nav-icon">

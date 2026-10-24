@@ -1,22 +1,25 @@
+// ORDERS PAGE
 .orders-page {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+
+  // Summary
   .orders-summary {
     display: flex;
+    flex-wrap: wrap;
     gap: 16px;
     margin-bottom: 24px;
-    flex-wrap: wrap;
 
     &__card {
+      position: relative;
       flex: 1;
       min-width: 140px;
-      background: var(--card-bg, #fff);
+      overflow: hidden;
+      box-sizing: border-box;
+      padding: 16px;
       border: 1px solid var(--border, #e0e0e0);
       border-radius: 8px;
-      transition: all 0.2s;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-      padding: 16px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
       background:
         radial-gradient(
           circle at 10% 20%,
@@ -29,31 +32,31 @@
           transparent 30%
         ),
         #f8f9fc;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      text-align: center;
+      transition: all 0.2s;
 
-      &::before {
-        content: "";
+      &::before,
+      &::after {
         position: absolute;
-        top: -120px;
-        right: -100px;
         width: 250px;
         height: 200px;
         border-radius: 50%;
-        background: rgba(192, 57, 43, 0.05);
-        transition: transform 0.4s ease;
+        content: "";
         pointer-events: none;
+        transition: transform 0.4s ease;
+      }
+
+      &::before {
+        top: -120px;
+        right: -100px;
+        background: rgba(192, 57, 43, 0.05);
       }
 
       &::after {
-        content: "";
-        position: absolute;
         bottom: -140px;
         left: -100px;
-        width: 250px;
-        height: 200px;
-        border-radius: 50%;
         background: rgba(37, 99, 235, 0.05);
-        transition: transform 0.4s ease;
-        pointer-events: none;
       }
 
       &:hover {
@@ -76,8 +79,8 @@
       }
 
       span {
-        font-size: 13px;
         color: #666;
+        font-size: 13px;
       }
 
       &--yellow {
@@ -94,7 +97,7 @@
             #f0f5ff 40%,
             transparent 70%
           ),
-          #ffffff;
+          #fff;
 
         svg {
           color: #2563eb;
@@ -115,7 +118,7 @@
             #f9f0ff 40%,
             transparent 70%
           ),
-          #ffffff;
+          #fff;
 
         svg {
           color: #7c3aed;
@@ -136,7 +139,7 @@
             #fff7e6 40%,
             transparent 70%
           ),
-          #ffffff;
+          #fff;
 
         svg {
           color: #10b981;
@@ -157,7 +160,7 @@
             #fff0f6 40%,
             transparent 70%
           ),
-          #ffffff;
+          #fff;
 
         svg {
           color: #10b981;
@@ -172,142 +175,500 @@
     }
   }
 
+  // Orders list
   .orders-list {
     display: flex;
     flex-direction: column;
     gap: 16px;
+    min-width: 0;
   }
 }
 
+// ORDER CARD
 .order-card {
-  background: #fafafa;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 16px;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
-  padding: 16px;
+  background: #fafafa;
 
+  // Header
   &__head {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 0 0 20px 0;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 20px;
   }
 
   &__meta {
     display: flex;
-    gap: 12px;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    min-width: 0;
   }
 
   &__id {
-    font-weight: 700;
     color: #333;
-    font-size: 25px;
+    font-size: 27px;
+    font-weight: 700;
   }
 
   &__date {
-    font-size: 13px;
     color: #888;
+    font-size: 15px;
   }
 
   &__right {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
+    flex-shrink: 0;
     gap: 12px;
   }
 
   &__total {
+    font-size: 18px;
     font-weight: 700;
-    font-size: 16px;
   }
 
+  // Customer information
   &__client {
+    width: 100%;
+    min-width: 0;
     margin-bottom: 15px;
   }
 
+  // Desktop: label left, value right
   &__info-row {
     display: flex;
-    gap: 8px;
+    // align-items: flex-start;
     align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    min-width: 0;
     margin-bottom: 8px;
 
     span {
+      display: flex;
+      align-items: center;
+      flex: 0 0 125px;
       color: #888;
-      font-size: 15px;
-      min-width: 80px;
+      font-size: 16px;
     }
 
     strong {
+      flex: 1;
+      min-width: 0;
       color: #333;
       font-size: 15px;
+      text-align: right;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
 
     small {
+      margin-left: 4px;
       color: #999;
       font-size: 12px;
-      margin-left: 4px;
     }
   }
 
+  // Products section
   &__items {
+    min-width: 0;
     margin-bottom: 12px;
 
     &-title {
-      font-size: 16px;
-      color: #666;
       margin-bottom: 8px;
+      color: #666;
+      font-size: 16px;
     }
   }
 
+  // Product row
   &__item {
-    display: flex;
+    display: grid;
+    grid-template-columns: 90px minmax(0, 1fr) auto auto;
     align-items: center;
-    gap: 10px;
-    padding: 6px 0;
-    border-bottom: 1px solid #eee;
+    gap: 14px;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 12px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background: #f5f5f5;
+
+    & + & {
+      margin-top: 10px;
+    }
 
     &-image {
       width: 90px;
       height: 90px;
+      overflow: hidden;
+      border-radius: 6px;
 
       img {
         display: block;
         width: 100%;
         height: 100%;
+        object-fit: cover;
       }
     }
 
     &-name {
-      font-size: 17px;
-      flex: 1;
+      min-width: 0;
       color: #333;
+      font-size: 17px;
+      overflow-wrap: anywhere;
     }
 
     &-qty {
-      font-size: 15px;
       color: #888;
+      font-size: 15px;
+      white-space: nowrap;
     }
 
     &-price {
-      font-size: 15px;
+      min-width: 100px;
+      font-size: 17px;
       font-weight: 600;
-      min-width: 80px;
       text-align: right;
+      white-space: nowrap;
     }
   }
 
+  // Footer
   &__footer {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding-top: 8px;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 15px;
     border-top: 2px solid #e0e0e0;
-    font-size: 16px;
+    font-size: 18px;
   }
 
+  // Actions
   &__actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
     margin-top: 12px;
-    flex-wrap: wrap;
+  }
+}
+// desktop 1200px
+@media (max-width: 1200px) {
+  .orders-page {
+    .orders-summary {
+      gap: 12px;
+
+      &__card {
+        min-width: 130px;
+      }
+    }
+  }
+
+  .order-card {
+    &__item {
+      grid-template-columns: 80px minmax(0, 1fr) auto auto;
+      gap: 10px;
+
+      &-image {
+        width: 80px;
+        height: 80px;
+      }
+
+      &-name {
+        font-size: 16px;
+      }
+
+      &-price {
+        min-width: 90px;
+        font-size: 14px;
+      }
+    }
+  }
+}
+// TABLET - 768px
+@media (max-width: 768px) {
+  .orders-page {
+    .orders-summary {
+      gap: 12px;
+      margin-bottom: 20px;
+
+      &__card {
+        min-width: calc(50% - 6px);
+      }
+    }
+
+    .orders-list {
+      gap: 14px;
+    }
+  }
+
+  .order-card {
+    padding: 14px;
+
+    &__head {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 12px;
+      padding-bottom: 16px;
+    }
+
+    &__meta {
+      width: 100%;
+      gap: 8px;
+    }
+
+    &__id {
+      font-size: 22px;
+    }
+
+    &__right {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    // Label and value remain on the same row
+    &__info-row {
+      grid-template-columns: 110px minmax(0, 1fr);
+      gap: 10px;
+
+      span {
+        flex-basis: 110px;
+      }
+
+      strong {
+        text-align: right;
+      }
+    }
+
+    &__item {
+      grid-template-columns: 72px minmax(0, 1fr) auto;
+      gap: 10px;
+      padding: 10px;
+
+      &-image {
+        grid-row: 1 / span 2;
+        width: 72px;
+        height: 72px;
+      }
+
+      &-name {
+        grid-column: 2 / 4;
+        grid-row: 1;
+        align-self: end;
+        font-size: 15px;
+      }
+
+      &-qty {
+        grid-column: 2;
+        grid-row: 2;
+        align-self: start;
+        font-size: 14px;
+      }
+
+      &-price {
+        grid-column: 3;
+        grid-row: 2;
+        align-self: start;
+        min-width: 0;
+        font-size: 14px;
+      }
+    }
+
+    &__footer {
+      font-size: 15px;
+    }
+  }
+}
+
+// MOBILE - 480px
+@media (max-width: 480px) {
+  .orders-page {
+    .orders-summary {
+      gap: 10px;
+      margin-bottom: 16px;
+
+      &__card {
+        min-width: calc(50% - 5px);
+        padding: 12px;
+
+        strong {
+          font-size: 24px;
+        }
+
+        span {
+          font-size: 12px;
+        }
+
+        &:hover {
+          transform: translateY(-4px);
+        }
+      }
+    }
+
+    .orders-list {
+      gap: 12px;
+    }
+  }
+
+  .order-card {
+    padding: 12px;
+    border-radius: 8px;
+
+    &__head {
+      gap: 10px;
+      padding-bottom: 14px;
+    }
+
+    &__meta {
+      gap: 6px;
+    }
+
+    &__id {
+      font-size: 20px;
+    }
+
+    &__date {
+      font-size: 12px;
+    }
+
+    &__right {
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    &__total {
+      font-size: 15px;
+    }
+
+    &__client {
+      margin-bottom: 12px;
+    }
+
+    // Customer rows: label left, value right
+    &__info-row {
+      display: grid;
+      grid-template-columns: 100px minmax(0, 1fr);
+      gap: 6px;
+      margin-bottom: 9px;
+
+      span {
+        font-size: 13px;
+      }
+
+      strong {
+        font-size: 12px;
+        text-align: right;
+      }
+    }
+
+    &__items {
+      margin-bottom: 10px;
+
+      &-title {
+        font-size: 15px;
+      }
+    }
+
+    &__item {
+      grid-template-columns: 60px minmax(0, 1fr) auto;
+      gap: 8px;
+      padding: 9px;
+
+      &-image {
+        width: 60px;
+        height: 60px;
+      }
+
+      &-name {
+        font-size: 14px;
+      }
+
+      &-qty {
+        font-size: 12px;
+      }
+
+      &-price {
+        font-size: 12px;
+      }
+    }
+
+    &__footer {
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    &__actions {
+      gap: 8px;
+
+      button {
+        max-width: 100%;
+      }
+    }
+  }
+}
+// SMALL MOBILE - 360px
+@media (max-width: 360px) {
+  .orders-page {
+    .orders-summary {
+      &__card {
+        min-width: 100%;
+      }
+    }
+  }
+
+  .order-card {
+    padding: 10px;
+
+    &__id {
+      font-size: 18px;
+    }
+
+    &__info-row {
+      grid-template-columns: 78px minmax(0, 1fr);
+      gap: 5px;
+
+      span,
+      strong {
+        font-size: 12px;
+      }
+    }
+
+    &__item {
+      grid-template-columns: 50px minmax(0, 1fr) auto;
+      gap: 6px;
+      padding: 7px;
+
+      &-image {
+        width: 50px;
+        height: 50px;
+      }
+
+      &-name {
+        font-size: 13px;
+      }
+
+      &-qty,
+      &-price {
+        font-size: 11px;
+      }
+    }
+
+    &__actions {
+      flex-direction: column;
+
+      button {
+        width: 100%;
+      }
+    }
   }
 }

@@ -24,24 +24,24 @@ export const getMyRating = async (req, res) => {
 };
 
 // Lấy tất cả đánh giá của sản phẩm
-export const getRatingProduct = async (req, res) => {
-  try {
-    const rating = await Rating.findOne({
-      where: {
-        product_id: req.params.id,
-        user_id: req.user.id,
-      },
-    });
+// export const getRatingProduct = async (req, res) => {
+//   try {
+//     const rating = await Rating.findOne({
+//       where: {
+//         product_id: req.params.id,
+//         user_id: req.user.id,
+//       },
+//     });
 
-    res.status(200).json(rating);
-  } catch (error) {
-    console.error("=======> GET RATING PRODUCT ERROR:", error);
+//     res.status(200).json(rating);
+//   } catch (error) {
+//     console.error("=======> GET RATING PRODUCT ERROR:", error);
 
-    res.status(500).json({
-      message: "Lỗi server",
-    });
-  }
-};
+//     res.status(500).json({
+//       message: "Lỗi server",
+//     });
+//   }
+// };
 
 // Đánh giá sản phẩm
 export const postRatingProduct = async (req, res) => {
