@@ -1,14 +1,13 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from "react";
-
+import { ChevronUp, ChevronDown } from "lucide-react";
 import {
   getCommentsProduct,
   createCommentsProduct,
   updateCommentsProduct,
   deleteCommentsProduct,
 } from "../../../api/commentsApi";
-
 import { useSelector } from "react-redux";
-
 import "./commentSection.scss";
 
 export function CommentSection({ productId }) {
@@ -17,18 +16,11 @@ export function CommentSection({ productId }) {
   const auth = !!user?.id;
 
   const [comments, setComments] = useState([]);
-
   const [loading, setLoading] = useState(true);
-
   const [submitting, setSubmitting] = useState(false);
-
   const [newComment, setNewComment] = useState("");
-
   const [editingId, setEditingId] = useState(null);
-
   const [editText, setEditText] = useState("");
-
-  // Hiện toàn bộ comment hay chỉ comment mới nhất
   const [showAll, setShowAll] = useState(false);
 
   const fetchComments = async () => {
@@ -36,20 +28,7 @@ export function CommentSection({ productId }) {
       setLoading(true);
 
       const response = await getCommentsProduct(productId);
-
-      console.log("=====> GET COMMENT BY PRODUCT", response);
-      console.log(
-        "Avatar từng bình luận:",
-        response.map((comment) => ({
-          name: comment.user?.name,
-          avatar: comment.user?.avatar,
-        })),
-      );
       const commentsData = response.data || response;
-
-      console.log("Bình luận đầu tiên:", commentsData[0]);
-      console.log("User của bình luận:", commentsData[0]?.user);
-      console.log("Avatar của người bình luận:", commentsData[0]?.user?.avatar);
 
       setComments(commentsData);
     } catch (error) {
@@ -81,11 +60,9 @@ export function CommentSection({ productId }) {
       });
 
       setNewComment("");
-
       fetchComments();
     } catch (error) {
       console.error("Lỗi gửi bình luận:", error);
-
       alert("Không thể gửi bình luận. Vui lòng thử lại.");
     } finally {
       setSubmitting(false);
@@ -101,11 +78,9 @@ export function CommentSection({ productId }) {
       });
 
       setEditingId(null);
-
       fetchComments();
     } catch (error) {
       console.error("Lỗi cập nhật bình luận:", error);
-
       alert("Không thể cập nhật bình luận.");
     }
   };
@@ -115,11 +90,9 @@ export function CommentSection({ productId }) {
 
     try {
       await deleteCommentsProduct(commentId);
-
       fetchComments();
     } catch (error) {
       console.error("Lỗi xóa bình luận:", error);
-
       alert("Không thể xóa bình luận.");
     }
   };
@@ -136,37 +109,35 @@ export function CommentSection({ productId }) {
 
   const canModify = (comment) => user && comment.user?.id === user.id;
 
-  // Nếu showAll = false → chỉ lấy 1 comment đầu tiên
-  // Nếu showAll = true → lấy toàn bộ comment
   const visibleComments = showAll ? comments : comments.slice(0, 1);
 
   if (loading) {
     return (
       <div className="comment-section">
-        <div className="comments-loading">Đang tải bình luận...</div>
+        <div className="comment-section__loading">Đang tải bình luận...</div>
       </div>
     );
   }
 
   return (
     <section className="comment-section">
-      <h3 className="section-title">Bình luận ({comments.length})</h3>
+      <h3 className="comment-section__title">Bình luận ({comments.length})</h3>
 
       {auth && (
-        <form className="comment-form" onSubmit={handleSubmit}>
+        <form className="comment-section__form" onSubmit={handleSubmit}>
           <textarea
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Viết bình luận của bạn..."
             rows={3}
-            className="comment-textarea"
+            className="comment-section__textarea"
             disabled={submitting}
           />
 
-          <div className="comment-form-actions">
+          <div className="comment-section__form-actions">
             <button
               type="submit"
-              className="btn btn-primary"
+              className="comment-section__btn comment-section__btn--primary"
               disabled={submitting || !newComment.trim()}
             >
               {submitting ? "Đang gửi..." : "Gửi bình luận"}
@@ -176,7 +147,7 @@ export function CommentSection({ productId }) {
       )}
 
       {!auth && (
-        <div className="comment-login-prompt">
+        <div className="comment-section__login-prompt">
           <p>
             Đăng nhập để <a href="/login">bình luận</a> hoặc{" "}
             <a href="/register">đăng ký</a> tài khoản mới.
@@ -184,21 +155,23 @@ export function CommentSection({ productId }) {
         </div>
       )}
 
-      <ul className="comments-list">
+      <ul className="comment-section__list">
         {comments.length === 0 ? (
-          <li className="no-comments">
+          <li className="comment-section__empty">
             Chưa có bình luận nào. Hãy là người đầu tiên bình luận!
           </li>
         ) : (
           visibleComments.map((comment) => (
-            <li key={comment.id} className="comment">
-              <div className="comment-header">
-                <div className="comment-author">
-                  <div className="avatar">
+            <li key={comment.id} className="comment-section__item">
+              <div className="comment-section__header">
+                <div className="comment-section__author">
+                  <div className="comment-section__avatar">
                     {comment.user?.avatar ? (
                       <img
                         src={comment.user.avatar}
-                        alt={`Ảnh đại diện của ${comment.user.name || "người dùng"}`}
+                        alt={`Ảnh đại diện của ${
+                          comment.user.name || "người dùng"
+                        }`}
                       />
                     ) : (
                       <span>
@@ -207,30 +180,33 @@ export function CommentSection({ productId }) {
                     )}
                   </div>
 
-                  <div className="author-info">
-                    <span className="author-name">
+                  <div className="comment-section__author-info">
+                    <span className="comment-section__author-name">
                       {comment.user?.name || "Ẩn danh"}
                     </span>
 
-                    <time className="comment-date" dateTime={comment.createdAt}>
+                    <time
+                      className="comment-section__date"
+                      dateTime={comment.createdAt}
+                    >
                       {formatDate(comment.createdAt)}
                     </time>
                   </div>
                 </div>
 
                 {canModify(comment) && (
-                  <div className="comment-actions">
+                  <div className="comment-section__actions">
                     {editingId === comment.id ? (
                       <>
                         <button
-                          className="btn btn-sm btn-primary"
+                          className="comment-section__btn comment-section__btn--primary comment-section__btn--small"
                           onClick={() => handleEdit(comment.id)}
                         >
                           Lưu
                         </button>
 
                         <button
-                          className="btn btn-sm btn-outline"
+                          className="comment-section__btn comment-section__btn--outline comment-section__btn--small"
                           onClick={() => setEditingId(null)}
                         >
                           Hủy
@@ -239,7 +215,7 @@ export function CommentSection({ productId }) {
                     ) : (
                       <>
                         <button
-                          className="btn btn-sm btn-outline"
+                          className="comment-section__btn comment-section__btn--outline comment-section__btn--small"
                           onClick={() => {
                             setEditingId(comment.id);
                             setEditText(comment.content);
@@ -249,7 +225,7 @@ export function CommentSection({ productId }) {
                         </button>
 
                         <button
-                          className="btn btn-sm btn-danger"
+                          className="comment-section__btn comment-section__btn--danger comment-section__btn--small"
                           onClick={() => handleDelete(comment.id)}
                         >
                           Xóa
@@ -264,29 +240,35 @@ export function CommentSection({ productId }) {
                 <textarea
                   value={editText}
                   onChange={(e) => setEditText(e.target.value)}
-                  className="comment-edit-textarea"
+                  className="comment-section__edit-textarea"
                   rows={3}
                   autoFocus
                 />
               ) : (
-                <p className="comment-content">{comment.content}</p>
+                <p className="comment-section__content">{comment.content}</p>
               )}
             </li>
           ))
         )}
       </ul>
 
-      {/* Chỉ hiện nút khi có từ 2 comment trở lên */}
       {comments.length > 1 && (
-        <div className="comments-toggle">
+        <div className="comment-section__toggle">
           <button
             type="button"
-            className="comments-toggle-btn"
+            className="comment-section__toggle-btn"
             onClick={() => setShowAll((prev) => !prev)}
           >
-            {showAll
-              ? "Thu gọn bình luận ↑"
-              : `Xem thêm ${comments.length - 1} bình luận ↓`}
+            {showAll ? (
+              <>
+                Thu gọn bình luận <ChevronUp size={20} />
+              </>
+            ) : (
+              <>
+                Xem thêm {comments.length - 1} bình luận{" "}
+                <ChevronDown size={20} />
+              </>
+            )}
           </button>
         </div>
       )}

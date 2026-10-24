@@ -548,7 +548,7 @@
       border-radius: 0 12px 12px 0;
       color: #5e6473;
       background: #fffaf7;
-      font-size: 14px;
+      font-size: 15px;
       line-height: 1.9;
       overflow-wrap: anywhere;
       word-break: break-word;
@@ -695,6 +695,10 @@
           flex-shrink: 0;
           color: #20243a;
           font-weight: 750;
+        }
+
+        &:hover {
+          background: #fff0eb;
         }
       }
     }
@@ -862,17 +866,20 @@
 
     &-label {
       color: #41465a;
-      font-size: 14px;
+      font-size: 16px;
       font-weight: 800;
     }
 
     &-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
       padding: 5px 10px;
       border: 1px solid #c6eedc;
       border-radius: 999px;
       color: #16875d;
       background: #edfaf3;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 800;
     }
 
@@ -898,7 +905,7 @@
     &-note {
       margin: 0;
       color: #858b9b;
-      font-size: 12px;
+      font-size: 13px;
       line-height: 1.6;
     }
   }
@@ -1026,7 +1033,7 @@
       p {
         margin: 0;
         color: #5c6272;
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 750;
         line-height: 1.5;
       }
@@ -1128,7 +1135,7 @@
       }
 
       &-image {
-        height: 230px;
+        height: 180px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1154,7 +1161,7 @@
 
       &-category {
         color: #c4473a;
-        font-size: 10px;
+        font-size: 12px;
         font-weight: 850;
         letter-spacing: 0.7px;
         text-transform: uppercase;
@@ -1165,7 +1172,7 @@
         overflow: hidden;
         margin: 0;
         color: #20243a;
-        font-size: 14px;
+        font-size: 16px;
         font-weight: 800;
         line-height: 1.5;
         -webkit-box-orient: vertical;
@@ -1181,13 +1188,13 @@
 
         strong {
           color: #c4473a;
-          font-size: 15px;
+          font-size: 17px;
           font-weight: 900;
         }
 
         s {
           color: #a6a8b2;
-          font-size: 11px;
+          font-size: 13px;
         }
       }
 
@@ -1198,7 +1205,7 @@
         margin-top: auto;
         padding-top: 8px;
         color: #777d8d;
-        font-size: 12px;
+        font-size: 14px;
         font-weight: 800;
         transition:
           color 0.3s ease,

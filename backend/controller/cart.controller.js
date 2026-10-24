@@ -41,6 +41,11 @@ export const addToCart = async (req, res) => {
   const { userId, productId } = req.body;
   const qty = Math.max(1, Math.floor(Number(req.body.qty) || 1));
 
+  console.log(req.body);
+  console.log(userId);
+  console.log(productId);
+  console.log(qty);
+
   // Kiểm tra dữ liệu đầu vào
   if (!userId || !productId) {
     return res.status(400).json({

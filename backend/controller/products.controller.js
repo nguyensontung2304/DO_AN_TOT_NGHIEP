@@ -51,7 +51,10 @@ export const getProducts = async (req, res) => {
   // Tìm kiếm theo tên sản phẩm hoặc tên danh mục (qua bảng categories)
   if (search && search.trim() !== "") {
     const keyword = search.trim();
-    where[Op.or] = [{ name: { [Op.iLike]: `%${keyword}%` } }];
+    where[Op.or] = [
+      { name: { [Op.iLike]: `%${keyword}%` } },
+      { description: { [Op.iLike]: `%${keyword}%` } },
+    ];
 
     const matchingCats = await Category.findAll({
       where: { name: { [Op.iLike]: `%${keyword}%` } },

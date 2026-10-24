@@ -35,6 +35,17 @@ export async function register(req, res) {
   const { name, email, password } = req.body;
   console.log("=======> Register request body:", req.body); // Log name, email, password gửi lên từ frontend
 
+  // Kiểm tra định dạng email
+  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+    typeof email === "string" ? email.trim() : "",
+  );
+
+  if (!isValidEmail) {
+    return res.status(400).json({
+      message: "Vui lòng nhập email đúng định dạng.",
+    });
+  }
+
   // Không cho đăng ký trùng email
   const existUser = await User.findOne({ where: { email: email } });
   // console.log("=======> Existing user:", existUser); // Log thông tin user đã tồn tại (nếu có)
@@ -118,7 +129,10 @@ export async function login(req, res) {
         "chat",
       ];
       permissions = Array.from(
-        new Set([...components.map((component) => component.code), ...defaultCodes])
+        new Set([
+          ...components.map((component) => component.code),
+          ...defaultCodes,
+        ]),
       );
     } else {
       // Admin thông thường: chỉ lấy các quyền đã được cấp
@@ -299,7 +313,10 @@ export async function getMyProfile(req, res) {
         "chat",
       ];
       permissions = Array.from(
-        new Set([...components.map((component) => component.code), ...defaultCodes])
+        new Set([
+          ...components.map((component) => component.code),
+          ...defaultCodes,
+        ]),
       );
     } else {
       // Admin thường chỉ nhận quyền đã được cấp

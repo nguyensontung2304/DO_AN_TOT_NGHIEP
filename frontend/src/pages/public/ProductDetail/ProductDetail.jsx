@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useState } from "react";
 import {
   Clock,
@@ -11,6 +12,8 @@ import {
   Phone,
   Wrench,
   ChevronRight,
+  ArrowRight,
+  Check,
 } from "lucide-react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -92,7 +95,7 @@ export default function ProductDetail() {
 
       window.dispatchEvent(new Event("cartUpdated"));
       setAdded(true);
-      setTimeout(() => setAdded(false), 1800);
+      setTimeout(() => setAdded(false), 2000);
       return true;
     } catch (error) {
       console.error("Lỗi thêm giỏ hàng:", error.response?.data || error);
@@ -117,6 +120,7 @@ export default function ProductDetail() {
 
     try {
       const response = await getMyRating(id);
+
       setUserRating(response?.data?.rating || response?.rating || null);
     } catch (error) {
       console.error("Lỗi tải đánh giá:", error);
@@ -347,21 +351,22 @@ export default function ProductDetail() {
               >
                 <button
                   type="button"
-                  className={`pd-page-feedback-tab ${activeFeedbackTab === "comment" ? "is-active" : ""}`}
-                  role="tab"
-                  aria-selected={activeFeedbackTab === "comment"}
-                  onClick={() => setActiveFeedbackTab("comment")}
-                >
-                  Bình luận
-                </button>
-                <button
-                  type="button"
                   className={`pd-page-feedback-tab ${activeFeedbackTab === "rating" ? "is-active" : ""}`}
                   role="tab"
                   aria-selected={activeFeedbackTab === "rating"}
                   onClick={() => setActiveFeedbackTab("rating")}
                 >
                   Đánh giá sao
+                </button>
+
+                <button
+                  type="button"
+                  className={`pd-page-feedback-tab ${activeFeedbackTab === "comment" ? "is-active" : ""}`}
+                  role="tab"
+                  aria-selected={activeFeedbackTab === "comment"}
+                  onClick={() => setActiveFeedbackTab("comment")}
+                >
+                  Bình luận
                 </button>
               </div>
 
@@ -398,7 +403,7 @@ export default function ProductDetail() {
                           </span>
                           {userRating && (
                             <span className="pd-page-user-rating-status">
-                              ✓ Đã đánh giá
+                              <Check size={17} strokeWidth={2} /> Đã đánh giá
                             </span>
                           )}
                         </div>
@@ -535,7 +540,7 @@ export default function ProductDetail() {
                       )}
                     </div>
                     <span className="pd-page-related-card-link">
-                      Xem chi tiết →
+                      Xem chi tiết <ArrowRight size={20} />
                     </span>
                   </div>
                 </Link>

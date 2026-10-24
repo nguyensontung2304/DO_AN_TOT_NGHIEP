@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -186,16 +187,6 @@ export default function Products() {
     setSearchInput(search);
   }, [search]);
 
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      if (searchInput !== search) {
-        updateParams({ search: searchInput, page: "" }, { replace: true });
-      }
-    }, 300);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [searchInput]);
-
   // CẬP NHẬT QUERY STRING
   const updateParams = (patch, { replace = false } = {}) => {
     const next = new URLSearchParams(searchParams);
@@ -210,6 +201,16 @@ export default function Products() {
 
     setSearchParams(next, { replace });
   };
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      if (searchInput !== search) {
+        updateParams({ search: searchInput, page: "" }, { replace: true });
+      }
+    }, 300);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [searchInput]);
 
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);

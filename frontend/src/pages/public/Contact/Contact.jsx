@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebook, faYoutube } from "@fortawesome/free-brands-svg-icons";
 import { faComment } from "@fortawesome/free-solid-svg-icons";

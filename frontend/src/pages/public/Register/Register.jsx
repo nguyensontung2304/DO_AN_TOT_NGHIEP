@@ -11,6 +11,10 @@ const BRAND_IMAGES = [
   "/images/brand3.jpeg",
 ];
 
+const isValidEmail = (email) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+};
+
 export default function Register() {
   const navigate = useNavigate();
 
@@ -40,6 +44,11 @@ export default function Register() {
     e.preventDefault();
 
     setError("");
+
+    if (!isValidEmail(form.email)) {
+      setError("Vui lòng nhập email đúng định dạng.");
+      return;
+    }
 
     if (form.password !== form.confirm) {
       setError("Mật khẩu xác nhận không khớp.");
