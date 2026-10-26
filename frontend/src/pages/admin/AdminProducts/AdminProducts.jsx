@@ -1,6 +1,17 @@
-import { ClipboardList, Sofa, Trash2, Pencil } from "lucide-react";
+/* eslint-disable react-hooks/set-state-in-effect */
+import {
+  ClipboardList,
+  Sofa,
+  Trash2,
+  Pencil,
+  CircleCheck,
+  CirclePlus,
+  Save,
+  LoaderCircle,
+  TriangleAlert,
+  Search,
+} from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
-
 import {
   getProducts,
   getProductById,
@@ -8,15 +19,12 @@ import {
   updateProduct,
   deleteProduct,
 } from "../../../api/productApi";
-
 import { getCategories } from "../../../api/categoryApi";
 import { getMaterials } from "../../../api/materialApi";
-
 import "../Technical/technical.scss";
 import "./adminProducts.scss";
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
+//  Helpers
 function AdminCard({ title, icon, children }) {
   return (
     <div className="admin-card">
@@ -56,8 +64,7 @@ const emptyForm = {
   recipe: [{ ...emptyRecipe }],
 };
 
-// ─── Specs Editor ─────────────────────────────────────────────────────────────
-
+//  Specs Editor
 function SpecsEditor({ specs, onChange }) {
   const update = (i, field, val) => {
     onChange(
@@ -112,7 +119,7 @@ function SpecsEditor({ specs, onChange }) {
             className="btn-icon btn-icon--danger"
             onClick={() => remove(i)}
           >
-            🗑️
+            <Trash2 size={23} />
           </button>
         </div>
       ))}
@@ -124,7 +131,7 @@ function SpecsEditor({ specs, onChange }) {
   );
 }
 
-// ─── Recipe Editor ────────────────────────────────────────────────────────────
+//  Recipe Editor
 function RecipeEditor({ recipe, onChange, materials, materialsLoading }) {
   const update = (i, field, val) => {
     onChange(
@@ -220,7 +227,7 @@ function RecipeEditor({ recipe, onChange, materials, materialsLoading }) {
             className="btn-icon btn-icon--danger"
             onClick={() => remove(i)}
           >
-            🗑️
+            <Trash2 size={23} />
           </button>
         </div>
       ))}
@@ -232,23 +239,22 @@ function RecipeEditor({ recipe, onChange, materials, materialsLoading }) {
   );
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
-
+//  Main Component
 export default function AdminProducts() {
-  // ── Products ───────────────────────────────────────────────────────────────
+  // Products
   const [productList, setProductList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // ── Categories ─────────────────────────────────────────────────────────────
+  // Categories
   const [categories, setCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
 
-  // ── Materials ──────────────────────────────────────────────────────────────
+  // Materials
   const [materials, setMaterials] = useState([]);
   const [materialsLoading, setMaterialsLoading] = useState(true);
 
-  // ── Modal ──────────────────────────────────────────────────────────────────
+  // Modal
   const [modal, setModal] = useState(null);
   const [editTarget, setEditTarget] = useState(null);
 
@@ -260,11 +266,11 @@ export default function AdminProducts() {
   const [formError, setFormError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
-  // ── Delete ─────────────────────────────────────────────────────────────────
+  // Delete
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  // ── Search / Filter ────────────────────────────────────────────────────────
+  // Search / Filter
   const [search, setSearch] = useState("");
   const [filterCat, setFilterCat] = useState("all");
   // LOAD PRODUCTS
@@ -276,19 +282,9 @@ export default function AdminProducts() {
       const res = await getProducts({
         limit: "all",
       });
+      console.log(res);
 
-      const raw = res.data;
-      console.log(raw);
-
-      const list = Array.isArray(raw)
-        ? raw
-        : Array.isArray(raw?.products)
-          ? raw.products
-          : Array.isArray(raw?.data)
-            ? raw.data
-            : [];
-
-      setProductList(list);
+      setProductList(res.data.products);
     } catch (err) {
       console.error("Lỗi lấy sản phẩm:", err);
 
@@ -301,27 +297,19 @@ export default function AdminProducts() {
       setLoading(false);
     }
   }, []);
+
   // LOAD CATEGORIES
   const loadCategories = useCallback(async () => {
     setCategoriesLoading(true);
 
     try {
       const res = await getCategories();
+      console.log(res);
 
-      const raw = res.data;
+      setCategories(res.data);
 
-      const list = Array.isArray(raw)
-        ? raw
-        : Array.isArray(raw?.categories)
-          ? raw.categories
-          : Array.isArray(raw?.data)
-            ? raw.data
-            : [];
-
-      setCategories(list);
-
-      if (list.length === 0) {
-        console.warn("API categories trả về danh sách rỗng:", raw);
+      if (res.data.length === 0) {
+        console.warn("API categories trả về danh sách rỗng:", res.data);
       }
     } catch (err) {
       console.error("Lỗi lấy danh mục:", err);
@@ -336,28 +324,18 @@ export default function AdminProducts() {
     }
   }, []);
 
-  // LOAD MATERIALS
+  // LOAD MATERIALSs
   const loadMaterials = useCallback(async () => {
     setMaterialsLoading(true);
 
     try {
       const res = await getMaterials();
-      const raw = res.data;
+      console.log("Materials:", res);
 
-      console.log("Materials:", raw);
+      setMaterials(res.data);
 
-      const list = Array.isArray(raw)
-        ? raw
-        : Array.isArray(raw?.materials)
-          ? raw.materials
-          : Array.isArray(raw?.data)
-            ? raw.data
-            : [];
-
-      setMaterials(list);
-
-      if (list.length === 0) {
-        console.warn("API materials trả về danh sách rỗng:", raw);
+      if (res.data.length === 0) {
+        console.warn("API materials trả về danh sách rỗng:", res.data);
       }
     } catch (err) {
       console.error("Lỗi lấy vật liệu:", err);
@@ -385,8 +363,9 @@ export default function AdminProducts() {
 
     setTimeout(() => {
       setSuccessMsg("");
-    }, 3000);
+    }, 5000);
   };
+
   // OPEN CREATE
   const openCreate = () => {
     setForm({
@@ -399,6 +378,7 @@ export default function AdminProducts() {
     setEditTarget(null);
     setModal("create");
   };
+
   // OPEN EDIT
   const openEdit = async (product) => {
     setFormError("");
@@ -408,27 +388,18 @@ export default function AdminProducts() {
     // Đổ dữ liệu cơ bản trước
     setForm({
       name: product.name || "",
-
       category_id: String(product.categoryId ?? product.category_id ?? ""),
-
       price: String(product.price ?? ""),
-
       old_price: String(product.old_price ?? ""),
-
       image: null,
-
       badge: product.badge || "",
-
       description: product.description || "",
-
       long_description: product.long_description || "",
-
       specs: [
         {
           ...emptySpec,
         },
       ],
-
       recipe: [
         {
           ...emptyRecipe,
@@ -438,31 +409,19 @@ export default function AdminProducts() {
 
     try {
       const res = await getProductById(product.id);
-
       const detail = res.data;
 
       setForm({
         name: detail.name || "",
-
         category_id: String(detail.categoryId ?? detail.category_id ?? ""),
-
         price: String(detail.price ?? ""),
-
         old_price: String(detail.old_price ?? ""),
 
-        /*
-          Giữ URL ảnh hiện tại khi edit.
-          Nếu người dùng chọn File mới thì nó sẽ
-          được thay thế ở input file.
-        */
+        // Giữ URL ảnh hiện tại khi edit nếu người dùng chọn File mới thì nó sẽ được thay thế ở input file.
         image: detail.image || null,
-
         badge: detail.badge || "",
-
         description: detail.description || "",
-
         long_description: detail.long_description || "",
-
         specs:
           Array.isArray(detail.specs) && detail.specs.length > 0
             ? detail.specs.map((s) => ({
@@ -474,7 +433,6 @@ export default function AdminProducts() {
                   ...emptySpec,
                 },
               ],
-
         recipe:
           Array.isArray(detail.recipe) && detail.recipe.length > 0
             ? detail.recipe.map((r) => ({
@@ -492,17 +450,16 @@ export default function AdminProducts() {
       });
     } catch (err) {
       console.error("Lỗi lấy chi tiết sản phẩm:", err);
-
-      // Nếu lấy detail thất bại
-      // vẫn giữ form cơ bản.
     }
   };
+
   // CLOSE MODAL
   const closeModal = () => {
     setModal(null);
     setEditTarget(null);
     setFormError("");
   };
+
   // SAVE PRODUCT
   const handleSave = async (e) => {
     e.preventDefault();
@@ -584,11 +541,21 @@ export default function AdminProducts() {
       if (modal === "create") {
         await createProduct(formData);
 
-        showSuccess("✅ Đã thêm sản phẩm mới!");
+        showSuccess(
+          <div className="notification">
+            <CircleCheck size={18} />
+            Đã thêm sản phẩm mới!
+          </div>,
+        );
       } else {
         await updateProduct(editTarget.id, formData);
 
-        showSuccess("✅ Đã cập nhật sản phẩm!");
+        showSuccess(
+          <div className="notification">
+            <CircleCheck size={18} />
+            Đã cập nhật sản phẩm!
+          </div>,
+        );
       }
 
       closeModal();
@@ -602,23 +569,25 @@ export default function AdminProducts() {
       setSaving(false);
     }
   };
+
   // DELETE
   const handleDelete = async () => {
     if (!deleteTarget) return;
-
     setDeleting(true);
 
     try {
       await deleteProduct(deleteTarget.id);
-
       setDeleteTarget(null);
-
-      showSuccess("✅ Đã xóa sản phẩm!");
+      showSuccess(
+        <div className="notification">
+          <CircleCheck size={18} />
+          Đã xóa sản phẩm!
+        </div>,
+      );
 
       await loadProducts();
     } catch (err) {
       console.error("Lỗi xóa sản phẩm:", err);
-
       setDeleteTarget(null);
 
       setError(err.response?.data?.message || "Xóa sản phẩm thất bại.");
@@ -626,6 +595,7 @@ export default function AdminProducts() {
       setDeleting(false);
     }
   };
+
   // FILTER
   const filtered = productList.filter((p) => {
     const matchSearch = String(p.name || "")
@@ -639,11 +609,11 @@ export default function AdminProducts() {
 
     return matchSearch && matchCat;
   });
+
   // RENDER
   return (
     <div className="admin-products-page">
       {/* PAGE HEADER */}
-
       <div className="page-header">
         <div>
           <h1>
@@ -656,7 +626,8 @@ export default function AdminProducts() {
         </div>
 
         <button className="btn-submit" onClick={openCreate}>
-          + Thêm sản phẩm
+          <CirclePlus size={18} />
+          Thêm sản phẩm
         </button>
       </div>
 
@@ -664,17 +635,24 @@ export default function AdminProducts() {
       {successMsg && <div className="form-autofill-banner">{successMsg}</div>}
 
       {/* ERROR */}
-      {error && <p className="form-error">⚠️ {error}</p>}
+      {error && (
+        <p className="form-error">
+          <TriangleAlert size={20} /> {error}
+        </p>
+      )}
 
       {/* FILTERS */}
       <div className="ap-filters">
         {/* SEARCH */}
-        <input
-          className="ap-search"
-          placeholder="🔍 Tìm theo tên..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+        <div className="ap-search-box">
+          <Search size={18} />
+          <input
+            className="ap-search"
+            placeholder="Tìm theo tên..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
 
         {/* CATEGORY FILTER */}
         <select
@@ -767,14 +745,14 @@ export default function AdminProducts() {
                           className="btn-action btn-action--blue"
                           onClick={() => openEdit(p)}
                         >
-                          <Pencil size={13} strokeWidth={2} /> Sửa
+                          <Pencil size={15} strokeWidth={2} /> Sửa
                         </button>
 
                         <button
                           className="btn-action btn-action--danger"
                           onClick={() => setDeleteTarget(p)}
                         >
-                          <Trash2 size={13} strokeWidth={2} /> Xóa
+                          <Trash2 size={15} strokeWidth={2} /> Xóa
                         </button>
                       </div>
                     </td>
@@ -796,9 +774,17 @@ export default function AdminProducts() {
             {/* HEADER */}
             <div className="modal-header">
               <h3>
-                {modal === "create"
-                  ? "➕ Thêm sản phẩm mới"
-                  : `✏️ Sửa: ${editTarget?.name}`}
+                {modal === "create" ? (
+                  <div className="modal-header-title">
+                    <CirclePlus size={25} />
+                    Thêm sản phẩm mới
+                  </div>
+                ) : (
+                  <div className="modal-header-title">
+                    <Pencil size={25} />
+                    Sửa: {editTarget?.name}
+                  </div>
+                )}
               </h3>
 
               <button className="modal-close" onClick={closeModal}>
@@ -858,9 +844,25 @@ export default function AdminProducts() {
                     ))}
                   </select>
 
+                  {form.category_id === "custom" && (
+                    <input
+                      type="text"
+                      placeholder="Nhập tên danh mục mới..."
+                      value={form.newCategory || ""}
+                      onChange={(e) =>
+                        setForm((f) => ({
+                          ...f,
+                          newCategory: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  )}
+
                   {!categoriesLoading && categories.length === 0 && (
                     <small className="form-error">
-                      ⚠️ Chưa có danh mục. Hãy tạo danh mục trước.
+                      <TriangleAlert size={20} /> Chưa có danh mục. Hãy tạo danh
+                      mục trước.
                     </small>
                   )}
                 </div>
@@ -1016,7 +1018,11 @@ export default function AdminProducts() {
               </div>
 
               {/* FORM ERROR */}
-              {formError && <p className="form-error">⚠️ {formError}</p>}
+              {formError && (
+                <p className="form-error">
+                  <TriangleAlert size={20} /> {formError}
+                </p>
+              )}
 
               {/* FOOTER */}
               <div className="modal-footer">
@@ -1035,11 +1041,22 @@ export default function AdminProducts() {
                     saving || categoriesLoading || categories.length === 0
                   }
                 >
-                  {saving
-                    ? "Đang lưu..."
-                    : modal === "create"
-                      ? "➕ Thêm sản phẩm"
-                      : "💾 Lưu thay đổi"}
+                  {saving ? (
+                    <>
+                      <LoaderCircle size={18} className="spinning" />
+                      Đang lưu...
+                    </>
+                  ) : modal === "create" ? (
+                    <>
+                      <CirclePlus size={18} />
+                      Thêm sản phẩm
+                    </>
+                  ) : (
+                    <>
+                      <Save size={18} />
+                      Lưu thay đổi
+                    </>
+                  )}
                 </button>
               </div>
             </form>
@@ -1096,7 +1113,14 @@ export default function AdminProducts() {
                 onClick={handleDelete}
                 disabled={deleting}
               >
-                {deleting ? "Đang xóa..." : "🗑️ Xóa"}
+                {deleting ? (
+                  "Đang xóa..."
+                ) : (
+                  <div className="delete">
+                    <Trash2 size={18} />
+                    Xóa
+                  </div>
+                )}
               </button>
             </div>
           </div>

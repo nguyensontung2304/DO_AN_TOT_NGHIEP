@@ -1,7 +1,7 @@
 import express from "express";
 import { verifyToken, checkAdmin } from "../middlewares/auth.middleware.js";
 import {
-  getAllCategories,
+  getCategories,
   createCategory,
   updateCategory,
   deleteCategory,
@@ -11,7 +11,7 @@ const router = express.Router();
 
 // ====================== PUBLIC ======================
 // Lấy danh sách danh mục (dùng cho filter, footer, load select admin)
-router.get("/", getAllCategories);
+router.get("/", getCategories);
 
 // ====================== ADMIN ======================
 // Thêm danh mục

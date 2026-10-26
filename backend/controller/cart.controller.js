@@ -1,10 +1,10 @@
 import models from "../models/index.js";
 import { getImageUrl } from "../utils/format.js";
 
-const { CartItem, Product } = models;
+const { CartItem, Product, ProductRecipe } = models;
 
 // ====================== LẤY GIỎ HÀNG THEO USER ======================
-export const getCart = async (req, res) => {
+export const getCartByUserId = async (req, res) => {
   const { userId } = req.params;
 
   const cartItems = await CartItem.findAll({
@@ -17,6 +17,13 @@ export const getCart = async (req, res) => {
         model: Product,
         as: "product",
         attributes: ["name", "price", "image"],
+        include: [
+          {
+            model: ProductRecipe,
+            as: "product_recipes",
+            attributes: ["material_name", "qty", "unit"],
+          },
+        ],
       },
     ],
 
@@ -31,6 +38,11 @@ export const getCart = async (req, res) => {
     name: item.product?.name,
     price: item.product?.price,
     image: getImageUrl(item.product?.image),
+    recipe: (item.product?.product_recipes || []).map((recipe) => ({
+      materialName: recipe.material_name,
+      qty: Number(recipe.qty),
+      unit: recipe.unit,
+    })),
   }));
 
   return res.status(200).json(cart);
@@ -127,18 +139,18 @@ export const updateCartQty = async (req, res) => {
   }
 
   // Nếu qty <= 0 -> xóa sản phẩm
-  if (qty <= 0) {
-    await CartItem.destroy({
-      where: {
-        user_id: userId,
-        product_id: productId,
-      },
-    });
+  // if (qty <= 0) {
+  //   await CartItem.destroy({
+  //     where: {
+  //       user_id: userId,
+  //       product_id: productId,
+  //     },
+  //   });
 
-    return res.status(200).json({
-      message: "Đã xóa sản phẩm vì số lượng bằng 0",
-    });
-  }
+  //   return res.status(200).json({
+  //     message: "Đã xóa sản phẩm vì số lượng bằng 0",
+  //   });
+  // }
 
   // Tìm sản phẩm trong giỏ
   const cartItem = await CartItem.findOne({

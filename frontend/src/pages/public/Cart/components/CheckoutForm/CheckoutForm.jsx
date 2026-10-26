@@ -12,7 +12,7 @@ import "./checkoutForm.scss";
 function CheckoutForm({
   cart,
   form,
-  address,
+  addresses,
   formErrors,
   profileComplete,
   onChangeField,
@@ -57,7 +57,7 @@ function CheckoutForm({
       <div className="checkout-form__fields">
         <AddressFields
           form={form}
-          address={address}
+          addresses={addresses}
           onChange={onChangeField}
           formErrors={formErrors}
         />

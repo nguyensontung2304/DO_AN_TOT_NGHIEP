@@ -1,3 +1,4 @@
+import { Package } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ShoppingCart, Trash2, Minus, Plus, ArrowLeft } from "lucide-react";
 import { ROUTES } from "../../../../../constants/router";
@@ -5,6 +6,8 @@ import "./cartView.scss";
 
 // Danh sách sản phẩm trong giỏ hàng
 export default function CartView({ cart, onUpdateQty, onRemoveItem }) {
+  console.log("=======> cart :", cart);
+
   return (
     <div className="cart-view">
       <h2 className="cart-view-title">
@@ -32,6 +35,7 @@ export default function CartView({ cart, onUpdateQty, onRemoveItem }) {
               {item.recipe && item.recipe.length > 0 && (
                 <details className="cart-view-item-recipe">
                   <summary className="cart-view-item-recipe-summary">
+                    <Package size={15} />
                     Nguyên vật liệu cần ({item.recipe.length} loại)
                   </summary>
 
@@ -84,7 +88,7 @@ export default function CartView({ cart, onUpdateQty, onRemoveItem }) {
                 onClick={() => onRemoveItem(item.productId)}
                 aria-label="Xóa sản phẩm"
               >
-                <Trash2 size={18} />
+                <Trash2 size={23} />
               </button>
             </div>
           </article>

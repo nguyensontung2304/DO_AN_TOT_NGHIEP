@@ -121,7 +121,7 @@
     &-name {
       margin: 0;
       color: #1f2937;
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 700;
       line-height: 1.5;
       overflow-wrap: anywhere;
@@ -130,7 +130,7 @@
     &-price {
       margin: 0;
       color: #dc2626;
-      font-size: 16px;
+      font-size: 17px;
       font-weight: 700;
     }
   }
@@ -141,11 +141,11 @@
     min-width: 0;
     margin-top: 2px;
     color: #6b7280;
-    font-size: 13px;
+    font-size: 14px;
 
     &-summary {
       display: inline-flex;
-      align-items: flex-start;
+      align-items: center;
       gap: 6px;
       color: #2563eb;
       font-weight: 600;
@@ -157,13 +157,8 @@
         display: none;
       }
 
-      &::before {
-        content: "📦";
-        flex-shrink: 0;
-      }
-
       &:hover {
-        color: #1d4ed8;
+        color: #002da8;
       }
     }
 
@@ -260,7 +255,7 @@
     &-subtotal {
       margin: 0;
       color: #1f2937;
-      font-size: 16px;
+      font-size: 18px;
       font-weight: 800;
       text-align: right;
       overflow-wrap: anywhere;

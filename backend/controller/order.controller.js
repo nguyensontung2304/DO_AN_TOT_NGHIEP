@@ -73,8 +73,15 @@ const orderInclude = [
 // CREATE ORDER
 export const createOrder = async (req, res) => {
   const { userId, name, phone, address, note, cart, total } = req.body;
-  // Kiểm tra cart
+  console.log("=======> userId: ", userId);
+  console.log("=======> name: ", name);
+  console.log("=======> phone: ", phone);
+  console.log("=======> address: ", address);
+  console.log("=======> note: ", note);
+  console.log("=======> cart: ", cart);
+  console.log("=======> total: ", total);
 
+  // Kiểm tra cart
   if (!Array.isArray(cart) || cart.length === 0) {
     return res.status(400).json({
       message: "Đơn hàng không có sản phẩm nào",
@@ -91,6 +98,7 @@ export const createOrder = async (req, res) => {
   try {
     // Sinh mã đơn hàng
     const code = await generateOrderCode();
+    console.log("=======> code: ", code);
 
     // 1. Tạo đơn hàng
     const order = await Order.create({
@@ -103,9 +111,11 @@ export const createOrder = async (req, res) => {
       total: Number(total),
       status: "pending",
     });
+    console.log("=======> order : ", order);
 
     // 2. Tạo các sản phẩm trong đơn
     const productIds = cart.map((item) => item.productId);
+    console.log("=======> productIds : ", productIds);
 
     const products = await Product.findAll({
       where: {
@@ -113,13 +123,16 @@ export const createOrder = async (req, res) => {
       },
       attributes: ["id", "name", "price", "image"],
     });
+    console.log("=======> products : ", products);
 
     const productMap = new Map(
       products.map((product) => [product.id, product]),
     );
+    console.log("=======> productMap : ", productMap);
 
     const orderItems = cart.map((item) => {
       const product = productMap.get(Number(item.productId));
+      console.log("=======> product  : ", product);
 
       if (!product) {
         throw new Error(`Không tìm thấy sản phẩm có ID ${item.productId}`);
@@ -134,7 +147,6 @@ export const createOrder = async (req, res) => {
         price: Number(product.price),
       };
     });
-
     console.log("Order items lưu DB:", orderItems);
 
     await OrderItem.bulkCreate(orderItems);
@@ -143,6 +155,7 @@ export const createOrder = async (req, res) => {
     const createdOrder = await Order.findByPk(order.id, {
       include: orderInclude,
     });
+    console.log("=======> createdOrder : ", createdOrder);
 
     // 4. Gửi email xác nhận đơn hàng
     // Không await để việc gửi email không làm chậm việc trả kết quả đặt hàng

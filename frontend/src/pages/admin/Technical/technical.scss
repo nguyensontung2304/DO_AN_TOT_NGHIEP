@@ -558,6 +558,8 @@
 
 // ── Action buttons ───────────────────────────────────────────────────────────
 .btn-submit {
+  display: flex;
+  gap: 8px;
   background: linear-gradient(135deg, #0f3460, #1a1a2e);
   color: #fff;
   border: none;
@@ -616,6 +618,7 @@
       color: #fff;
     }
   }
+
   &--blue {
     background: #cce5ff;
     color: #004085;
@@ -624,6 +627,7 @@
       color: #fff;
     }
   }
+
   &--orange {
     background: #ffe5cc;
     color: #7a3c00;
@@ -632,6 +636,7 @@
       color: #fff;
     }
   }
+
   &--red {
     background: #f8d7da;
     color: #721c24;
@@ -640,6 +645,7 @@
       color: #fff;
     }
   }
+
   &--purple {
     background: #e8d5ff;
     color: #5c2d91;
@@ -648,6 +654,7 @@
       color: #fff;
     }
   }
+
   &--gray {
     background: #e9ecef;
     color: #495057;
@@ -656,6 +663,7 @@
       color: #fff;
     }
   }
+
   &--danger {
     background: #f8d7da;
     color: #721c24;
@@ -674,6 +682,8 @@
 }
 
 .form-error {
+  display: flex;
+  gap: 8px;
   background: #fff0f0;
   color: #c0392b;
   border: 1px solid #f5c6cb;

@@ -5,14 +5,25 @@ import "./addressFields.scss";
 
 function AddressFields({
   form = {},
-  address = null,
+  addresses = null,
   onChange,
   disabled = false,
   formErrors = {},
 }) {
   // Ưu tiên dữ liệu form để người dùng có thể chỉnh sửa.
   // Nếu form chưa có dữ liệu thì lấy từ địa chỉ mặc định.
-  const getValue = (field) => form[field] ?? address?.[field] ?? "";
+  const getValue = (field) =>
+    form[field] ??
+    addresses?.[
+      {
+        provinceCode: "province_code",
+        provinceName: "province_name",
+        wardCode: "ward_code",
+        wardName: "ward_name",
+        addressLine: "address_line",
+      }[field] || field
+    ] ??
+    "";
 
   const [provinceCode, setProvinceCode] = useState(
     String(getValue("provinceCode") || ""),
@@ -36,7 +47,7 @@ function AddressFields({
   // Đồng bộ tỉnh/thành khi form được điền từ địa chỉ mặc định.
   useEffect(() => {
     setProvinceCode(String(getValue("provinceCode") || ""));
-  }, [form.provinceCode, address?.provinceCode]);
+  }, [form.provinceCode, addresses?.province_code]);
 
   // Tải danh sách tỉnh/thành.
   useEffect(() => {

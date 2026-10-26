@@ -11,7 +11,7 @@ const mapCategory = (c) => ({
 
 // ====================== LẤY TẤT CẢ DANH MỤC ======================
 // Public: danh sách danh mục kèm số sản phẩm (dùng cho filter, footer, select admin)
-export const getAllCategories = async (req, res) => {
+export const getCategories = async (req, res) => {
   try {
     const all = await Category.findAll({
       attributes: ["id", "name"],

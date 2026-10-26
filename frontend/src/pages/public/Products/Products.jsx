@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 import { getProducts, addToCart } from "../../../api";
+import { getCategories } from "../../../api/categoryApi";
 import { ROUTES, getPath } from "../../../constants/router";
 
 import "./products.scss";
@@ -215,6 +216,7 @@ export default function Products() {
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [categories, setCategories] = useState([]);
+  console.log(categories);
 
   // GET PRODUCTS
   useEffect(() => {
@@ -229,15 +231,17 @@ export default function Products() {
           page: currentPage,
           limit: PRODUCTS_PER_PAGE,
         });
-
         const data = response.data;
-
         console.log("=======> GET PRODUCTS:", response);
 
         setProducts(Array.isArray(data.products) ? data.products : []);
         setTotal(Number(data.total) || 0);
         setTotalPages(Number(data.totalPages) || 1);
-        setCategories(Array.isArray(data.categories) ? data.categories : []);
+
+        const categories = await getCategories();
+        console.log(categories);
+
+        setCategories(Array.isArray(categories.data) ? categories.data : []);
       } catch (error) {
         console.error("Lỗi lấy sản phẩm:", error);
 
@@ -354,7 +358,7 @@ export default function Products() {
         <div className="products-page__toolbar">
           {/* SEARCH */}
           <div className="products-page__search">
-            <Search size={18} />
+            <Search size={20} />
 
             <input
               type="text"
@@ -371,7 +375,7 @@ export default function Products() {
                 }}
                 aria-label="Xóa"
               >
-                <X size={16} />
+                <X size={20} />
               </button>
             )}
           </div>
@@ -428,7 +432,7 @@ export default function Products() {
               {category.name}
 
               <span className="products-page__category-count">
-                {category.count}
+                {category.productCount}
               </span>
             </button>
           ))}

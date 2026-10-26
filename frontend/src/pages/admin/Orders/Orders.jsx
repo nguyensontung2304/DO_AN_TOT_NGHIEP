@@ -180,7 +180,7 @@ function OrderItemCard({
   order,
   onConfirm,
   onCancel,
-  loading,
+  // loading,
   confirming,
   actionMsg,
   formatDate,

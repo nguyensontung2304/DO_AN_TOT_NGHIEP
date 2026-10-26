@@ -9,7 +9,6 @@ import { useEffect, useState, useCallback } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { ROUTES } from "../../../constants/router";
-
 import {
   getCartByUserId,
   getOrdersByUserId,
@@ -18,16 +17,13 @@ import {
   createOrder,
   cancelOrder,
 } from "../../../api";
-
 import { useApp } from "../../../context/useApp";
-
 import CartView from "./components/CartView/CartView";
 import CartSteps from "./components/CartSteps/CartSteps";
 import CheckoutForm from "./components/CheckoutForm/CheckoutForm";
 import CartSummary from "./components/CartSummary/CartSummary";
 import OrdersView from "./components/OrdersView/OrdersView";
 import OrderSuccess from "./components/OrderSuccess/OrderSuccess";
-
 import "./cart.scss";
 
 const ORDERS_KEY = (userId) => `orders_${userId}`;
@@ -46,24 +42,9 @@ function saveLocalOrder(userId, order) {
   localStorage.setItem(ORDERS_KEY(userId), JSON.stringify([order, ...prev]));
 }
 
-function generateOrderId() {
-  return Date.now() + Math.random();
-}
-
-// Chuẩn hóa địa chỉ từ database hoặc Redux.
-function normalizeAddress(address = {}) {
-  return {
-    ...address,
-    name: address.name ?? address.full_name ?? "",
-    phone: address.phone ?? "",
-    provinceCode: String(address.province_code ?? address.provinceCode ?? ""),
-    provinceName: address.province_name ?? address.provinceName ?? "",
-    wardCode: String(address.ward_code ?? address.wardCode ?? ""),
-    wardName: address.ward_name ?? address.wardName ?? "",
-    addressLine: address.address_line ?? address.addressLine ?? "",
-    isDefault: address.is_default === true || address.isDefault === true,
-  };
-}
+// function generateOrderId() {
+//   return Date.now() + Math.random();
+// }
 
 const EMPTY_ERRORS = {
   name: "",
@@ -95,20 +76,18 @@ export default function Cart() {
   const [expandedOrder, setExpandedOrder] = useState(null);
 
   // ĐỊA CHỈ NGƯỜI DÙNG
-  const profileAddress = currentUser?.address
-    ? normalizeAddress(currentUser.address)
-    : null;
+  const profileAddress = currentUser.address;
+  const addresses = currentUser.addresses || [];
 
-  const addresses = Array.isArray(currentUser?.addresses)
-    ? currentUser.addresses.map(normalizeAddress)
-    : [];
+  console.log(profileAddress);
+  console.log(addresses);
 
   const profileComplete = Boolean(
     profileAddress?.name?.trim() &&
     profileAddress?.phone?.trim() &&
-    profileAddress?.provinceCode &&
-    profileAddress?.wardCode &&
-    profileAddress?.addressLine?.trim(),
+    profileAddress?.province_code &&
+    profileAddress?.ward_code &&
+    profileAddress?.address_line?.trim(),
   );
 
   // FORM THANH TOÁN
@@ -122,6 +101,8 @@ export default function Cart() {
     addressLine: "",
     note: "",
   });
+
+  console.log(form);
 
   const [formErrors, setFormErrors] = useState(EMPTY_ERRORS);
   const [formInitialized, setFormInitialized] = useState(false);
@@ -179,16 +160,17 @@ export default function Cart() {
       return;
     }
 
-    const address = normalizeAddress(currentUser.address || {});
+    // address được lấy từ user
+    const address = currentUser.address || {};
 
     setForm({
-      name: address.name || currentUser.name || "",
-      phone: address.phone || currentUser.phone || "",
-      provinceCode: address.provinceCode,
-      provinceName: address.provinceName,
-      wardCode: address.wardCode,
-      wardName: address.wardName,
-      addressLine: address.addressLine,
+      name: currentUser.name || "",
+      phone: currentUser.phone || "",
+      provinceCode: String(address.province_code || ""),
+      provinceName: address.province_name || "",
+      wardCode: String(address.ward_code || ""),
+      wardName: address.ward_name || "",
+      addressLine: address.address_line || "",
       note: "",
     });
 
@@ -251,6 +233,8 @@ export default function Cart() {
     try {
       const res = await getCartByUserId(currentUser.id);
       setCart(Array.isArray(res.data) ? res.data : []);
+
+      console.log(res);
     } catch (error) {
       console.error("Lỗi lấy giỏ hàng:", error);
       setCart([]);
@@ -335,10 +319,10 @@ export default function Cart() {
 
   // CẬP NHẬT SỐ LƯỢNG
   const updateCartQuantity = async (productId, newQty) => {
-    if (newQty <= 0) {
-      await removeCartItem(productId);
-      return;
-    }
+    // if (newQty <= 0) {
+    //   await removeCartItem(productId);
+    //   return;
+    // }
 
     if (!currentUser?.id) return;
 
@@ -396,26 +380,32 @@ export default function Cart() {
     const phone = String(form.phone).trim();
     const addressLine = String(form.addressLine).trim();
 
-    const matchingSavedAddress = addresses.find(
-      (item) =>
-        item.provinceCode === String(form.provinceCode) &&
-        item.wardCode === String(form.wardCode),
-    );
+    // const matchingSavedAddress = addresses.find(
+    //   (item) =>
+    //     String(item.province_code) === String(form.provinceCode) &&
+    //     String(item.ward_code) === String(form.wardCode),
+    // );
 
-    const provinceName =
-      form.provinceName ||
-      matchingSavedAddress?.provinceName ||
-      (profileAddress?.provinceCode === String(form.provinceCode)
-        ? profileAddress.provinceName
-        : "");
+    // const provinceName =
+    //   form.provinceName ||
+    //   matchingSavedAddress?.province_name ||
+    //   (String(profileAddress?.province_code) === String(form.provinceCode)
+    //     ? profileAddress?.province_name
+    //     : "");
 
-    const wardName =
-      form.wardName ||
-      matchingSavedAddress?.wardName ||
-      (profileAddress?.wardCode === String(form.wardCode)
-        ? profileAddress.wardName
-        : "");
+    // const wardName =
+    //   form.wardName ||
+    //   matchingSavedAddress?.ward_name ||
+    //   (String(profileAddress?.ward_code) === String(form.wardCode)
+    //     ? profileAddress?.ward_name
+    //     : "");
 
+    // const fullAddress = [addressLine, wardName, provinceName]
+    //   .filter(Boolean)
+    //   .join(", ");
+
+    const wardName = form.wardName;
+    const provinceName = form.provinceName;
     const fullAddress = [addressLine, wardName, provinceName]
       .filter(Boolean)
       .join(", ");
@@ -433,19 +423,19 @@ export default function Cart() {
         cart,
         total: cartTotal,
       });
+      console.log(res);
 
-      const orderId =
-        res.data?.order?.id ||
-        res.data?.id ||
-        res.data?.orderId ||
-        generateOrderId();
+      const orderId = res.data?.order?.id;
+      // res.data?.order?.id ||
+      // generateOrderId();
+      console.log(orderId);
 
       const newOrder = {
         id: orderId,
         userId: currentUser.id,
         userName: currentUser.name,
         userEmail: currentUser.email,
-        createdAt: res.data?.order?.created_at || new Date().toISOString(),
+        createdAt: res.data?.order?.created_at,
         name,
         phone,
         provinceCode: String(form.provinceCode),
@@ -459,6 +449,7 @@ export default function Cart() {
         total: cartTotal,
         status: "pending",
       };
+      console.log(newOrder);
 
       saveLocalOrder(currentUser.id, newOrder);
       addOrder(newOrder);
@@ -682,7 +673,7 @@ export default function Cart() {
                           cart={cart}
                           form={form}
                           formErrors={formErrors}
-                          address={addresses}
+                          addresses={addresses}
                           profileComplete={profileComplete}
                           onChangeField={updateForm}
                           onBack={() => navigate(ROUTES.USER.CART)}

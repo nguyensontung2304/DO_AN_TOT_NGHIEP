@@ -1,7 +1,7 @@
 import express from "express";
 
 import {
-  getCart,
+  getCartByUserId,
   addToCart,
   updateCartQty,
   removeFromCart,
@@ -10,7 +10,7 @@ import {
 const router = express.Router();
 
 // Lấy giỏ hàng của user
-router.get("/:userId", getCart);
+router.get("/:userId", getCartByUserId);
 
 // Thêm sản phẩm
 router.post("/", addToCart);
