@@ -76,8 +76,22 @@ export default function Cart() {
   const [expandedOrder, setExpandedOrder] = useState(null);
 
   // ĐỊA CHỈ NGƯỜI DÙNG
-  const profileAddress = currentUser.address;
   const addresses = currentUser.addresses || [];
+  const profileAddress =
+    currentUser.address ||
+    addresses.find((address) => address.is_default) ||
+    addresses[0] ||
+    {};
+  const profileAddressKey = [
+    profileAddress.id,
+    profileAddress.name,
+    profileAddress.phone,
+    profileAddress.province_code,
+    profileAddress.province_name,
+    profileAddress.ward_code,
+    profileAddress.ward_name,
+    profileAddress.address_line,
+  ].join("|");
 
   const profileComplete = Boolean(
     profileAddress?.name?.trim() &&
@@ -103,6 +117,7 @@ export default function Cart() {
 
   const [formErrors, setFormErrors] = useState(EMPTY_ERRORS);
   const [formInitialized, setFormInitialized] = useState(false);
+  const [initializedAddressKey, setInitializedAddressKey] = useState("");
 
   // Hỗ trợ updateForm("name", value) và updateForm(event).
   const updateForm = useCallback((fieldOrEvent, value) => {
@@ -155,16 +170,20 @@ export default function Cart() {
 
   // Điền địa chỉ mặc định vào form.
   useEffect(() => {
-    if (step !== "checkout" || formInitialized || !currentUser) {
+    if (
+      step !== "checkout" ||
+      !currentUser ||
+      (formInitialized && initializedAddressKey === profileAddressKey)
+    ) {
       return;
     }
 
-    // address được lấy từ user
-    const address = currentUser.address || {};
+    // Toàn bộ thông tin người nhận lấy từ địa chỉ mặc định, không lấy từ hồ sơ.
+    const address = profileAddress;
 
     setForm({
-      name: currentUser.name || "",
-      phone: currentUser.phone || "",
+      name: address.name || "",
+      phone: address.phone || "",
       provinceCode: String(address.province_code || ""),
       provinceName: address.province_name || "",
       wardCode: String(address.ward_code || ""),
@@ -175,12 +194,21 @@ export default function Cart() {
 
     setFormErrors({ ...EMPTY_ERRORS });
     setFormInitialized(true);
-  }, [step, currentUser, formInitialized]);
+    setInitializedAddressKey(profileAddressKey);
+  }, [
+    step,
+    currentUser,
+    formInitialized,
+    initializedAddressKey,
+    profileAddressKey,
+    profileAddress,
+  ]);
 
   // Quay lại giỏ hàng thì cho phép khởi tạo form lần sau.
   useEffect(() => {
     if (step === "cart") {
       setFormInitialized(false);
+      setInitializedAddressKey("");
     }
   }, [step]);
 

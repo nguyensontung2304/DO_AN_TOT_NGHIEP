@@ -52,7 +52,7 @@ function CheckoutForm({
             Bạn chưa cập nhật hồ sơ. Vui lòng điền đầy đủ thông tin bên dưới để
             đặt hàng.{" "}
             <Link
-              to={ROUTES.USER.PROFILE}
+              to={ROUTES.USER.PROFILE_ADDRESS_BOOK}
               className="checkout-form__profile-link"
             >
               Cập nhật hồ sơ ngay

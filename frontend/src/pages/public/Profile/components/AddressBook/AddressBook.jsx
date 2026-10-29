@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import {
   MapPin,
   Plus,
@@ -10,6 +11,7 @@ import {
   Check,
 } from "lucide-react";
 import AddressFields from "../../../../../components/public/AddressFields/AddressFields";
+import { setUser } from "../../../../../redux/userSlice";
 import {
   getAddress,
   createAddress,
@@ -30,6 +32,7 @@ const initialForm = {
 };
 
 function AddressBook({ currentUser }) {
+  const dispatch = useDispatch();
   const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -69,13 +72,28 @@ function AddressBook({ currentUser }) {
       }
 
       setAddresses(list);
-      return true;
+      return list;
     } catch (err) {
       setError(showError(err));
-      return false;
+      return null;
     } finally {
       setLoading(false);
     }
+  };
+
+  const syncUserAddresses = (list) => {
+    const defaultAddress =
+      list.find((address) => address.isDefault || address.is_default) ||
+      list[0] ||
+      null;
+
+    dispatch(
+      setUser({
+        ...currentUser,
+        addresses: list,
+        address: defaultAddress,
+      }),
+    );
   };
 
   useEffect(() => {
@@ -90,8 +108,8 @@ function AddressBook({ currentUser }) {
     setForm({
       ...initialForm,
       ...(address || {}),
-      name: address?.name ?? currentUser?.name ?? "",
-      phone: address?.phone ?? currentUser?.phone ?? "",
+      name: address?.name ?? "",
+      phone: address?.phone ?? "",
       provinceCode: address?.provinceCode ?? "",
       wardCode: address?.wardCode ?? "",
       addressLine: address?.addressLine ?? "",
@@ -148,6 +166,8 @@ function AddressBook({ currentUser }) {
         return;
       }
 
+      syncUserAddresses(refreshed);
+
       setEditor(null);
       setForm(initialForm);
     } catch (err) {
@@ -175,6 +195,8 @@ function AddressBook({ currentUser }) {
         );
         return;
       }
+
+      syncUserAddresses(refreshed);
 
       window.alert(successMessage);
     } catch (err) {

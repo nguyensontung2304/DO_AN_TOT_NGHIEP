@@ -10,7 +10,6 @@ function AddressFields({
   disabled = false,
   formErrors = {},
 }) {
-
   // Ưu tiên dữ liệu form để người dùng có thể chỉnh sửa.
   // Nếu form chưa có dữ liệu thì lấy từ địa chỉ mặc định.
   const getValue = (field) =>
@@ -231,6 +230,7 @@ function AddressFields({
           id="name"
           name="name"
           type="text"
+          placeholder="Nhập họ và tên người nhận"
           value={getValue("name")}
           onChange={handleChange}
           disabled={disabled}
@@ -242,14 +242,14 @@ function AddressFields({
 
       <div className="address-fields__group">
         <label htmlFor="phone">
-          Số điện thoại <span>*</span>
+          Số điện thoại người nhận <span>*</span>
         </label>
 
         <input
           id="phone"
           name="phone"
           type="tel"
-          placeholder="Nhập số điện thoại"
+          placeholder="Nhập số điện thoại người nhận"
           maxLength={10}
           value={getValue("phone")}
           onChange={handleChange}
