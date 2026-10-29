@@ -41,76 +41,76 @@ export const getCategories = async (req, res) => {
   }
 };
 
-// ====================== TẠO DANH MỤC MỚI ======================
-// Admin
-export const createCategory = async (req, res) => {
-  const { name } = req.body;
+// // ====================== TẠO DANH MỤC MỚI ======================
+// // Admin
+// export const createCategory = async (req, res) => {
+//   const { name } = req.body;
 
-  if (!name || !String(name).trim()) {
-    return res
-      .status(400)
-      .json({ message: "Tên danh mục không được để trống" });
-  }
+//   if (!name || !String(name).trim()) {
+//     return res
+//       .status(400)
+//       .json({ message: "Tên danh mục không được để trống" });
+//   }
 
-  try {
-    const created = await Category.create({ name: String(name).trim() });
-    return res.status(201).json(mapCategory(created));
-  } catch (err) {
-    if (err.name === "SequelizeUniqueConstraintError") {
-      return res.status(409).json({ message: "Tên danh mục đã tồn tại" });
-    }
-    return res.status(400).json({ message: err.message });
-  }
-};
+//   try {
+//     const created = await Category.create({ name: String(name).trim() });
+//     return res.status(201).json(mapCategory(created));
+//   } catch (err) {
+//     if (err.name === "SequelizeUniqueConstraintError") {
+//       return res.status(409).json({ message: "Tên danh mục đã tồn tại" });
+//     }
+//     return res.status(400).json({ message: err.message });
+//   }
+// };
 
-// ====================== CẬP NHẬT DANH MỤC ======================
-// Admin
-export const updateCategory = async (req, res) => {
-  const { id } = req.params;
-  const { name } = req.body;
+// // ====================== CẬP NHẬT DANH MỤC ======================
+// // Admin
+// export const updateCategory = async (req, res) => {
+//   const { id } = req.params;
+//   const { name } = req.body;
 
-  const category = await Category.findByPk(id);
-  if (!category) {
-    return res.status(404).json({ message: "Không tìm thấy danh mục" });
-  }
+//   const category = await Category.findByPk(id);
+//   if (!category) {
+//     return res.status(404).json({ message: "Không tìm thấy danh mục" });
+//   }
 
-  if (name !== undefined && name !== null) {
-    if (!String(name).trim()) {
-      return res
-        .status(400)
-        .json({ message: "Tên danh mục không được để trống" });
-    }
-    category.name = String(name).trim();
-    try {
-      await category.save();
-    } catch (err) {
-      if (err.name === "SequelizeUniqueConstraintError") {
-        return res.status(409).json({ message: "Tên danh mục đã tồn tại" });
-      }
-      return res.status(400).json({ message: err.message });
-    }
-  }
+//   if (name !== undefined && name !== null) {
+//     if (!String(name).trim()) {
+//       return res
+//         .status(400)
+//         .json({ message: "Tên danh mục không được để trống" });
+//     }
+//     category.name = String(name).trim();
+//     try {
+//       await category.save();
+//     } catch (err) {
+//       if (err.name === "SequelizeUniqueConstraintError") {
+//         return res.status(409).json({ message: "Tên danh mục đã tồn tại" });
+//       }
+//       return res.status(400).json({ message: err.message });
+//     }
+//   }
 
-  return res.status(200).json(mapCategory(category));
-};
+//   return res.status(200).json(mapCategory(category));
+// };
 
-// ====================== XÓA DANH MỤC ======================
-// Admin — chỉ xóa khi không còn sản phẩm thuộc danh mục này
-export const deleteCategory = async (req, res) => {
-  const { id } = req.params;
+// // ====================== XÓA DANH MỤC ======================
+// // Admin — chỉ xóa khi không còn sản phẩm thuộc danh mục này
+// export const deleteCategory = async (req, res) => {
+//   const { id } = req.params;
 
-  const category = await Category.findByPk(id);
-  if (!category) {
-    return res.status(404).json({ message: "Không tìm thấy danh mục" });
-  }
+//   const category = await Category.findByPk(id);
+//   if (!category) {
+//     return res.status(404).json({ message: "Không tìm thấy danh mục" });
+//   }
 
-  const productCount = await Product.count({ where: { category_id: id } });
-  if (productCount > 0) {
-    return res.status(400).json({
-      message: `Danh mục đang có ${productCount} sản phẩm, không thể xóa`,
-    });
-  }
+//   const productCount = await Product.count({ where: { category_id: id } });
+//   if (productCount > 0) {
+//     return res.status(400).json({
+//       message: `Danh mục đang có ${productCount} sản phẩm, không thể xóa`,
+//     });
+//   }
 
-  await category.destroy();
-  return res.status(200).json({ message: "Đã xóa danh mục" });
-};
+//   await category.destroy();
+//   return res.status(200).json({ message: "Đã xóa danh mục" });
+// };

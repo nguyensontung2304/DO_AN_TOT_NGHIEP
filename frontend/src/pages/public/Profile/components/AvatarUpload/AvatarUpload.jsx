@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Camera } from "lucide-react";
-
 import { updateMyAvatar } from "../../../../../api/authApi";
 import { setUser } from "../../../../../redux/userSlice";
-
 import "./avatarUpload.scss";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -41,13 +39,13 @@ export default function AvatarUpload({ currentUser }) {
   // Xử lý chọn và tải ảnh
   const handleChange = async (e) => {
     const file = e.target.files?.[0];
+    console.log(file);
 
     if (!file) return;
-
     setError("");
     setSuccess("");
-
     const invalidMessage = validateFile(file);
+    console.log(invalidMessage);
 
     if (invalidMessage) {
       setError(invalidMessage);
@@ -56,27 +54,28 @@ export default function AvatarUpload({ currentUser }) {
     }
 
     const previewUrl = URL.createObjectURL(file);
+    console.log(previewUrl);
 
     setPreview(previewUrl);
     setLoading(true);
 
     try {
       const formData = new FormData();
+      console.log(formData);
 
       formData.append("avatar", file);
+      console.log(formData);
 
       const res = await updateMyAvatar(formData);
+      console.log(res);
 
       // Cập nhật thông tin người dùng trong Redux
       dispatch(setUser(res.data));
-
       setPreview("");
       setSuccess("Cập nhật ảnh đại diện thành công!");
     } catch (err) {
       console.error("Lỗi upload avatar:", err);
-
       setPreview("");
-
       setError(
         err.response?.data?.message || "Không thể cập nhật ảnh đại diện.",
       );
@@ -111,7 +110,6 @@ export default function AvatarUpload({ currentUser }) {
         }`}
       >
         <Camera size={18} aria-hidden="true" />
-
         {loading ? "Đang tải ảnh..." : "Đổi ảnh đại diện"}
       </label>
 

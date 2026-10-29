@@ -15,15 +15,12 @@ import {
   ChevronRight,
   ChevronLeft,
 } from "lucide-react";
-
 import { getProducts, addToCart } from "../../../api";
 import { getCategories } from "../../../api/categoryApi";
 import { ROUTES, getPath } from "../../../constants/router";
-
 import "./products.scss";
 
 const PRODUCTS_PER_PAGE = 12;
-
 const ALL_CATEGORY = "Tất cả";
 const DEFAULT_SORT = "default";
 
@@ -33,10 +30,10 @@ function ProductCard({ product }) {
   const [added, setAdded] = useState(false);
 
   const handleAdd = async () => {
-    if (!currentUser?.id) {
-      window.location.href = ROUTES.USER.LOGIN;
-      return;
-    }
+    // if (!currentUser?.id) {
+    //   window.location.href = ROUTES.USER.LOGIN;
+    //   return;
+    // }
 
     try {
       await addToCart({
@@ -170,15 +167,16 @@ function ProductCard({ product }) {
 // PRODUCTS PAGE
 export default function Products() {
   const [searchParams, setSearchParams] = useSearchParams();
+
   const [searchInput, setSearchInput] = useState(
     searchParams.get("search") || "",
   );
-
   const [products, setProducts] = useState([]);
+  console.log(products);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // TOÀN BỘ BỘ LỌC LẤY TỪ QUERY STRING
+  // dữ liệu lấy từ url
   const activeCategory = searchParams.get("category") || ALL_CATEGORY;
   const search = searchParams.get("search") || "";
   const sortBy = searchParams.get("sort") || DEFAULT_SORT;
@@ -188,9 +186,15 @@ export default function Products() {
     setSearchInput(search);
   }, [search]);
 
-  // CẬP NHẬT QUERY STRING
+  // cập nhật dữ liệu url
   const updateParams = (patch, { replace = false } = {}) => {
+    console.log(patch);
+    console.log(searchParams);
+    console.log([...searchParams]);
+
     const next = new URLSearchParams(searchParams);
+    console.log(next);
+    console.log([...next]);
 
     Object.entries(patch).forEach(([key, value]) => {
       if (value === "" || value === null || value === undefined) {
@@ -203,6 +207,7 @@ export default function Products() {
     setSearchParams(next, { replace });
   };
 
+  // setTimeout dùng để chắc chắn người dùng đã search xong tránh người dùng mới gõ 1 chữ đã gọi API
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       if (searchInput !== search) {
@@ -213,7 +218,8 @@ export default function Products() {
     return () => window.clearTimeout(timeoutId);
   }, [searchInput]);
 
-  const [total, setTotal] = useState(0);
+  const [totalFilteredProduct, setTotalFilteredProduct] = useState(0);
+  const [totalProduct, setTotalProduct] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [categories, setCategories] = useState([]);
   console.log(categories);
@@ -235,7 +241,8 @@ export default function Products() {
         console.log("=======> GET PRODUCTS:", response);
 
         setProducts(Array.isArray(data.products) ? data.products : []);
-        setTotal(Number(data.total) || 0);
+        setTotalFilteredProduct(Number(data.totalFilteredProduct) || 0);
+        setTotalProduct(Number(data.totalProduct) || 0);
         setTotalPages(Number(data.totalPages) || 1);
 
         const categories = await getCategories();
@@ -247,7 +254,8 @@ export default function Products() {
 
         setError("Không thể tải danh sách sản phẩm");
         setProducts([]);
-        setTotal(0);
+        setTotalFilteredProduct(0);
+        setTotalProduct(0);
         setTotalPages(1);
         setCategories([]);
       } finally {
@@ -349,7 +357,7 @@ export default function Products() {
 
           <h1>Tất cả sản phẩm</h1>
 
-          <p>{total} mẫu nội thất chất lượng cao</p>
+          <p>{totalProduct} mẫu nội thất chất lượng cao</p>
         </div>
       </section>
 
@@ -411,7 +419,9 @@ export default function Products() {
             }}
           >
             Tất cả
-            <span className="products-page__category-count">{total}</span>
+            <span className="products-page__category-count">
+              {totalProduct}
+            </span>
           </button>
 
           {categories.map((category) => (
@@ -440,15 +450,15 @@ export default function Products() {
 
         {/* COUNT */}
         <p className="products-page__result-count">
-          {total === 0
+          {totalFilteredProduct === 0
             ? "Không có sản phẩm nào"
-            : `Hiển thị ${products.length} / ${total} sản phẩm — Trang ${currentPage}/${totalPages}`}
+            : `Hiển thị ${products.length} / ${totalFilteredProduct} sản phẩm — Trang ${currentPage}/${totalPages}`}
         </p>
 
         {/* EMPTY */}
         {products.length === 0 ? (
           <div className="products-page__empty">
-            <Frown size={40} />
+            <Frown size={50} />
 
             <p>Không tìm thấy sản phẩm phù hợp.</p>
 

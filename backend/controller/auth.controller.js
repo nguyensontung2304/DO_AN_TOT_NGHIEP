@@ -426,7 +426,6 @@ export async function updateAvatar(req, res) {
   }
 
   const user = await User.findByPk(req.user.id);
-
   console.log("Avatar trước khi cập nhật:", user?.avatar);
 
   if (!user) {
@@ -438,6 +437,5 @@ export async function updateAvatar(req, res) {
   });
 
   console.log("Avatar sau khi cập nhật:", result.avatar);
-
   res.status(200).json(formatUser(result));
 }

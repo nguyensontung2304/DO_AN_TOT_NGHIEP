@@ -15,8 +15,8 @@ export const getProducts = async (req, res) => {
     limit = 12,
   } = req.query;
 
-  // 1. Xử lý page / limit
-  //    limit=all (hoặc <= 0) → lấy về tất cả, dùng cho trang quản trị admin
+  // Xử lý page / limit
+  // limit=all (hoặc <= 0) → lấy về tất cả, dùng cho trang quản trị admin
   const pageNumber = Math.max(Number(page) || 1, 1);
   const rawLimit = String(limit).toLowerCase();
   const isAll = rawLimit === "all" || Number(rawLimit) <= 0;
@@ -24,10 +24,10 @@ export const getProducts = async (req, res) => {
 
   const offset = isAll ? 0 : (pageNumber - 1) * limitNumber;
 
-  // 2. Điều kiện lọc
+  // Điều kiện lọc
   const where = {};
 
-  // Lọc theo danh mục: frontend truyền tên danh mục → backend giải mã sang category_id
+  // Lọc theo danh mục fe truyền tên danh mục be giải mã sang category_id
   let categoryId = null;
   let categoryNotFound = false;
 
@@ -69,23 +69,23 @@ export const getProducts = async (req, res) => {
     }
   }
 
-  // 3. Sắp xếp
+  // Sắp xếp
   let order = [["id", "ASC"]];
 
+  // xếp sắp theo giá tăng dần
   if (sort === "price-asc") {
     order = [["price", "ASC"]];
   }
 
+  // xếp sắp theo giá giảm dần
   if (sort === "price-desc") {
     order = [["price", "DESC"]];
   }
 
+  // xếp sắp theo tên từ A -> Z
   if (sort === "name") {
     order = [["name", "ASC"]];
   }
-
-  // 4. Lấy danh sách danh mục kèm số lượng
-  // const categories = await getCategoriesWithProductCount();
 
   // Nếu tên danh mục tìm kiếm không tồn tại → trả về rỗng
   if (categoryNotFound) {
@@ -95,11 +95,13 @@ export const getProducts = async (req, res) => {
       totalPages: 1,
       currentPage: pageNumber,
       limit: limitNumber ?? "all",
-      // categories,
     });
   }
 
-  // 5. Lấy sản phẩm (kèm association category để lấy categoryName)
+  // Tổng tất cả sản phẩm, không áp dụng điều kiện lọc
+  const totalProduct = await Product.count();
+
+  // Lấy sản phẩm (kèm association category để lấy categoryName)
   const { count, rows } = await Product.findAndCountAll({
     where,
     include: [{ model: Category, as: "category" }],
@@ -108,11 +110,13 @@ export const getProducts = async (req, res) => {
     ...(isAll ? {} : { limit: limitNumber, offset }),
   });
 
-  // 6. Tổng số trang
-  const total = count;
-  const totalPages = isAll ? 1 : Math.ceil(total / limitNumber);
+  // Tổng số sản phẩm đã lọc
+  const totalFilteredProduct = count;
 
-  // 7. Thêm commentsCount, ratingsCount và categoryName vào từng sản phẩm
+  // Tổng số trang
+  const totalPages = isAll ? 1 : Math.ceil(totalFilteredProduct / limitNumber);
+
+  // Thêm commentsCount, ratingsCount và categoryName vào từng sản phẩm
   const products = await Promise.all(
     rows.map(async (product) => {
       // Lấy comment của sản phẩm này
@@ -146,20 +150,21 @@ export const getProducts = async (req, res) => {
     }),
   );
 
-  // 8. Trả kết quả
+  // Trả kết quả
   return res.status(200).json({
     products,
-    total,
+    totalFilteredProduct,
     totalPages,
+    totalProduct,
     currentPage: pageNumber,
     limit: limitNumber ?? "all",
-    // categories,
   });
 };
 
 // ====================== LẤY CHI TIẾT SẢN PHẨM ======================
 export const getProductDetail = async (req, res) => {
   const { id } = req.params;
+  console.log(id);
 
   const product = await Product.findByPk(id, {
     include: [{ model: Category, as: "category" }],
@@ -172,7 +177,7 @@ export const getProductDetail = async (req, res) => {
   // 2. Lấy tất cả bình luận của sản phẩm
   const comments = await Comment.findAll({
     where: {
-      product_id: req.params.id,
+      product_id: id,
     },
   });
 
@@ -182,7 +187,7 @@ export const getProductDetail = async (req, res) => {
   // 4. Lấy tất cả đánh giá của sản phẩm
   const ratings = await Rating.findAll({
     where: {
-      product_id: req.params.id,
+      product_id: id,
     },
   });
 
@@ -435,24 +440,17 @@ export const updateProduct = async (req, res) => {
   // UPDATE PRODUCT
   await product.update({
     name: name ?? product.name,
-
     category_id: categoryId,
-
     price: price !== undefined ? Number(price) : product.price,
-
     old_price:
       old_price !== undefined
         ? old_price
           ? Number(old_price)
           : null
         : product.old_price,
-
     image,
-
     badge: badge !== undefined ? badge : product.badge,
-
     description: description !== undefined ? description : product.description,
-
     long_description:
       long_description !== undefined
         ? long_description

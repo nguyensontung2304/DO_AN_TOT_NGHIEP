@@ -219,43 +219,45 @@ function AdminChat() {
   return (
     <div className="admin-chat">
       {/* Tiêu đề trang */}
-      <div className="admin-chat__heading">
+      <div className="admin-chat-heading">
         <div>
-          <h2 className="admin-chat__title">
+          <h2 className="admin-chat-title">
             <MessageCircle /> Chat với khách hàng
           </h2>
-          <p className="admin-chat__subtitle">
+          <p className="admin-chat-subtitle">
             Trả lời trực tiếp khách hàng đang cần hỗ trợ
           </p>
         </div>
 
-        <div className="admin-chat__heading-icon">
-          <span className="admin-chat__online-dot" />
+        <div className="admin-chat-heading-icon">
+          <span className="admin-chat-online-dot" />
           Đang kết nối realtime
         </div>
       </div>
 
-      <div className="admin-chat__container">
+      <div className="admin-chat-container">
         {/* Danh sách khách hàng */}
-        <aside className="admin-chat__sidebar">
-          <div className="admin-chat__sidebar-heading">
+        <aside className="admin-chat-sidebar">
+          <div className="admin-chat-sidebar-heading">
             <div>
               <h3>Khách hàng</h3>
               <span>{conversations.length} cuộc trò chuyện</span>
             </div>
 
-            <div className="admin-chat__count">{conversations.length}</div>
+            <div className="admin-chat-count">{conversations.length}</div>
           </div>
 
-          <div className="admin-chat__conversation-list">
+          <div className="admin-chat-conversation-list">
             {conversationLoading ? (
-              <div className="admin-chat__state">
-                <span className="admin-chat__spinner" />
+              <div className="admin-chat-state">
+                <span className="admin-chat-spinner" />
                 <p>Đang tải danh sách...</p>
               </div>
             ) : conversations.length === 0 ? (
-              <div className="admin-chat__state">
-                <div className="admin-chat__state-icon">💬</div>
+              <div className="admin-chat-state">
+                <div className="admin-chat-state-icon">
+                  <MessageCircle size={22} strokeWidth={1.8} aria-hidden="true" />
+                </div>
                 <p>Chưa có khách nào nhắn tin</p>
                 <span>
                   Khi khách hàng nhắn tin lần đầu, họ sẽ xuất hiện ở đây.
@@ -269,13 +271,13 @@ function AdminChat() {
                   <button
                     type="button"
                     key={user.id}
-                    className={`admin-chat__conversation ${
+                    className={`admin-chat-conversation ${
                       user.id === selectedUserId ? "active" : ""
                     }`}
                     onClick={() => handleSelectConversation(user.id)}
                   >
-                    <div className="admin-chat__avatar-wrap">
-                      <div className="admin-chat__avatar">
+                    <div className="admin-chat-avatar-wrap">
+                      <div className="admin-chat-avatar">
                         {user.avatar ? (
                           <img src={user.avatar} alt={user.name} />
                         ) : (
@@ -283,23 +285,23 @@ function AdminChat() {
                         )}
                       </div>
 
-                      {isUnread && <span className="admin-chat__unread-dot" />}
+                      {isUnread && <span className="admin-chat-unread-dot" />}
                     </div>
 
-                    <div className="admin-chat__conversation-info">
-                      <div className="admin-chat__conversation-top">
-                        <span className="admin-chat__name">{user.name}</span>
+                    <div className="admin-chat-conversation-info">
+                      <div className="admin-chat-conversation-top">
+                        <span className="admin-chat-name">{user.name}</span>
 
                         {isUnread ? (
-                          <span className="admin-chat__unread-label">Mới</span>
+                          <span className="admin-chat-unread-label">Mới</span>
                         ) : (
-                          <span className="admin-chat__last-message">
+                          <span className="admin-chat-last-message">
                             {formatTime(lastMessage?.createdAt)}
                           </span>
                         )}
                       </div>
 
-                      <p className="admin-chat__last-message">
+                      <p className="admin-chat-last-message">
                         {lastMessage?.fromAdmin && "Bạn: "}
                         {lastMessage?.content || "Chưa có tin nhắn"}
                       </p>
@@ -312,12 +314,12 @@ function AdminChat() {
         </aside>
 
         {/*  Nội dung chat */}
-        <section className="admin-chat__area">
+        <section className="admin-chat-area">
           {selectedConversation ? (
             <>
-              <header className="admin-chat__header">
-                <div className="admin-chat__header-user">
-                  <div className="admin-chat__avatar admin-chat__avatar--header">
+              <header className="admin-chat-header">
+                <div className="admin-chat-header-user">
+                  <div className="admin-chat-avatar admin-chat-avatar-header">
                     {selectedConversation.user.avatar ? (
                       <img
                         src={selectedConversation.user.avatar}
@@ -328,21 +330,21 @@ function AdminChat() {
                     )}
                   </div>
 
-                  <div className="admin-chat__header-info">
+                  <div className="admin-chat-header-info">
                     <strong>{selectedConversation.user.name}</strong>
                     <span>
-                      <span className="admin-chat__status-dot" />
+                      <span className="admin-chat-status-dot" />
                       {selectedConversation.user.email}
                     </span>
                   </div>
                 </div>
 
-                <div className="admin-chat__header-badge">
+                <div className="admin-chat-header-badge">
                   {messages.length} tin nhắn
                 </div>
               </header>
 
-              <div className="admin-chat__body">
+              <div className="admin-chat-body">
                 <ChatConversation
                   messages={messages}
                   loading={messageLoading}
@@ -353,8 +355,8 @@ function AdminChat() {
               </div>
             </>
           ) : (
-            <div className="admin-chat__welcome">
-              <div className="admin-chat__welcome-icon">
+            <div className="admin-chat-welcome">
+              <div className="admin-chat-welcome-icon">
                 <MessageCircle size={48} strokeWidth={2} />
               </div>
 

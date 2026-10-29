@@ -39,14 +39,12 @@ function buildOrderEmailHtml(order) {
     .map(
       (item) => `
         <tr>
-          <td
-            style="
-              padding: 14px 12px;
-              border-bottom: 1px solid #eeeeee;
-              color: #333333;
-              font-size: 14px;
-            "
-          >
+          <td style="
+            padding: 14px 12px;
+            border-bottom: 1px solid #eee5dc;
+            color: #493629;
+            font-size: 14px;
+          ">
             <strong style="font-weight: 600;">
               ${escapeHtml(
                 item.product?.name || item.name || "Sản phẩm đã bị xóa",
@@ -54,42 +52,36 @@ function buildOrderEmailHtml(order) {
             </strong>
           </td>
 
-          <td
-            style="
-              padding: 14px 8px;
-              border-bottom: 1px solid #eeeeee;
-              text-align: center;
-              color: #555555;
-              font-size: 14px;
-            "
-          >
+          <td style="
+            padding: 14px 8px;
+            border-bottom: 1px solid #eee5dc;
+            text-align: center;
+            color: #666666;
+            font-size: 14px;
+          ">
             ${Number(item.qty)}
           </td>
 
-          <td
-            style="
-              padding: 14px 8px;
-              border-bottom: 1px solid #eeeeee;
-              text-align: right;
-              color: #555555;
-              font-size: 14px;
-              white-space: nowrap;
-            "
-          >
+          <td style="
+            padding: 14px 8px;
+            border-bottom: 1px solid #eee5dc;
+            text-align: right;
+            color: #666666;
+            font-size: 14px;
+            white-space: nowrap;
+          ">
             ${formatPrice(item.price)}
           </td>
 
-          <td
-            style="
-              padding: 14px 12px;
-              border-bottom: 1px solid #eeeeee;
-              text-align: right;
-              color: #222222;
-              font-size: 14px;
-              font-weight: 600;
-              white-space: nowrap;
-            "
-          >
+          <td style="
+            padding: 14px 12px;
+            border-bottom: 1px solid #eee5dc;
+            text-align: right;
+            color: #493629;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+          ">
             ${formatPrice(Number(item.price) * Number(item.qty))}
           </td>
         </tr>
@@ -106,23 +98,21 @@ function buildOrderEmailHtml(order) {
   <title>Xác nhận đơn hàng</title>
 </head>
 
-<body
-  style="
-    margin: 0;
-    padding: 0;
-    background-color: #f4f6f8;
-    font-family: Arial, Helvetica, sans-serif;
-    color: #333333;
-  "
->
+<body style="
+  margin: 0;
+  padding: 0;
+  background-color: #f5f2ed;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #493629;
+">
   <table
     width="100%"
     cellpadding="0"
     cellspacing="0"
     border="0"
     style="
-      background-color: #f4f6f8;
-      padding: 30px 15px;
+      background-color: #f5f2ed;
+      padding: 30px 12px;
     "
   >
     <tr>
@@ -137,6 +127,7 @@ function buildOrderEmailHtml(order) {
           style="
             max-width: 680px;
             background-color: #ffffff;
+            border: 1px solid #e8e0d6;
             border-radius: 12px;
             overflow: hidden;
           "
@@ -144,301 +135,208 @@ function buildOrderEmailHtml(order) {
 
           <!-- HEADER -->
           <tr>
-            <td
-              style="
-                background-color: #111827;
-                padding: 28px 35px;
-              "
-            >
-              <table
-                width="100%"
-                cellpadding="0"
-                cellspacing="0"
-                border="0"
-              >
-                <tr>
+            <td style="
+              background-color: #493629;
+              padding: 28px 30px;
+              text-align: center;
+            ">
+              <div style="
+                font-size: 26px;
+                font-weight: 700;
+                color: #ffffff;
+                letter-spacing: 1px;
+              ">
+                NỘI THẤT VIỆT
+              </div>
 
-                  <td>
-                    <div
-                      style="
-                        font-size: 24px;
-                        font-weight: 700;
-                        color: #ffffff;
-                        letter-spacing: 0.3px;
-                      "
-                    >
-                      Nội Thất Việt
-                    </div>
-
-                    <div
-                      style="
-                        margin-top: 5px;
-                        font-size: 13px;
-                        color: #cbd5e1;
-                      "
-                    >
-                      Nội thất cao cấp - Trực tiếp từ xưởng
-                    </div>
-                  </td>
-
-                  <td
-                    align="right"
-                    valign="middle"
-                    style="
-                      font-size: 13px;
-                      color: #cbd5e1;
-                    "
-                  >
-                    XÁC NHẬN ĐƠN HÀNG
-                  </td>
-
-                </tr>
-              </table>
+              <div style="
+                margin-top: 8px;
+                font-size: 12px;
+                letter-spacing: 2px;
+                color: #e5d2bc;
+              ">
+                KIẾN TẠO KHÔNG GIAN SỐNG
+              </div>
             </td>
           </tr>
-
 
           <!-- SUCCESS -->
           <tr>
-            <td
-              style="
-                padding: 38px 35px 25px;
-                text-align: center;
-              "
-            >
-
-              <div
-                style="
-                  width: 58px;
-                  height: 58px;
-                  line-height: 58px;
-                  margin: 0 auto 18px;
-                  border-radius: 50%;
-                  background-color: #eaf8ef;
-                  color: #16a34a;
-                  font-size: 30px;
-                  font-weight: bold;
-                "
-              >
+            <td style="
+              padding: 36px 30px 24px;
+              text-align: center;
+            ">
+              <div style="
+                display: inline-block;
+                width: 58px;
+                height: 58px;
+                line-height: 58px;
+                margin-bottom: 18px;
+                border-radius: 50%;
+                background-color: #f3ebe2;
+                color: #8b6548;
+                font-size: 30px;
+                font-weight: bold;
+              ">
                 ✓
               </div>
 
-              <div
-                style="
-                  font-size: 25px;
-                  font-weight: 700;
-                  color: #111827;
-                "
-              >
+              <div style="
+                font-size: 25px;
+                line-height: 1.4;
+                font-weight: 700;
+                color: #493629;
+              ">
                 Đặt hàng thành công
               </div>
 
-              <div
-                style="
-                  margin-top: 10px;
-                  font-size: 14px;
-                  line-height: 1.6;
-                  color: #6b7280;
-                "
-              >
+              <div style="
+                margin-top: 10px;
+                font-size: 14px;
+                line-height: 1.8;
+                color: #666666;
+              ">
                 Cảm ơn bạn đã tin tưởng và mua sắm
                 tại Nội Thất Việt.
               </div>
-
             </td>
           </tr>
 
-
           <!-- GREETING -->
           <tr>
-            <td
-              style="
-                padding: 0 35px 25px;
-              "
-            >
-
-              <div
-                style="
-                  font-size: 15px;
-                  line-height: 1.7;
-                  color: #374151;
-                "
-              >
+            <td style="padding: 0 30px 25px;">
+              <div style="
+                font-size: 15px;
+                line-height: 1.8;
+                color: #493629;
+              ">
                 Xin chào
-                <strong style="color: #111827;">
+                <strong>
                   ${escapeHtml(order.user?.name || "Quý khách")}
                 </strong>,
               </div>
 
-              <div
-                style="
-                  margin-top: 8px;
-                  font-size: 14px;
-                  line-height: 1.7;
-                  color: #6b7280;
-                "
-              >
+              <div style="
+                margin-top: 8px;
+                font-size: 14px;
+                line-height: 1.8;
+                color: #666666;
+              ">
                 Đơn hàng của bạn đã được tiếp nhận thành công.
                 Dưới đây là thông tin chi tiết đơn hàng:
               </div>
-
             </td>
           </tr>
 
-
           <!-- ORDER INFO -->
           <tr>
-            <td
-              style="
-                padding: 0 35px 25px;
-              "
-            >
-
+            <td style="padding: 0 30px 25px;">
               <table
                 width="100%"
                 cellpadding="0"
                 cellspacing="0"
                 border="0"
                 style="
-                  background-color: #f8fafc;
-                  border: 1px solid #e5e7eb;
+                  background-color: #faf7f3;
+                  border: 1px solid #eee5dc;
                   border-radius: 8px;
                 "
               >
                 <tr>
-
                   <td
                     width="50%"
                     style="
                       padding: 18px;
-                      border-right: 1px solid #e5e7eb;
+                      border-right: 1px solid #eee5dc;
                     "
                   >
-                    <div
-                      style="
-                        font-size: 12px;
-                        color: #6b7280;
-                        margin-bottom: 6px;
-                      "
-                    >
+                    <div style="
+                      font-size: 12px;
+                      color: #8b6548;
+                      margin-bottom: 8px;
+                    ">
                       MÃ ĐƠN HÀNG
                     </div>
 
-                    <div
-                      style="
-                        font-size: 18px;
-                        font-weight: 700;
-                        color: #111827;
-                        letter-spacing: 1px;
-                      "
-                    >
+                    <div style="
+                      font-size: 18px;
+                      font-weight: 700;
+                      color: #493629;
+                      letter-spacing: 1px;
+                    ">
                       #${escapeHtml(orderCode)}
                     </div>
                   </td>
 
-                  <td
-                    width="50%"
-                    style="
-                      padding: 18px;
-                    "
-                  >
-                    <div
-                      style="
-                        font-size: 12px;
-                        color: #6b7280;
-                        margin-bottom: 6px;
-                      "
-                    >
+                  <td width="50%" style="padding: 18px;">
+                    <div style="
+                      font-size: 12px;
+                      color: #8b6548;
+                      margin-bottom: 8px;
+                    ">
                       NGÀY ĐẶT HÀNG
                     </div>
 
-                    <div
-                      style="
-                        font-size: 15px;
-                        font-weight: 600;
-                        color: #111827;
-                      "
-                    >
+                    <div style="
+                      font-size: 15px;
+                      font-weight: 600;
+                      color: #493629;
+                    ">
                       ${escapeHtml(orderDate)}
                     </div>
                   </td>
-
                 </tr>
               </table>
-
             </td>
           </tr>
-
 
           <!-- PRODUCTS TITLE -->
           <tr>
-            <td
-              style="
-                padding: 0 35px 12px;
-              "
-            >
-
-              <div
-                style="
-                  font-size: 17px;
-                  font-weight: 700;
-                  color: #111827;
-                "
-              >
+            <td style="padding: 0 30px 12px;">
+              <div style="
+                font-size: 17px;
+                font-weight: 700;
+                color: #493629;
+              ">
                 Chi tiết đơn hàng
               </div>
-
             </td>
           </tr>
 
-
           <!-- PRODUCTS -->
           <tr>
-            <td
-              style="
-                padding: 0 35px;
-              "
-            >
-
+            <td style="padding: 0 30px;">
               <table
                 width="100%"
                 cellpadding="0"
                 cellspacing="0"
                 border="0"
                 style="
-                  border: 1px solid #e5e7eb;
+                  border: 1px solid #eee5dc;
                   border-radius: 8px;
                   overflow: hidden;
                 "
               >
-
                 <thead>
-                  <tr
-                    style="
-                      background-color: #f8fafc;
-                    "
-                  >
-
+                  <tr style="background-color: #f3ebe2;">
                     <th
                       align="left"
                       style="
                         padding: 12px;
                         font-size: 12px;
-                        color: #6b7280;
+                        color: #493629;
                         text-transform: uppercase;
                       "
                     >
                       Sản phẩm
                     </th>
 
-                    <th
-                      style="
-                        padding: 12px 8px;
-                        font-size: 12px;
-                        color: #6b7280;
-                        text-transform: uppercase;
-                      "
-                    >
+                    <th style="
+                      padding: 12px 8px;
+                      font-size: 12px;
+                      color: #493629;
+                      text-transform: uppercase;
+                    ">
                       SL
                     </th>
 
@@ -447,7 +345,7 @@ function buildOrderEmailHtml(order) {
                       style="
                         padding: 12px 8px;
                         font-size: 12px;
-                        color: #6b7280;
+                        color: #493629;
                         text-transform: uppercase;
                       "
                     >
@@ -459,49 +357,42 @@ function buildOrderEmailHtml(order) {
                       style="
                         padding: 12px;
                         font-size: 12px;
-                        color: #6b7280;
+                        color: #493629;
                         text-transform: uppercase;
                       "
                     >
                       Thành tiền
                     </th>
-
                   </tr>
                 </thead>
 
                 <tbody>
                   ${itemRows}
                 </tbody>
-
               </table>
-
             </td>
           </tr>
 
-
           <!-- TOTAL -->
           <tr>
-            <td
-              style="
-                padding: 20px 35px 28px;
-              "
-            >
-
+            <td style="padding: 20px 30px 28px;">
               <table
                 width="100%"
                 cellpadding="0"
                 cellspacing="0"
                 border="0"
+                style="
+                  background-color: #faf7f3;
+                  border-radius: 8px;
+                "
               >
                 <tr>
-
-                  <td
-                    align="right"
-                    style="
-                      font-size: 14px;
-                      color: #6b7280;
-                    "
-                  >
+                  <td style="
+                    padding: 18px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: #493629;
+                  ">
                     Tổng tiền
                   </td>
 
@@ -509,37 +400,28 @@ function buildOrderEmailHtml(order) {
                     align="right"
                     width="180"
                     style="
+                      padding: 18px;
                       font-size: 22px;
                       font-weight: 700;
-                      color: #dc2626;
+                      color: #8b6548;
                     "
                   >
                     ${formatPrice(order.total)}
                   </td>
-
                 </tr>
               </table>
-
             </td>
           </tr>
 
-
           <!-- DELIVERY INFO -->
           <tr>
-            <td
-              style="
-                padding: 0 35px 30px;
-              "
-            >
-
-              <div
-                style="
-                  font-size: 17px;
-                  font-weight: 700;
-                  color: #111827;
-                  margin-bottom: 12px;
-                "
-              >
+            <td style="padding: 0 30px 30px;">
+              <div style="
+                font-size: 17px;
+                font-weight: 700;
+                color: #493629;
+                margin-bottom: 12px;
+              ">
                 Thông tin giao hàng
               </div>
 
@@ -549,81 +431,68 @@ function buildOrderEmailHtml(order) {
                 cellspacing="0"
                 border="0"
                 style="
-                  border: 1px solid #e5e7eb;
+                  border: 1px solid #eee5dc;
                   border-radius: 8px;
                 "
               >
-
                 <tr>
-                  <td
-                    style="
-                      padding: 12px 15px 5px;
-                      font-size: 12px;
-                      color: #6b7280;
-                    "
-                  >
+                  <td style="
+                    padding: 12px 15px 5px;
+                    font-size: 12px;
+                    color: #8b6548;
+                  ">
                     NGƯỜI NHẬN
                   </td>
                 </tr>
 
                 <tr>
-                  <td
-                    style="
-                      padding: 0 15px 12px;
-                      font-size: 15px;
-                      font-weight: 600;
-                      color: #111827;
-                    "
-                  >
+                  <td style="
+                    padding: 0 15px 12px;
+                    font-size: 15px;
+                    font-weight: 600;
+                    color: #493629;
+                  ">
                     ${escapeHtml(order.name)}
                   </td>
                 </tr>
 
                 <tr>
-                  <td
-                    style="
-                      padding: 0 15px 5px;
-                      font-size: 12px;
-                      color: #6b7280;
-                    "
-                  >
+                  <td style="
+                    padding: 0 15px 5px;
+                    font-size: 12px;
+                    color: #8b6548;
+                  ">
                     SỐ ĐIỆN THOẠI
                   </td>
                 </tr>
 
                 <tr>
-                  <td
-                    style="
-                      padding: 0 15px 12px;
-                      font-size: 15px;
-                      color: #374151;
-                    "
-                  >
+                  <td style="
+                    padding: 0 15px 12px;
+                    font-size: 15px;
+                    color: #493629;
+                  ">
                     ${escapeHtml(order.phone)}
                   </td>
                 </tr>
 
                 <tr>
-                  <td
-                    style="
-                      padding: 0 15px 5px;
-                      font-size: 12px;
-                      color: #6b7280;
-                    "
-                  >
+                  <td style="
+                    padding: 0 15px 5px;
+                    font-size: 12px;
+                    color: #8b6548;
+                  ">
                     ĐỊA CHỈ GIAO HÀNG
                   </td>
                 </tr>
 
                 <tr>
-                  <td
-                    style="
-                      padding: 0 15px 12px;
-                      font-size: 15px;
-                      line-height: 1.6;
-                      color: #374151;
-                    "
-                  >
+                  <td style="
+                    padding: 0 15px 12px;
+                    font-size: 15px;
+                    line-height: 1.8;
+                    color: #493629;
+                  ">
                     ${escapeHtml(order.address)}
                   </td>
                 </tr>
@@ -632,124 +501,95 @@ function buildOrderEmailHtml(order) {
                   order.note
                     ? `
                     <tr>
-                      <td
-                        style="
-                          padding: 0 15px 5px;
-                          font-size: 12px;
-                          color: #6b7280;
-                        "
-                      >
+                      <td style="
+                        padding: 0 15px 5px;
+                        font-size: 12px;
+                        color: #8b6548;
+                      ">
                         GHI CHÚ
                       </td>
                     </tr>
 
                     <tr>
-                      <td
-                        style="
-                          padding: 0 15px 15px;
-                          font-size: 14px;
-                          color: #374151;
-                        "
-                      >
+                      <td style="
+                        padding: 0 15px 15px;
+                        font-size: 14px;
+                        line-height: 1.8;
+                        color: #493629;
+                      ">
                         ${escapeHtml(order.note)}
                       </td>
                     </tr>
                     `
                     : ""
                 }
-
               </table>
-
             </td>
           </tr>
 
-
           <!-- BUTTON -->
           <tr>
-            <td
-              align="center"
-              style="
-                padding: 0 35px 35px;
-              "
-            >
-
+            <td align="center" style="padding: 0 30px 35px;">
               <a
                 href="${orderUrl}"
                 style="
                   display: inline-block;
-                  padding: 13px 30px;
-                  background-color: #111827;
+                  padding: 15px 30px;
+                  background-color: #8b6548;
                   color: #ffffff;
                   text-decoration: none;
                   font-size: 15px;
-                  font-weight: 600;
-                  border-radius: 7px;
+                  font-weight: 700;
+                  border-radius: 6px;
                 "
               >
-                Xem đơn hàng
+                XEM ĐƠN HÀNG
               </a>
-
             </td>
           </tr>
-
 
           <!-- DIVIDER -->
           <tr>
-            <td
-              style="
-                padding: 0 35px;
-              "
-            >
-              <div
-                style="
-                  border-top: 1px solid #eeeeee;
-                "
-              ></div>
+            <td style="padding: 0 30px;">
+              <div style="border-top: 1px solid #eee5dc;"></div>
             </td>
           </tr>
-
 
           <!-- FOOTER -->
           <tr>
             <td
               align="center"
               style="
-                padding: 25px 35px 30px;
+                padding: 24px 30px 28px;
+                background-color: #f8f5f1;
               "
             >
-
-              <div
-                style="
-                  font-size: 14px;
-                  font-weight: 600;
-                  color: #374151;
-                "
-              >
-                Nội Thất Việt
+              <div style="
+                font-size: 14px;
+                font-weight: 700;
+                color: #493629;
+              ">
+                NỘI THẤT VIỆT
               </div>
 
-              <div
-                style="
-                  margin-top: 6px;
-                  font-size: 12px;
-                  line-height: 1.6;
-                  color: #9ca3af;
-                "
-              >
+              <div style="
+                margin-top: 8px;
+                font-size: 12px;
+                line-height: 1.8;
+                color: #888888;
+              ">
                 Cảm ơn bạn đã tin tưởng và lựa chọn
                 sản phẩm của chúng tôi.
               </div>
 
-              <div
-                style="
-                  margin-top: 10px;
-                  font-size: 11px;
-                  color: #9ca3af;
-                "
-              >
-                Email này được gửi tự động, vui lòng không trả lời email này.
+              <div style="
+                margin-top: 10px;
+                font-size: 11px;
+                line-height: 1.7;
+                color: #888888;
+              ">
+                Đây là email tự động, vui lòng không trả lời email này.
               </div>
-
             </td>
           </tr>
 
@@ -762,6 +602,7 @@ function buildOrderEmailHtml(order) {
 </html>
   `;
 }
+
 // GỬI EMAIL XÁC NHẬN ĐƠN HÀNG
 export async function sendOrderConfirmationEmail(orderId) {
   if (!isMailConfigured) {

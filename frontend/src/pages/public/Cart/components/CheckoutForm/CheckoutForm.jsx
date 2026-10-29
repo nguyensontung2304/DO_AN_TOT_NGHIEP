@@ -15,9 +15,17 @@ function CheckoutForm({
   addresses,
   formErrors,
   profileComplete,
-  onChangeField,
+  updateForm,
   onBack,
 }) {
+  console.log("=======>cart: ", cart);
+  console.log("=======>form: ", form);
+  console.log("=======>addresses: ", addresses);
+  console.log("=======>formErrors: ", formErrors);
+  console.log("=======>profileComplete: ", profileComplete);
+  console.log("=======>updateForm: ", updateForm);
+  console.log("=======>onBack: ", onBack);
+
   return (
     <section className="checkout-form">
       {/* Tiêu đề */}
@@ -58,7 +66,7 @@ function CheckoutForm({
         <AddressFields
           form={form}
           addresses={addresses}
-          onChange={onChangeField}
+          updateForm={updateForm}
           formErrors={formErrors}
         />
 
@@ -73,7 +81,7 @@ function CheckoutForm({
             className="checkout-form__note-input"
             rows={3}
             value={form.note}
-            onChange={(e) => onChangeField("note", e.target.value)}
+            onChange={(e) => updateForm("note", e.target.value)}
             placeholder="Yêu cầu đặc biệt, thời gian giao hàng..."
           />
         </div>

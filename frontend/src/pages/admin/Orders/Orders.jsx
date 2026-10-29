@@ -12,34 +12,33 @@ import {
 } from "lucide-react";
 import { useApp } from "../../../context/useApp";
 import { getProductById } from "../../../api";
-import "../Technical/technical.scss";
 import "./orders.scss";
 
 function AdminCard({ title, icon, children, gradient }) {
   return (
     <div
-      className={`admin-card${gradient ? ` admin-card--gradient-${gradient}` : ""}`}
+      className={`admin-card${gradient ? ` admin-card-gradient-${gradient}` : ""}`}
     >
-      <div className="admin-card__header">
+      <div className="admin-card-header">
         <span>{icon}</span>
         <h2>{title}</h2>
       </div>
-      <div className="admin-card__body">{children}</div>
+      <div className="admin-card-body">{children}</div>
     </div>
   );
 }
 
 function OrderStatusBadge({ status }) {
   const map = {
-    pending: { label: "Chờ xác nhận", cls: "badge--yellow" },
-    confirmed: { label: "Đã xác nhận", cls: "badge--blue" },
-    processing: { label: "Đang sản xuất", cls: "badge--purple" },
-    done: { label: "Hoàn thành", cls: "badge--green" },
-    shipping: { label: "Đang giao hàng", cls: "badge--blue" },
-    cancelled: { label: "Đã hủy", cls: "badge--red" },
+    pending: { label: "Chờ xác nhận", cls: "admin-status-yellow" },
+    confirmed: { label: "Đã xác nhận", cls: "admin-status-blue" },
+    processing: { label: "Đang sản xuất", cls: "admin-status-purple" },
+    done: { label: "Hoàn thành", cls: "admin-status-green" },
+    shipping: { label: "Đang giao hàng", cls: "admin-status-blue" },
+    cancelled: { label: "Đã hủy", cls: "admin-status-red" },
   };
-  const s = map[status] || { label: status, cls: "badge--gray" };
-  return <span className={`badge ${s.cls}`}>{s.label}</span>;
+  const s = map[status] || { label: status, cls: "admin-status-gray" };
+  return <span className={`admin-status ${s.cls}`}>{s.label}</span>;
 }
 
 export default function Orders() {
@@ -124,20 +123,20 @@ export default function Orders() {
         </p>
       </div>
 
-      <div className="orders-summary">
-        <div className="orders-summary__card orders-summary__card--yellow">
+      <div className="orders-page-summary">
+        <div className="orders-page-summary-card admin-card-surface admin-summary-card admin-card-color admin-card-color-blue">
           <strong>{pendingOrders.length}</strong>
           <span>Chờ xác nhận</span>
         </div>
-        <div className="orders-summary__card orders-summary__card--blue">
+        <div className="orders-page-summary-card admin-card-surface admin-summary-card admin-card-color admin-card-color-purple">
           <strong>{confirmedOrders.length}</strong>
           <span>Đã xác nhận</span>
         </div>
-        <div className="orders-summary__card orders-summary__card--purple">
+        <div className="orders-page-summary-card admin-card-surface admin-summary-card admin-card-color admin-card-color-orange">
           <strong>{processingOrders.length}</strong>
           <span>Đang sản xuất</span>
         </div>
-        <div className="orders-summary__card orders-summary__card--green">
+        <div className="orders-page-summary-card admin-card-surface admin-summary-card admin-card-color admin-card-color-pink">
           <strong>{doneOrders.length}</strong>
           <span>Hoàn thành</span>
         </div>
@@ -151,7 +150,7 @@ export default function Orders() {
         {orders.length === 0 ? (
           <p className="empty-state">Chưa có đơn hàng nào.</p>
         ) : (
-          <div className="orders-list">
+          <div className="orders-page-list">
             {orders.map((order) => (
               <OrderItemCard
                 key={order.id}
@@ -192,40 +191,40 @@ function OrderItemCard({
     orderItems.reduce((s, i) => s + Number(i.price) * Number(i.qty), 0);
 
   return (
-    <div className="order-card">
-      <div className="order-card__head">
-        <div className="order-card__meta">
-          <span className="order-card__id">
+    <div className="orders-page-card">
+      <div className="orders-page-card-head">
+        <div className="orders-page-card-meta">
+          <span className="orders-page-card-id">
             Đơn #{String(order.id).slice(-6).toUpperCase()}
           </span>
-          <span className="order-card__date">
+          <span className="orders-page-card-date">
             {formatDate(order.createdAt)}
           </span>
         </div>
-        <div className="order-card__right">
+        <div className="orders-page-card-right">
           <OrderStatusBadge status={order.status} />
-          <span className="order-card__total">
+          <span className="orders-page-card-total">
             {formatCurrency(orderTotal)}
           </span>
         </div>
       </div>
 
-      <div className="order-card__client">
-        <div className="order-card__info-row">
+      <div className="orders-page-card-client">
+        <div className="orders-page-card-info-row">
           <span>
             <User size={16} style={{ marginRight: 6 }} />
             Khách hàng :
           </span>
           <strong>{order.name}</strong>
         </div>
-        <div className="order-card__info-row">
+        <div className="orders-page-card-info-row">
           <span>
             <Phone size={16} style={{ marginRight: 6 }} />
             Điện thoại :
           </span>
           <strong>{order.phone}</strong>
         </div>
-        <div className="order-card__info-row">
+        <div className="orders-page-card-info-row">
           <span>
             <MapPin size={16} style={{ marginRight: 6 }} />
             Địa chỉ :
@@ -233,7 +232,7 @@ function OrderItemCard({
           <strong>{order.address}</strong>
         </div>
         {order.userEmail && (
-          <div className="order-card__info-row">
+          <div className="orders-page-card-info-row">
             <span>
               <Mail size={16} style={{ marginRight: 6 }} />
               Email :
@@ -242,7 +241,7 @@ function OrderItemCard({
           </div>
         )}
         {order.note && (
-          <div className="order-card__info-row">
+          <div className="orders-page-card-info-row">
             <span>
               <FileText size={13} strokeWidth={2} style={{ marginRight: 4 }} />
               Ghi chú
@@ -252,35 +251,35 @@ function OrderItemCard({
         )}
       </div>
 
-      <div className="order-card__items">
-        <p className="order-card__items-title">
+      <div className="orders-page-card-items">
+        <p className="orders-page-card-items-title">
           Sản phẩm ({orderItems.length})
         </p>
         {orderItems.map((item, i) => (
-          <div key={i} className="order-card__item">
-            <div className="order-card__item-image">
+          <div key={i} className="orders-page-card-item">
+            <div className="orders-page-card-item-image">
               <img src={item.image} alt={item.name} />
             </div>
-            <span className="order-card__item-name">{item.name}</span>
-            <span className="order-card__item-qty">× {item.qty}</span>
-            <span className="order-card__item-price">
+            <span className="orders-page-card-item-name">{item.name}</span>
+            <span className="orders-page-card-item-qty">× {item.qty}</span>
+            <span className="orders-page-card-item-price">
               {formatCurrency(Number(item.price) * Number(item.qty))}
             </span>
           </div>
         ))}
       </div>
 
-      <div className="order-card__footer">
+      <div className="orders-page-card-footer">
         <span>Tổng cộng</span>
         <strong>{formatCurrency(orderTotal)}</strong>
       </div>
 
       {actionMsg && <p className="form-success">{actionMsg}</p>}
 
-      <div className="order-card__actions">
+      <div className="orders-page-card-actions">
         {order.status === "pending" && onConfirm && (
           <button
-            className="btn-action btn-action--blue"
+            className="admin-button-action admin-button-action-blue"
             onClick={() => onConfirm(order)}
             disabled={confirming}
           >
@@ -299,7 +298,7 @@ function OrderItemCard({
         )}
         {["pending", "processing"].includes(order.status) && onCancel && (
           <button
-            className="btn-action btn-action--danger"
+            className="admin-button-action admin-button-action-danger"
             onClick={() => onCancel(order)}
           >
             <Ban size={14} strokeWidth={2} style={{ marginRight: 4 }} />

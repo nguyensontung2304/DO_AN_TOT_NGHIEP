@@ -96,7 +96,11 @@ export default function ProfileInfo({ currentUser }) {
         </p>
       )}
 
-      <button className="profile-info-button" type="submit" disabled={loading}>
+      <button
+        className="profile-info-button public-button-gradient"
+        type="submit"
+        disabled={loading}
+      >
         <UserRound size={18} strokeWidth={2} />
         {loading ? "Đang lưu..." : "Lưu thay đổi"}
       </button>

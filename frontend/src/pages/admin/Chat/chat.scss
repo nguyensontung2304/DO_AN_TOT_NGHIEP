@@ -3,7 +3,7 @@
   min-width: 0;
   color: #172033;
 
-  &__heading {
+  &-heading {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -11,7 +11,7 @@
     margin-bottom: 24px;
   }
 
-  &__title {
+  &-title {
     margin: 0;
     color: #172033;
     font-size: 28px;
@@ -19,13 +19,13 @@
     letter-spacing: -0.7px;
   }
 
-  &__subtitle {
+  &-subtitle {
     margin: 7px 0 0;
     color: #8490a4;
     font-size: 14px;
   }
 
-  &__heading-icon {
+  &-heading-icon {
     display: flex;
     align-items: center;
     gap: 9px;
@@ -39,8 +39,8 @@
     box-shadow: 0 3px 12px rgb(25 42 70 / 3%);
   }
 
-  &__online-dot,
-  &__status-dot {
+  &-online-dot,
+  &-status-dot {
     display: inline-block;
     width: 8px;
     height: 8px;
@@ -48,7 +48,7 @@
     border-radius: 50%;
   }
 
-  &__container {
+  &-container {
     display: flex;
     width: 100%;
     height: min(680px, calc(100vh - 230px));
@@ -60,7 +60,7 @@
     box-shadow: 0 8px 30px rgb(27 46 80 / 5%);
   }
 
-  &__sidebar {
+  &-sidebar {
     display: flex;
     flex: 0 0 340px;
     flex-direction: column;
@@ -69,7 +69,7 @@
     border-right: 1px solid #edf0f5;
   }
 
-  &__sidebar-heading {
+  &-sidebar-heading {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -89,7 +89,7 @@
     }
   }
 
-  &__count {
+  &-count {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -103,7 +103,7 @@
     border-radius: 10px;
   }
 
-  &__conversation-list {
+  &-conversation-list {
     flex: 1;
     overflow-y: auto;
 
@@ -117,7 +117,7 @@
     }
   }
 
-  &__conversation {
+  &-conversation {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -140,12 +140,12 @@
     }
   }
 
-  &__avatar-wrap {
+  &-avatar-wrap {
     position: relative;
     flex-shrink: 0;
   }
 
-  &__avatar {
+  &-avatar {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -164,13 +164,13 @@
       object-fit: cover;
     }
 
-    &--header {
+    &-header {
       width: 44px;
       height: 44px;
     }
   }
 
-  &__unread-dot {
+  &-unread-dot {
     position: absolute;
     top: 0;
     right: 0;
@@ -181,12 +181,12 @@
     border-radius: 50%;
   }
 
-  &__conversation-info {
+  &-conversation-info {
     flex: 1;
     min-width: 0;
   }
 
-  &__conversation-top {
+  &-conversation-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -194,7 +194,7 @@
     margin-bottom: 6px;
   }
 
-  &__name {
+  &-name {
     overflow: hidden;
     color: #263348;
     font-size: 13px;
@@ -203,7 +203,7 @@
     white-space: nowrap;
   }
 
-  &__unread-label {
+  &-unread-label {
     flex-shrink: 0;
     padding: 3px 7px;
     color: #4569d4 !important;
@@ -213,7 +213,7 @@
     border-radius: 5px;
   }
 
-  &__last-message {
+  &-last-message {
     overflow: hidden;
     margin: 0;
     color: #8b96a8;
@@ -222,7 +222,7 @@
     white-space: nowrap;
   }
 
-  &__area {
+  &-area {
     display: flex;
     flex: 1;
     flex-direction: column;
@@ -230,7 +230,7 @@
     background: #fbfcfe;
   }
 
-  &__header {
+  &-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -240,14 +240,14 @@
     border-bottom: 1px solid #edf0f5;
   }
 
-  &__header-user {
+  &-header-user {
     display: flex;
     align-items: center;
     gap: 12px;
     min-width: 0;
   }
 
-  &__header-info {
+  &-header-info {
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -270,12 +270,12 @@
     }
   }
 
-  &__status-dot {
+  &-status-dot {
     width: 7px;
     height: 7px;
   }
 
-  &__header-badge {
+  &-header-badge {
     padding: 8px 12px;
     color: #526bc2;
     font-size: 11px;
@@ -284,14 +284,14 @@
     border-radius: 8px;
   }
 
-  &__body {
+  &-body {
     display: flex;
     flex: 1;
     flex-direction: column;
     min-height: 0;
   }
 
-  &__state {
+  &-state {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -308,7 +308,7 @@
       font-weight: 600;
     }
 
-    span:not(.admin-chat__spinner) {
+    span:not(.admin-chat-spinner) {
       max-width: 220px;
       color: #9aa4b4;
       font-size: 12px;
@@ -316,7 +316,7 @@
     }
   }
 
-  &__state-icon {
+  &-state-icon {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -326,9 +326,15 @@
     font-size: 22px;
     background: #eff3ff;
     border-radius: 14px;
+
+    svg {
+      flex: 0 0 auto;
+      width: 22px;
+      height: 22px;
+    }
   }
 
-  &__spinner {
+  &-spinner {
     width: 25px;
     height: 25px;
     border: 3px solid #e6ebf4;
@@ -337,7 +343,7 @@
     animation: admin-chat-spin 0.8s linear infinite;
   }
 
-  &__welcome {
+  &-welcome {
     display: flex;
     flex: 1;
     flex-direction: column;
@@ -362,7 +368,7 @@
     }
   }
 
-  &__welcome-icon {
+  &-welcome-icon {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -389,7 +395,7 @@
   .admin-chat {
     padding: 20px;
 
-    &__sidebar {
+    &-sidebar {
       flex-basis: 290px;
     }
   }
@@ -399,29 +405,29 @@
   .admin-chat {
     padding: 12px;
 
-    &__heading {
+    &-heading {
       align-items: flex-start;
     }
 
-    &__title {
+    &-title {
       font-size: 23px;
     }
 
-    &__heading-icon {
+    &-heading-icon {
       padding: 8px 10px;
       font-size: 11px;
     }
 
-    &__container {
+    &-container {
       height: 600px;
       min-height: 400px;
     }
 
-    &__sidebar {
+    &-sidebar {
       flex-basis: 76px;
     }
 
-    &__sidebar-heading {
+    &-sidebar-heading {
       justify-content: center;
       padding: 16px 5px;
 
@@ -430,20 +436,20 @@
       }
     }
 
-    &__conversation {
+    &-conversation {
       justify-content: center;
       padding: 12px 5px;
     }
 
-    &__conversation-info {
+    &-conversation-info {
       display: none;
     }
 
-    &__header {
+    &-header {
       padding: 12px;
     }
 
-    &__header-badge {
+    &-header-badge {
       display: none;
     }
   }
@@ -453,40 +459,40 @@
   .admin-chat {
     padding: 8px;
 
-    &__heading {
+    &-heading {
       margin-bottom: 14px;
     }
 
-    &__subtitle {
+    &-subtitle {
       font-size: 12px;
     }
 
-    &__heading-icon {
+    &-heading-icon {
       display: none;
     }
 
-    &__container {
+    &-container {
       height: calc(100vh - 190px);
       min-height: 380px;
       border-radius: 12px;
     }
 
-    &__sidebar {
+    &-sidebar {
       flex-basis: 62px;
     }
 
-    &__avatar {
+    &-avatar {
       width: 38px;
       height: 38px;
       font-size: 14px;
 
-      &--header {
+      &-header {
         width: 38px;
         height: 38px;
       }
     }
 
-    &__welcome {
+    &-welcome {
       padding: 16px;
 
       h3 {
@@ -498,7 +504,7 @@
       }
     }
 
-    &__welcome-icon {
+    &-welcome-icon {
       width: 65px;
       height: 65px;
       border-radius: 20px;

@@ -18,13 +18,15 @@ import {
 import { useApp } from "../../../context/useApp";
 import { formatDate } from "../../../utils/formatDate";
 import { ROUTES } from "../../../constants/router";
-import "../Technical/technical.scss";
 import "./dashboard.scss";
 
 function StatCard({ icon: Icon, value, label, color, to }) {
+  const sharedColor = color === "magenta" ? "pink" : color;
   const inner = (
-    <div className={`dashboard-page-stat dashboard-page-stat-${color}`}>
-      <span className="dashboard-page-stat-icon">
+    <div
+      className={`dashboard-page-stat admin-dashboard-card admin-card-surface admin-card-color admin-card-color-${sharedColor} ${color === "pink" ? "admin-card-accent-pink" : ""}`}
+    >
+      <span className="admin-dashboard-card-icon">
         <Icon size={30} strokeWidth={1.6} />
       </span>
 
@@ -60,14 +62,14 @@ function RecentTable({
   const hasMore = data.length > limit;
 
   return (
-    <div className={`admin-card admin-card--gradient-${gradient}`}>
-      <div className="admin-card__header">
+    <div className={`admin-card admin-card-gradient-${gradient}`}>
+      <div className="admin-card-header">
         <Icon size={18} strokeWidth={2} />
 
         <h2>{title}</h2>
       </div>
 
-      <div className="admin-card__body">
+      <div className="admin-card-body">
         {data.length === 0 ? (
           <p className="empty-state">Chưa có dữ liệu nào.</p>
         ) : (
@@ -92,7 +94,7 @@ function RecentTable({
 
             {hasMore && (
               <button
-                className="dashboard-page-view-more"
+                className="admin-view-more"
                 onClick={() => setShowAll(!showAll)}
               >
                 {showAll ? (
@@ -118,7 +120,7 @@ function RecentTable({
             )}
 
             {route && !showAll && (
-              <Link to={route} className="dashboard-page-view-all-link">
+              <Link to={route} className="admin-button-submit">
                 Xem tất cả →
               </Link>
             )}
@@ -132,19 +134,12 @@ function RecentTable({
 export default function Dashboard() {
   const {
     materials,
-
     productionRequests,
-
     purchaseRequests,
-
     handoverOrders,
-
     designRequests,
-
     productionReports,
-
     finishedGoods,
-
     orders,
   } = useApp();
 
@@ -186,58 +181,38 @@ export default function Dashboard() {
 
   const statusLabel = {
     pending: "Chờ thủ kho",
-
     checked: "Đã kiểm kê",
-
     purchasing: "Đang mua hàng",
-
     ready: "Sẵn sàng sản xuất",
-
     in_production: "Đang sản xuất",
-
     done: "Hoàn thành",
   };
 
   const statusCls = {
-    pending: "badge--yellow",
-
-    checked: "badge--blue",
-
-    purchasing: "badge--orange",
-
-    ready: "badge--teal",
-
-    in_production: "badge--purple",
-
-    done: "badge--green",
+    pending: "admin-status-yellow",
+    checked: "admin-status-blue",
+    purchasing: "admin-status-orange",
+    ready: "admin-status-teal",
+    in_production: "admin-status-purple",
+    done: "admin-status-green",
   };
 
   const orderStatusLabel = {
     pending: "Chờ xác nhận",
-
     confirmed: "Đã xác nhận",
-
     processing: "Đang sản xuất",
-
     shipping: "Đã giao hàng",
-
     done: "Hoàn thành",
-
     cancelled: "Đã hủy",
   };
 
   const orderStatusCls = {
-    pending: "badge--yellow",
-
-    confirmed: "badge--blue",
-
-    processing: "badge--purple",
-
-    shipping: "badge--blue",
-
-    done: "badge--green",
-
-    cancelled: "badge--red",
+    pending: "admin-status-yellow",
+    confirmed: "admin-status-blue",
+    processing: "admin-status-purple",
+    shipping: "admin-status-blue",
+    done: "admin-status-green",
+    cancelled: "admin-status-red",
   };
 
   return (
@@ -343,7 +318,6 @@ export default function Dashboard() {
       )}
 
       {/* Stats */}
-
       <div className="dashboard-page-stats">
         <StatCard
           icon={Package}
@@ -431,7 +405,7 @@ export default function Dashboard() {
 
               <td>
                 <span
-                  className={`badge ${statusCls[r.status] || "badge--gray"}`}
+                  className={`admin-status ${statusCls[r.status] || "admin-status-gray"}`}
                 >
                   {statusLabel[r.status] || r.status}
                 </span>
@@ -478,7 +452,7 @@ export default function Dashboard() {
 
               <td>
                 <span
-                  className={`badge ${orderStatusCls[o.status] || "badge--gray"}`}
+                  className={`admin-status ${orderStatusCls[o.status] || "admin-status-gray"}`}
                 >
                   {orderStatusLabel[o.status] || o.status}
                 </span>

@@ -6,10 +6,11 @@ import "./addressFields.scss";
 function AddressFields({
   form = {},
   addresses = null,
-  onChange,
+  updateForm,
   disabled = false,
   formErrors = {},
 }) {
+
   // Ưu tiên dữ liệu form để người dùng có thể chỉnh sửa.
   // Nếu form chưa có dữ liệu thì lấy từ địa chỉ mặc định.
   const getValue = (field) =>
@@ -145,7 +146,7 @@ function AddressFields({
 
   const error = provinceList.error || wards.error;
 
-  // Báo thay đổi về Cart.jsx.
+  // Báo thay đổi về Cart.jsx
   const handleChange = (event) => {
     const { name, value } = event.target;
 
@@ -155,7 +156,7 @@ function AddressFields({
       const provinceName =
         event.target.selectedOptions?.[0]?.textContent?.trim() || "";
 
-      onChange?.({
+      updateForm?.({
         target: {
           name: "provinceCode",
           value,
@@ -163,7 +164,7 @@ function AddressFields({
         },
       });
 
-      onChange?.({
+      updateForm?.({
         target: {
           name: "provinceName",
           value: provinceName,
@@ -172,7 +173,7 @@ function AddressFields({
       });
 
       // Đổi tỉnh/thành thì phải chọn lại phường/xã.
-      onChange?.({
+      updateForm?.({
         target: {
           name: "wardCode",
           value: "",
@@ -183,13 +184,13 @@ function AddressFields({
       return;
     }
 
-    onChange?.(event);
+    updateForm?.(event);
 
     if (name === "wardCode") {
       const wardName =
         event.target.selectedOptions?.[0]?.textContent?.trim() || "";
 
-      onChange?.({
+      updateForm?.({
         target: {
           name: "wardName",
           value: wardName,

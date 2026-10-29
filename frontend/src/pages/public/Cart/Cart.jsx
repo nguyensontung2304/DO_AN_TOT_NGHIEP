@@ -79,9 +79,6 @@ export default function Cart() {
   const profileAddress = currentUser.address;
   const addresses = currentUser.addresses || [];
 
-  console.log(profileAddress);
-  console.log(addresses);
-
   const profileComplete = Boolean(
     profileAddress?.name?.trim() &&
     profileAddress?.phone?.trim() &&
@@ -109,6 +106,8 @@ export default function Cart() {
 
   // Hỗ trợ updateForm("name", value) và updateForm(event).
   const updateForm = useCallback((fieldOrEvent, value) => {
+    console.log("=======>fieldOrEvent: ", fieldOrEvent);
+    console.log("=======>value: ", value);
     let field;
     let nextValue;
 
@@ -270,7 +269,6 @@ export default function Cart() {
 
       try {
         const res = await getOrdersByUserId(currentUser.id);
-
         if (Array.isArray(res.data)) {
           setOrders(res.data);
         } else {
@@ -288,11 +286,8 @@ export default function Cart() {
 
   useEffect(() => {
     if (!isOrdersTab) return;
-
     loadOrders();
-
     const refreshId = window.setInterval(() => loadOrders(false), 5000);
-
     return () => window.clearInterval(refreshId);
   }, [isOrdersTab, loadOrders]);
 
@@ -308,7 +303,6 @@ export default function Cart() {
 
     try {
       await removeFromCart(currentUser.id, productId);
-
       setCart((prev) => prev.filter((item) => item.productId !== productId));
       window.dispatchEvent(new Event("cartUpdated"));
     } catch (error) {
@@ -425,7 +419,7 @@ export default function Cart() {
       });
       console.log(res);
 
-      const orderId = res.data?.order?.id;
+      const orderId = res.data.order.id;
       // res.data?.order?.id ||
       // generateOrderId();
       console.log(orderId);
@@ -675,7 +669,7 @@ export default function Cart() {
                           formErrors={formErrors}
                           addresses={addresses}
                           profileComplete={profileComplete}
-                          onChangeField={updateForm}
+                          updateForm={updateForm}
                           onBack={() => navigate(ROUTES.USER.CART)}
                         />
                       )

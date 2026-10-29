@@ -10,13 +10,17 @@ function OrderSuccess({ form, onViewOrders }) {
       <div className="cart-success__icon">
         <PartyPopper size={48} strokeWidth={1.8} />
       </div>
+
       <h2>Đặt hàng thành công!</h2>
       <p>
+
         Cảm ơn <strong>{form.name}</strong>! Đơn hàng đã được ghi nhận.
       </p>
+
       <p className="cart-success__sub">
         Chúng tôi sẽ liên hệ qua <strong>{form.phone}</strong> để xác nhận.
       </p>
+      
       <div className="cart-success__btns">
         <button className="cart-btn cart-btn--primary" onClick={onViewOrders}>
           <Package size={20} strokeWidth={1.8} /> Xem đơn hàng của tôi

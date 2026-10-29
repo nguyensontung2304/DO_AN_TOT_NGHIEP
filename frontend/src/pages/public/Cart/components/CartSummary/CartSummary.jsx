@@ -76,7 +76,7 @@ function CartSummary({
       {step === "cart" && (
         <button
           type="button"
-          className="cart-summary__button"
+          className="cart-summary__button public-button-gradient"
           onClick={onProceedCheckout}
         >
           {isLoggedIn ? (
@@ -96,7 +96,7 @@ function CartSummary({
       {step === "checkout" && (
         <button
           type="button"
-          className="cart-summary__button"
+          className="cart-summary__button public-button-gradient"
           onClick={onConfirmOrder}
         >
           <CheckCircle size={18} />

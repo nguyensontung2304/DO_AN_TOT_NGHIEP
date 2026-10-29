@@ -165,7 +165,7 @@ export default function ChangePassword() {
 
       {/* Nút đổi mật khẩu */}
       <button
-        className="change-password-button"
+        className="change-password-button public-button-gradient"
         type="submit"
         disabled={loading}
       >

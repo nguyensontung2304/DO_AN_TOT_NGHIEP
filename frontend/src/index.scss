@@ -1,4 +1,6 @@
 @use "./mixin.scss" as *;
+@use "./styles/publicShared.scss";
+@use "./styles/adminShared.scss";
 
 *,
 *::before,

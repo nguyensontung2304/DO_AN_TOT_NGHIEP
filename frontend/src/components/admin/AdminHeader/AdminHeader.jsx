@@ -274,8 +274,8 @@ export default function AdminHeader() {
   return (
     <header className="admin-header">
       {/* PHẦN TRÊN CỦA HEADER */}
-      <div className="admin-header__top">
-        <div className="admin-header__brand">
+      <div className="admin-header-top">
+        <div className="admin-header-brand">
           <Warehouse size={24} />
 
           <div>
@@ -284,13 +284,13 @@ export default function AdminHeader() {
           </div>
         </div>
 
-        <div className="admin-header__right">
+        <div className="admin-header-right">
           {/* Chỉ admin gốc thấy thông báo tổng hợp */}
           {isRootAdmin && (
-            <div className="admin-header__notify" ref={notificationRef}>
+            <div className="admin-header-notify" ref={notificationRef}>
               <button
                 type="button"
-                className={`admin-header__alert ${totalAlerts > 0 ? "is-active" : ""}`}
+                className={`admin-header-alert ${totalAlerts > 0 ? "is-active" : ""}`}
                 onClick={() => setShowNotifications((prev) => !prev)}
                 aria-label="Thông báo"
               >
@@ -302,8 +302,8 @@ export default function AdminHeader() {
               </button>
 
               {showNotifications && (
-                <div className="admin-header__notify-panel">
-                  <div className="admin-header__notify-head">
+                <div className="admin-header-notify-panel">
+                  <div className="admin-header-notify-head">
                     <strong>Thông báo hệ thống</strong>
 
                     {globalNotifications.length > 0 && (
@@ -314,7 +314,7 @@ export default function AdminHeader() {
                   </div>
 
                   {globalNotifications.length === 0 ? (
-                    <p className="admin-header__notify-empty">
+                    <p className="admin-header-notify-empty">
                       Không có thông báo mới
                     </p>
                   ) : (
@@ -326,11 +326,11 @@ export default function AdminHeader() {
                         >
                           <button type="button" onClick={() => openNote(note)}>
                             <span
-                              className={`admin-header__notify-dot admin-header__notify-dot--${
+                              className={`admin-header-notify-dot admin-header-notify-dot-${
                                 note.color || "blue"
                               }`}
                             />
-                            <span className="admin-header__notify-body">
+                            <span className="admin-header-notify-body">
                               <strong>
                                 {note.title ||
                                   note.label ||
@@ -354,15 +354,15 @@ export default function AdminHeader() {
           )}
 
           {/* Thông tin tài khoản */}
-          <div className="admin-header__user">
-            <span className="admin-header__avatar">
+          <div className="admin-header-user">
+            <span className="admin-header-avatar">
               <User size={18} />
             </span>
 
             <div
               style={{ display: "flex", flexDirection: "column", gap: "2px" }}
             >
-              <span className="admin-header__username">
+              <span className="admin-header-username">
                 {currentUser?.name || currentUser?.email || "Admin"}
               </span>
 
@@ -375,7 +375,7 @@ export default function AdminHeader() {
           {/* Đăng xuất */}
           <button
             type="button"
-            className="admin-header__logout"
+            className="admin-header-logout"
             onClick={handleLogout}
           >
             <LogOut size={15} strokeWidth={2} style={{ marginRight: 5 }} />
@@ -385,7 +385,7 @@ export default function AdminHeader() {
 
         <button
           type="button"
-          className="admin-header__menu-toggle"
+          className="admin-header-menu-toggle"
           onClick={() => setShowMobileNav((open) => !open)}
           aria-label={showMobileNav ? "Đóng menu" : "Mở menu"}
           aria-expanded={showMobileNav}
@@ -400,7 +400,7 @@ export default function AdminHeader() {
           Admin bộ phận: chỉ thấy đúng component mình được cấp quyền */}
       <nav
         id="admin-navigation"
-        className={`admin-header__nav ${showMobileNav ? "is-open" : ""}`}
+        className={`admin-header-nav ${showMobileNav ? "is-open" : ""}`}
       >
         {visibleNavItems.map(({ code, to, label, Icon }) => {
           const badgeCount = getBadgeCount(code);
@@ -412,7 +412,7 @@ export default function AdminHeader() {
               to={to}
               end={to === ROUTES.ADMIN.DASHBOARD}
               className={({ isActive }) =>
-                `admin-header__nav-item ${isActive ? "active" : ""}`
+                `admin-header-nav-item ${isActive ? "active" : ""}`
               }
               onClick={() => {
                 const dept = DEPT_BY_CODE[code];
@@ -420,20 +420,20 @@ export default function AdminHeader() {
                 setShowMobileNav(false);
               }}
             >
-              <div className="admin-header__nav-icon">
+              <div className="admin-header-nav-icon">
                 <Icon size={16} strokeWidth={2} />
               </div>
 
-              <div className="admin-header__nav-label">{label}</div>
+              <div className="admin-header-nav-label">{label}</div>
 
               {unreadChatCount > 0 && (
-                <span className="admin-header__nav-badge">
+                <span className="admin-header-nav-badge">
                   {unreadChatCount > 99 ? "99+" : unreadChatCount}
                 </span>
               )}
 
               {badgeCount > 0 && (
-                <span className="admin-header__nav-badge">
+                <span className="admin-header-nav-badge">
                   {badgeCount > 99 ? "99+" : badgeCount}
                 </span>
               )}

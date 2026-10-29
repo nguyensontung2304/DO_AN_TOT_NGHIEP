@@ -192,7 +192,7 @@ function AddressBook({ currentUser }) {
 
         <button
           type="button"
-          className="address-book-add"
+          className="address-book-add public-button-gradient"
           onClick={() => openEditor()}
           disabled={saving || loading}
         >
@@ -246,7 +246,7 @@ function AddressBook({ currentUser }) {
 
           <button
             type="button"
-            className="address-book-add"
+            className="address-book-add public-button-gradient"
             onClick={() => openEditor()}
             disabled={saving}
           >
@@ -407,7 +407,7 @@ function AddressBook({ currentUser }) {
 
                 <AddressFields
                   form={form}
-                  onChange={handleChange}
+                  updateForm={handleChange}
                   disabled={saving}
                 />
 
@@ -441,7 +441,7 @@ function AddressBook({ currentUser }) {
 
                 <button
                   type="submit"
-                  className="address-book-save"
+                  className="address-book-save public-button-gradient"
                   disabled={saving}
                 >
                   {saving ? (

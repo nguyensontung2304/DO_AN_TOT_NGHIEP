@@ -49,6 +49,8 @@ export default function ProductDetail() {
         setError("");
 
         const response = await getProductById(id);
+        console.log(response);
+
         const currentProduct = response.data;
         setProduct(currentProduct);
 
@@ -185,6 +187,8 @@ export default function ProductDetail() {
       await postRatingProduct(id, { rating });
       await fetchUserRating();
       const response = await getProductById(id);
+      console.log(response);
+
       setProduct(response.data);
     } catch (error) {
       console.error("Lỗi đánh giá:", error);
@@ -325,7 +329,7 @@ export default function ProductDetail() {
 
             {currentUser && (
               <button
-                className="pd-page-btn pd-page-btn-buy-now"
+                className="pd-page-btn pd-page-btn-buy-now public-button-gradient"
                 onClick={handleBuyNow}
                 disabled={adding}
               >
@@ -540,7 +544,7 @@ export default function ProductDetail() {
                       )}
                     </div>
                     <span className="pd-page-related-card-link">
-                      Xem chi tiết <ArrowRight size={20} />
+                      Xem chi tiết <ArrowRight size={15} />
                     </span>
                   </div>
                 </Link>

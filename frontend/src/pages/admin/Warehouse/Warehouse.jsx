@@ -13,37 +13,37 @@ import {
   Save,
   X,
   CheckCircle,
+  AlertTriangle,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
 import { formatDate } from "../../../utils/formatDate";
 import { useApp } from "../../../context/useApp";
-import "../Technical/technical.scss";
 import "./warehouse.scss";
 
 function StatusBadge({ status }) {
   const map = {
-    pending: { label: "Chờ thủ kho", cls: "badge--yellow" },
-    checked: { label: "Đã kiểm kê", cls: "badge--blue" },
-    purchasing: { label: "Đang mua hàng", cls: "badge--orange" },
-    ready: { label: "Sẵn sàng sản xuất", cls: "badge--teal" },
-    in_production: { label: "Đang sản xuất", cls: "badge--purple" },
-    done: { label: "Hoàn thành", cls: "badge--green" },
+    pending: { label: "Chờ thủ kho", cls: "admin-status-yellow" },
+    checked: { label: "Đã kiểm kê", cls: "admin-status-blue" },
+    purchasing: { label: "Đang mua hàng", cls: "admin-status-orange" },
+    ready: { label: "Sẵn sàng sản xuất", cls: "admin-status-teal" },
+    in_production: { label: "Đang sản xuất", cls: "admin-status-purple" },
+    done: { label: "Hoàn thành", cls: "admin-status-green" },
   };
-  const s = map[status] || { label: status, cls: "badge--gray" };
-  return <span className={`badge ${s.cls}`}>{s.label}</span>;
+  const s = map[status] || { label: status, cls: "admin-status-gray" };
+  return <span className={`admin-status ${s.cls}`}>{s.label}</span>;
 }
 
 function AdminCard({ title, icon, children, gradient }) {
   return (
     <div
-      className={`admin-card${gradient ? ` admin-card--gradient-${gradient}` : ""}`}
+      className={`admin-card${gradient ? ` admin-card-gradient-${gradient}` : ""}`}
     >
-      <div className="admin-card__header">
+      <div className="admin-card-header">
         <span>{icon}</span>
         <h2>{title}</h2>
       </div>
-      <div className="admin-card__body">{children}</div>
+      <div className="admin-card-body">{children}</div>
     </div>
   );
 }
@@ -93,7 +93,7 @@ export default function Warehouse() {
 
   const saveEdit = async (id) => {
     if (!editForm.name.trim() || !editForm.unit.trim()) {
-      flash("⚠️ Tên và đơn vị không được để trống");
+      flash("Tên và đơn vị không được để trống");
       return;
     }
     try {
@@ -103,9 +103,9 @@ export default function Warehouse() {
         stock: Number(editForm.stock) || 0,
       });
       setEditId(null);
-      flash("✅ Đã cập nhật vật tư");
+      flash("Đã cập nhật vật tư");
     } catch {
-      flash("❌ Không cập nhật được vật tư");
+      flash("Không cập nhật được vật tư");
     }
   };
 
@@ -113,9 +113,9 @@ export default function Warehouse() {
     if (!window.confirm(`Xoá vật tư "${m.name}" khỏi kho?`)) return;
     try {
       await removeMaterial(m.id);
-      flash("✅ Đã xoá vật tư");
+      flash("Đã xoá vật tư");
     } catch {
-      flash("❌ Không xoá được vật tư");
+      flash("Không xoá được vật tư");
     }
   };
 
@@ -140,7 +140,7 @@ export default function Warehouse() {
       ],
     });
     flash(
-      `🛒 Đã tạo đơn mua ${target} ${m.unit} ${m.name} — chuyển sang bộ phận Mua hàng`,
+      `Đã tạo đơn mua ${target} ${m.unit} ${m.name} — chuyển sang bộ phận Mua hàng`,
     );
   };
 
@@ -153,7 +153,7 @@ export default function Warehouse() {
       stock: Number(matForm.stock),
     });
     setMatForm({ name: "", unit: "", stock: "" });
-    setMatMsg("✅ Đã thêm vật tư!");
+    setMatMsg("Đã thêm vật tư!");
     setTimeout(() => setMatMsg(""), 2500);
   };
 
@@ -208,7 +208,7 @@ export default function Warehouse() {
     if (pr.productionRequestId != null) {
       updateProductionRequestStatus(pr.productionRequestId, "pending");
     }
-    flash("📥 Đã nhập kho và cộng vào tồn");
+    flash("Đã nhập kho và cộng vào tồn");
   };
 
   // 4. Tạo phiếu bàn giao cho Nhà máy
@@ -265,20 +265,20 @@ export default function Warehouse() {
       </div>
 
       {/* Tổng quan tồn kho */}
-      <div className="wh-summary">
-        <div className="wh-summary__card wh-summary__card--purple">
+      <div className="warehouse-page-summary">
+        <div className="warehouse-page-summary-card admin-card-surface admin-summary-card admin-card-color admin-card-color-orange">
           <strong>{materials.length}</strong>
           <span>Loại vật tư</span>
         </div>
-        <div className="wh-summary__card wh-summary__card--yellow">
+        <div className="warehouse-page-summary-card admin-card-surface admin-summary-card admin-card-color admin-card-color-blue">
           <strong>{pendingRequests.length}</strong>
           <span>Yêu cầu chờ kiểm kê</span>
         </div>
-        <div className="wh-summary__card wh-summary__card--blue">
+        <div className="warehouse-page-summary-card admin-card-surface admin-summary-card admin-card-color admin-card-color-purple">
           <strong>{purchasedOrders.length}</strong>
           <span>Hàng đã mua - chờ nhập</span>
         </div>
-        <div className="wh-summary__card wh-summary__card--green">
+        <div className="warehouse-page-summary-card admin-card-surface admin-summary-card admin-card-color admin-card-color-pink">
           <strong>{finishedGoods.reduce((s, g) => s + g.qty, 0)}</strong>
           <span>Thành phẩm tổng</span>
         </div>
@@ -290,7 +290,7 @@ export default function Warehouse() {
         icon={<Package size={18} strokeWidth={2} />}
         gradient="pink"
       >
-        <form className="wh-mat-form" onSubmit={handleAddMaterial}>
+        <form className="warehouse-page-mat-form" onSubmit={handleAddMaterial}>
           <input
             placeholder="Tên vật tư"
             value={matForm.name}
@@ -317,17 +317,33 @@ export default function Warehouse() {
             }
             required
           />
-          <button type="submit" className="btn-submit">
+          <button type="submit" className="admin-button-submit">
             + Thêm
           </button>
         </form>
         {matMsg && (
-          <p className="form-success" style={{ marginTop: "10px" }}>
+          <p
+            className="admin-feedback form-success"
+            style={{ marginTop: "10px" }}
+          >
+            <CheckCircle size={16} strokeWidth={2} aria-hidden="true" />
             {matMsg}
           </p>
         )}
         {rowMsg && (
-          <p className="form-success" style={{ marginTop: "10px" }}>
+          <p
+            className={`admin-feedback ${rowMsg.startsWith("Không") || rowMsg.startsWith("Tên") ? "form-error" : "form-success"}`}
+            style={{ marginTop: "10px" }}
+          >
+            {rowMsg.startsWith("Không") || rowMsg.startsWith("Tên") ? (
+              <AlertTriangle size={16} strokeWidth={2} aria-hidden="true" />
+            ) : rowMsg.startsWith("Đã tạo đơn") ? (
+              <ShoppingCart size={16} strokeWidth={2} aria-hidden="true" />
+            ) : rowMsg.startsWith("Đã nhập kho") ? (
+              <Package size={16} strokeWidth={2} aria-hidden="true" />
+            ) : (
+              <CheckCircle size={16} strokeWidth={2} aria-hidden="true" />
+            )}
             {rowMsg}
           </p>
         )}
@@ -380,9 +396,9 @@ export default function Warehouse() {
                       </td>
                       <td>—</td>
                       <td>
-                        <div className="tech-notify-actions">
+                        <div className="admin-notify-actions">
                           <button
-                            className="btn-action btn-action--green"
+                            className="admin-button-action admin-button-action-green"
                             onClick={() => saveEdit(m.id)}
                           >
                             <Save
@@ -393,7 +409,7 @@ export default function Warehouse() {
                             Lưu
                           </button>
                           <button
-                            className="btn-action btn-action--gray"
+                            className="admin-button-action admin-button-action-gray"
                             onClick={() => setEditId(null)}
                           >
                             <X
@@ -414,49 +430,53 @@ export default function Warehouse() {
                       <td>{m.unit}</td>
                       <td>
                         <span
-                          className={`wh-stock ${m.stock <= 5 ? "wh-stock--low" : ""}`}
+                          className={`warehouse-page-stock ${m.stock <= 5 ? "warehouse-page-stock-low" : ""}`}
                         >
                           {m.stock}
                         </span>
                       </td>
                       <td>
                         {m.stock <= 5 ? (
-                          <span className="badge badge--red">Sắp hết</span>
+                          <span className="admin-status admin-status-red">
+                            Sắp hết
+                          </span>
                         ) : (
-                          <span className="badge badge--green">Còn hàng</span>
+                          <span className="admin-status admin-status-green">
+                            Còn hàng
+                          </span>
                         )}
                       </td>
                       <td>
-                        <div className="tech-notify-actions">
+                        <div className="admin-notify-actions">
                           <button
-                            className="btn-action btn-action--orange"
+                            className="admin-button-action admin-button-action-orange"
                             onClick={() => handleBuyMaterial(m)}
                             title="Tạo đơn mua cho vật tư này"
                           >
                             <ShoppingCart
-                              size={13}
+                              size={15}
                               strokeWidth={2}
                               style={{ marginRight: 4 }}
                             />
                             Mua
                           </button>
                           <button
-                            className="btn-action btn-action--blue"
+                            className="admin-button-action admin-button-action-blue"
                             onClick={() => startEdit(m)}
                           >
                             <Pencil
-                              size={13}
+                              size={15}
                               strokeWidth={2}
                               style={{ marginRight: 4 }}
                             />
                             Sửa
                           </button>
                           <button
-                            className="btn-action btn-action--danger"
+                            className="admin-button-action admin-button-action-danger"
                             onClick={() => handleDeleteMaterial(m)}
                           >
                             <Trash2
-                              size={13}
+                              size={15}
                               strokeWidth={2}
                               style={{ marginRight: 4 }}
                             />
@@ -517,15 +537,24 @@ export default function Warehouse() {
                           {checked.map((m, mi) => (
                             <li
                               key={mi}
-                              className={m.lacking > 0 ? "wh-lack" : "wh-ok"}
+                              className={
+                                m.lacking > 0
+                                  ? "warehouse-page-lack"
+                                  : "warehouse-page-ok"
+                              }
                             >
                               {m.materialName}: cần{" "}
                               <strong>{m.requiredQty}</strong> {m.unit}
                               {" · "}tồn <strong>{m.inStock}</strong>
                               {m.lacking > 0 && (
-                                <span className="wh-lack-tag">
+                                <span className="warehouse-page-lack-tag">
                                   {" "}
-                                  ⚠️ thiếu {m.lacking}
+                                  <AlertTriangle
+                                    size={14}
+                                    strokeWidth={2}
+                                    aria-hidden="true"
+                                  />
+                                  thiếu {m.lacking}
                                 </span>
                               )}
                             </li>
@@ -534,15 +563,19 @@ export default function Warehouse() {
                       </td>
                       <td>
                         {hasLack ? (
-                          <span className="badge badge--red">Thiếu vật tư</span>
+                          <span className="admin-status admin-status-red">
+                            Thiếu vật tư
+                          </span>
                         ) : (
-                          <span className="badge badge--green">Đủ hàng</span>
+                          <span className="admin-status admin-status-green">
+                            Đủ hàng
+                          </span>
                         )}
                       </td>
                       <td>
                         {hasLack ? (
                           <button
-                            className="btn-action btn-action--orange"
+                            className="admin-button-action admin-button-action-orange"
                             onClick={() => handleSendToPurchasing(req)}
                           >
                             <ShoppingCart
@@ -554,7 +587,7 @@ export default function Warehouse() {
                           </button>
                         ) : (
                           <button
-                            className="btn-action btn-action--green"
+                            className="admin-button-action admin-button-action-green"
                             onClick={() => handleSendToPurchasing(req)}
                           >
                             <CheckCircle
@@ -619,7 +652,7 @@ export default function Warehouse() {
                     <td>{formatDate(pr.createdAt)}</td>
                     <td>
                       <button
-                        className="btn-action btn-action--blue"
+                        className="admin-button-action admin-button-action-blue"
                         onClick={() => handleStockIn(pr)}
                       >
                         <Download
@@ -680,15 +713,15 @@ export default function Warehouse() {
                     </td>
                     <td>
                       <button
-                        className="btn-action btn-action--purple"
+                        className="admin-button-action admin-button-action-purple"
                         onClick={() => handleHandover(req)}
                       >
                         <Truck
-                          size={13}
+                          size={16}
                           strokeWidth={2}
                           style={{ marginRight: 4 }}
                         />
-                        Bàn giao NM
+                        Bàn giao cho Nhà Máy
                       </button>
                     </td>
                   </tr>
@@ -728,7 +761,7 @@ export default function Warehouse() {
                       <strong>{r.productName}</strong>
                     </td>
                     <td>
-                      <span className="badge badge--green">
+                      <span className="admin-status admin-status-green">
                         {r.finishedQty} cái
                       </span>
                     </td>
@@ -748,14 +781,10 @@ export default function Warehouse() {
                     <td>{r.note || "—"}</td>
                     <td>
                       <button
-                        className="btn-action btn-action--green"
+                        className="admin-button-action admin-button-action-green"
                         onClick={() => handleReceive(r)}
                       >
-                        <CheckCircle
-                          size={13}
-                          strokeWidth={2}
-                          style={{ marginRight: 4 }}
-                        />
+                        <CheckCircle size={16} strokeWidth={2} />
                         Nhận vào kho
                       </button>
                     </td>
@@ -809,7 +838,7 @@ export default function Warehouse() {
             </div>
             {productionRequests.length > 5 && (
               <button
-                className="dash-view-more"
+                className="admin-view-more"
                 onClick={() => setShowAllAll(!showAllAll)}
               >
                 {showAllAll ? (

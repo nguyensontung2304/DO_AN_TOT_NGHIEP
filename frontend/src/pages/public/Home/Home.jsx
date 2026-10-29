@@ -145,7 +145,7 @@ function ProductCard({ product }) {
 
           {currentUser ? (
             <button
-              className={`home-products-inner-category-list-product-body-buttons-cart ${
+              className={`home-products-inner-category-list-product-body-buttons-cart public-button-gradient ${
                 added
                   ? "home-products-inner-category-list-product-body-buttons-cart-added"
                   : ""
@@ -167,7 +167,7 @@ function ProductCard({ product }) {
           ) : (
             <Link
               to={ROUTES.USER.LOGIN}
-              className="home-products-inner-category-list-product-body-buttons-cart home-products-inner-category-list-product-body-buttons-cart-guest"
+              className="home-products-inner-category-list-product-body-buttons-cart home-products-inner-category-list-product-body-buttons-cart-guest public-button-gradient"
               state={{ from: ROUTES.USER.HOME }}
             >
               <LockKeyhole size={15} />
@@ -339,7 +339,7 @@ export default function Home() {
           <div className="home-hero-content-buttons">
             <Link
               to={ROUTES.USER.PRODUCT_LIST}
-              className="home-hero-content-buttons-primary"
+              className="public-button public-button-primary home-hero-content-buttons-primary"
             >
               Xem sản phẩm
               <ArrowRight size={18} />
@@ -347,7 +347,7 @@ export default function Home() {
 
             <Link
               to={ROUTES.USER.CONTACT}
-              className="home-hero-content-buttons-outline"
+              className="public-button public-button-outline home-hero-content-buttons-outline"
             >
               Tư vấn miễn phí
             </Link>

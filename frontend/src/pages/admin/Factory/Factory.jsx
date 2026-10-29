@@ -7,42 +7,43 @@ import {
   Ruler,
   FileText,
   ChartNoAxesColumn,
+  Trash2,
   ChevronDown,
   ChevronUp,
+  Plus,
 } from "lucide-react";
 import { useState } from "react";
 import { formatDate } from "../../../utils/formatDate";
 import { useApp } from "../../../context/useApp";
-import "../Technical/technical.scss";
 import "./factory.scss";
 
 function AdminCard({ title, icon, gradient, children }) {
   return (
-    <div className={`admin-card admin-card--gradient-${gradient}`}>
-      <div className="admin-card__header">
+    <div className={`admin-card admin-card-gradient-${gradient}`}>
+      <div className="admin-card-header">
         <span>{icon}</span>
         <h2>{title}</h2>
       </div>
-      <div className="admin-card__body">{children}</div>
+      <div className="admin-card-body">{children}</div>
     </div>
   );
 }
 
 function HandoverStatusBadge({ status }) {
   const map = {
-    pending: { label: "Chờ nhận", cls: "badge--yellow" },
-    accepted: { label: "Đã nhận", cls: "badge--blue" },
-    in_production: { label: "Đang SX", cls: "badge--purple" },
-    done: { label: "Hoàn thành", cls: "badge--green" },
+    pending: { label: "Chờ nhận", cls: "admin-status-yellow" },
+    accepted: { label: "Đã nhận", cls: "admin-status-blue" },
+    in_production: { label: "Đang SX", cls: "admin-status-purple" },
+    done: { label: "Hoàn thành", cls: "admin-status-green" },
   };
-  const s = map[status] || { label: status, cls: "badge--gray" };
-  return <span className={`badge ${s.cls}`}>{s.label}</span>;
+  const s = map[status] || { label: status, cls: "admin-status-gray" };
+  return <span className={`admin-status ${s.cls}`}>{s.label}</span>;
 }
 
 // Scrap row trong form báo cáo
 function ScrapRow({ row, index, onChange, onRemove }) {
   return (
-    <div className="factory-scrap-row">
+    <div className="factory-page-scrap-row">
       <input
         placeholder="Tên phế liệu"
         value={row.name}
@@ -61,10 +62,11 @@ function ScrapRow({ row, index, onChange, onRemove }) {
         onChange={(e) => onChange(index, { ...row, unit: e.target.value })}
       />
       <button
-        className="btn-icon btn-icon--danger"
+        className="admin-button-icon admin-button-icon-danger"
         onClick={() => onRemove(index)}
+        aria-label="Xóa dòng phế liệu"
       >
-        🗑️
+        <Trash2 size={16} strokeWidth={2} aria-hidden="true" />
       </button>
     </div>
   );
@@ -156,7 +158,7 @@ export default function Factory() {
     });
     setReportMsgs((m) => ({
       ...m,
-      [order.id]: "✅ Đã gửi báo cáo cho Thủ kho!",
+      [order.id]: "Đã gửi báo cáo cho Thủ kho!",
     }));
     setTimeout(() => setReportMsgs((m) => ({ ...m, [order.id]: "" })), 3000);
     updateReportForm(order.id, { finishedQty: "", note: "", scraps: [] });
@@ -185,20 +187,20 @@ export default function Factory() {
       </div>
 
       {/* Stats */}
-      <div className="factory-summary">
-        <div className="factory-summary__card factory-summary__card--yellow">
+      <div className="factory-page-summary">
+        <div className="factory-page-summary-card admin-card-surface admin-summary-card admin-card-color admin-card-color-blue">
           <strong>{pendingHandovers.length}</strong>
           <span>Phiếu bàn giao mới</span>
         </div>
-        <div className="factory-summary__card factory-summary__card--purple">
+        <div className="factory-page-summary-card admin-card-surface admin-summary-card admin-card-color admin-card-color-orange">
           <strong>{acceptedHandovers.length}</strong>
           <span>Đang sản xuất</span>
         </div>
-        <div className="factory-summary__card factory-summary__card--green">
+        <div className="factory-page-summary-card admin-card-surface admin-summary-card admin-card-color admin-card-color-pink">
           <strong>{doneHandovers.length}</strong>
           <span>Đã hoàn thành</span>
         </div>
-        <div className="factory-summary__card factory-summary__card--blue">
+        <div className="factory-page-summary-card admin-card-surface admin-summary-card admin-card-color admin-card-color-purple">
           <strong>{productionReports.length}</strong>
           <span>Báo cáo đã gửi</span>
         </div>
@@ -248,10 +250,10 @@ export default function Factory() {
                     <td>{formatDate(order.createdAt)}</td>
                     <td>
                       <button
-                        className="btn-action btn-action--blue"
+                        className="admin-button-action admin-button-action-blue"
                         onClick={() => handleAccept(order)}
                       >
-                        <Inbox size={15} strokeWidth={2} /> Xác nhận nhận
+                        <Inbox size={16} strokeWidth={2} /> Xác nhận nhận
                       </button>
                     </td>
                   </tr>
@@ -277,8 +279,8 @@ export default function Factory() {
             const reported = hasReport(order.id);
 
             return (
-              <div key={order.id} className="factory-order-panel">
-                <div className="factory-order-panel__title">
+              <div key={order.id} className="factory-page-order-panel">
+                <div className="factory-page-order-panel-title">
                   <strong>{order.productName}</strong>
                   <span>— {order.productQty} sản phẩm</span>
                   <HandoverStatusBadge status={order.status} />
@@ -286,11 +288,11 @@ export default function Factory() {
 
                 {/* Yêu cầu bản thiết kế */}
                 {!design && (
-                  <div className="factory-design-request">
-                    <p className="factory-section-label">
-                      <Ruler /> Yêu cầu bản thiết kế từ Kỹ thuật
+                  <div className="factory-page-design-request">
+                    <p className="factory-page-section-label">
+                      <Ruler size={23} /> Yêu cầu bản thiết kế từ Kỹ thuật
                     </p>
-                    <div className="factory-design-row">
+                    <div className="factory-page-design-row">
                       <textarea
                         rows={2}
                         placeholder="Ghi chú yêu cầu (thông số kỹ thuật, kích thước...)"
@@ -303,7 +305,7 @@ export default function Factory() {
                         }
                       />
                       <button
-                        className="btn-action btn-action--orange"
+                        className="admin-button-action admin-button-action-orange"
                         onClick={() => handleRequestDesign(order)}
                       >
                         <Send size={18} strokeWidth={2} /> Gửi yêu cầu bản vẽ
@@ -314,20 +316,22 @@ export default function Factory() {
 
                 {design && (
                   <div
-                    className={`factory-design-info ${design.status === "provided" ? "factory-design-info--done" : ""}`}
+                    className={`factory-page-design-info ${design.status === "provided" ? "factory-page-design-info-done" : ""}`}
                   >
-                    <p className="factory-section-label">
-                      <Ruler /> Bản thiết kế:{" "}
+                    <p className="factory-page-section-label">
+                      <Ruler size={20} /> Bản thiết kế:{" "}
                       {design.status === "provided" ? (
-                        <span className="badge badge--green">Đã nhận</span>
+                        <span className="admin-status admin-status-green">
+                          Đã nhận
+                        </span>
                       ) : (
-                        <span className="badge badge--yellow">
+                        <span className="admin-status admin-status-yellow">
                           Chờ Kỹ thuật cung cấp
                         </span>
                       )}
                     </p>
                     {design.status === "provided" && (
-                      <p className="factory-design-note">
+                      <p className="factory-page-design-note">
                         <FileText /> {design.designNote}
                       </p>
                     )}
@@ -336,9 +340,9 @@ export default function Factory() {
 
                 {/* Báo cáo sản xuất */}
                 {!reported ? (
-                  <div className="factory-report-form">
-                    <p className="factory-section-label">
-                      <ChartNoAxesColumn /> Báo cáo kết quả sản xuất
+                  <div className="factory-page-report-form">
+                    <p className="factory-page-section-label">
+                      <ChartNoAxesColumn size={23} /> Báo cáo kết quả sản xuất
                     </p>
                     <div className="form-row">
                       <div className="form-group">
@@ -375,9 +379,9 @@ export default function Factory() {
 
                     <div className="form-group">
                       <label>Phế liệu phát sinh</label>
-                      <div className="factory-scrap-list">
+                      <div className="factory-page-scrap-list">
                         {form.scraps.length > 0 && (
-                          <div className="factory-scrap-list__head">
+                          <div className="factory-page-scrap-list-head">
                             <span>Tên phế liệu</span>
                             <span>Số lượng</span>
                             <span>Đơn vị</span>
@@ -397,20 +401,27 @@ export default function Factory() {
                         ))}
                         <button
                           type="button"
-                          className="btn-add-row"
+                          className="admin-button-add-row"
                           onClick={() => addScrap(order.id)}
                         >
-                          + Thêm phế liệu
+                          <Plus size={18} strokeWidth={2} /> Thêm phế liệu
                         </button>
                       </div>
                     </div>
 
                     {reportMsgs[order.id] && (
-                      <p className="form-success">{reportMsgs[order.id]}</p>
+                      <p className="admin-feedback form-success">
+                        <CircleCheck
+                          size={16}
+                          strokeWidth={2}
+                          aria-hidden="true"
+                        />
+                        {reportMsgs[order.id]}
+                      </p>
                     )}
 
                     <button
-                      className="btn-submit"
+                      className="admin-button-submit form-btn"
                       disabled={
                         !form.finishedQty || Number(form.finishedQty) <= 0
                       }
@@ -470,7 +481,7 @@ export default function Factory() {
           </div>
           {doneHandovers.length > 5 && (
             <button
-              className="dash-view-more"
+              className="admin-view-more"
               onClick={() => setShowAllDone(!showAllDone)}
             >
               {showAllDone ? (

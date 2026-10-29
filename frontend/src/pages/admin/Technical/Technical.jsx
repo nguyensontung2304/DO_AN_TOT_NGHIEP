@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useState } from "react";
 import { formatDate } from "../../../utils/formatDate";
 import {
@@ -12,6 +13,7 @@ import {
   AlertTriangle,
   ChevronDown,
   ChevronUp,
+  Armchair,
 } from "lucide-react";
 import { useApp } from "../../../context/useApp";
 import "./technical.scss";
@@ -19,28 +21,28 @@ import "./technical.scss";
 function AdminCard({ title, icon, children, gradient }) {
   return (
     <div
-      className={`admin-card${gradient ? ` admin-card--gradient-${gradient}` : ""}`}
+      className={`admin-card${gradient ? ` admin-card-gradient-${gradient}` : ""}`}
     >
-      <div className="admin-card__header">
+      <div className="admin-card-header">
         <span>{icon}</span>
         <h2>{title}</h2>
       </div>
-      <div className="admin-card__body">{children}</div>
+      <div className="admin-card-body">{children}</div>
     </div>
   );
 }
 
 function StatusBadge({ status }) {
   const map = {
-    pending: { label: "Chờ thủ kho", cls: "badge--yellow" },
-    checked: { label: "Đã kiểm kê", cls: "badge--blue" },
-    purchasing: { label: "Đang mua hàng", cls: "badge--orange" },
-    ready: { label: "Sẵn sàng sản xuất", cls: "badge--teal" },
-    in_production: { label: "Đang sản xuất", cls: "badge--purple" },
-    done: { label: "Hoàn thành", cls: "badge--green" },
+    pending: { label: "Chờ thủ kho", cls: "admin-status-yellow" },
+    checked: { label: "Đã kiểm kê", cls: "admin-status-blue" },
+    purchasing: { label: "Đang mua hàng", cls: "admin-status-orange" },
+    ready: { label: "Sẵn sàng sản xuất", cls: "admin-status-teal" },
+    in_production: { label: "Đang sản xuất", cls: "admin-status-purple" },
+    done: { label: "Hoàn thành", cls: "admin-status-green" },
   };
-  const s = map[status] || { label: status, cls: "badge--gray" };
-  return <span className={`badge ${s.cls}`}>{s.label}</span>;
+  const s = map[status] || { label: status, cls: "admin-status-gray" };
+  return <span className={`admin-status ${s.cls}`}>{s.label}</span>;
 }
 
 // ── Material row in the form ──────────────────────────────────────────────────
@@ -53,7 +55,7 @@ function MaterialRow({
   onRemove,
 }) {
   return (
-    <div className="tech-material-row">
+    <div className="technical-page-material-row">
       <select
         value={row.materialId}
         onChange={(e) => {
@@ -85,10 +87,10 @@ function MaterialRow({
         }
       />
 
-      <span className="tech-material-unit">{row.unit || "—"}</span>
+      <span className="technical-page-material-unit">{row.unit || "—"}</span>
 
       <button
-        className="btn-icon btn-icon--danger"
+        className="admin-button-icon admin-button-icon-danger"
         onClick={() => onRemove(groupIndex, index)}
         title="Xoá dòng"
       >
@@ -152,7 +154,7 @@ function buildFormFromOrder(order, materials) {
         note,
         rows: groups[0].rows,
       },
-      banner: `🔔 Đơn hàng #${orderCode} vừa được xác nhận — đã điền sẵn, kiểm tra lại trước khi gửi.`,
+      banner: `Đơn hàng #${orderCode} vừa được xác nhận — đã điền sẵn, kiểm tra lại trước khi gửi.`,
     };
   }
 
@@ -165,7 +167,7 @@ function buildFormFromOrder(order, materials) {
       groups,
     },
     banner:
-      `🔔 Đơn hàng #${orderCode} vừa được xác nhận — gồm ` +
+      `Đơn hàng #${orderCode} vừa được xác nhận — gồm ` +
       `${groups.length || cart.length} sản phẩm, kiểm tra vật tư từng sản phẩm bên dưới.`,
   };
 }
@@ -230,76 +232,76 @@ export default function Technical() {
     setTimeout(() => setSubmitted(false), 3000);
   };
 
-// Gửi yêu cầu: nhiều sản phẩm → tạo 1 yêu cầu/sản phẩm, vật tư đi kèm riêng
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      setFormError("");
-      setAutoFillBanner("");
+  // Gửi yêu cầu: nhiều sản phẩm → tạo 1 yêu cầu/sản phẩm, vật tư đi kèm riêng
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setFormError("");
+    setAutoFillBanner("");
 
-      const groups = form.groups || [];
+    const groups = form.groups || [];
 
-      try {
-        if (groups.length > 0) {
-          const items = groups
-            .map((g) => ({
-              productName: g.name,
-              productQty: Number(g.qty),
-              materials: g.rows
-                .filter((r) => r.materialId && Number(r.requiredQty) > 0)
-                .map((r) => ({
-                  materialId: r.materialId,
-                  materialName: r.materialName,
-                  unit: r.unit,
-                  requiredQty: Number(r.requiredQty),
-                })),
-            }))
-            .filter((it) => it.materials.length > 0);
+    try {
+      if (groups.length > 0) {
+        const items = groups
+          .map((g) => ({
+            productName: g.name,
+            productQty: Number(g.qty),
+            materials: g.rows
+              .filter((r) => r.materialId && Number(r.requiredQty) > 0)
+              .map((r) => ({
+                materialId: r.materialId,
+                materialName: r.materialName,
+                unit: r.unit,
+                requiredQty: Number(r.requiredQty),
+              })),
+          }))
+          .filter((it) => it.materials.length > 0);
 
-          if (items.length === 0) {
-            setFormError(
-              "Cần chọn ít nhất 1 vật tư với số lượng hợp lệ cho mỗi sản phẩm.",
-            );
-            return;
-          }
-
-          // Lấy orderId từ confirmedOrderDraft nếu có
-          const orderId = confirmedOrderDraft?.id || null;
-          await addProductionRequest({ note: form.note.trim(), items, orderId });
-          resetAfterSubmit();
-          return;
-        }
-
-        if (!form.productName.trim() || !form.productQty) {
-          setFormError("Vui lòng nhập tên sản phẩm và số lượng.");
-          return;
-        }
-        const validRows = (form.rows || []).filter(
-          (r) => r.materialId && Number(r.requiredQty) > 0,
-        );
-        if (validRows.length === 0) {
-          setFormError("Cần chọn ít nhất 1 vật tư với số lượng hợp lệ.");
+        if (items.length === 0) {
+          setFormError(
+            "Cần chọn ít nhất 1 vật tư với số lượng hợp lệ cho mỗi sản phẩm.",
+          );
           return;
         }
 
         // Lấy orderId từ confirmedOrderDraft nếu có
         const orderId = confirmedOrderDraft?.id || null;
-        await addProductionRequest({
-          productName: form.productName.trim(),
-          productQty: Number(form.productQty),
-          note: form.note.trim(),
-          materials: validRows.map((r) => ({
-            materialId: r.materialId,
-            materialName: r.materialName,
-            unit: r.unit,
-            requiredQty: Number(r.requiredQty),
-          })),
-          orderId,
-        });
+        await addProductionRequest({ note: form.note.trim(), items, orderId });
         resetAfterSubmit();
-      } catch {
-        setFormError("Không gửi được yêu cầu. Vui lòng thử lại.");
+        return;
       }
-    };
+
+      if (!form.productName.trim() || !form.productQty) {
+        setFormError("Vui lòng nhập tên sản phẩm và số lượng.");
+        return;
+      }
+      const validRows = (form.rows || []).filter(
+        (r) => r.materialId && Number(r.requiredQty) > 0,
+      );
+      if (validRows.length === 0) {
+        setFormError("Cần chọn ít nhất 1 vật tư với số lượng hợp lệ.");
+        return;
+      }
+
+      // Lấy orderId từ confirmedOrderDraft nếu có
+      const orderId = confirmedOrderDraft?.id || null;
+      await addProductionRequest({
+        productName: form.productName.trim(),
+        productQty: Number(form.productQty),
+        note: form.note.trim(),
+        materials: validRows.map((r) => ({
+          materialId: r.materialId,
+          materialName: r.materialName,
+          unit: r.unit,
+          requiredQty: Number(r.requiredQty),
+        })),
+        orderId,
+      });
+      resetAfterSubmit();
+    } catch {
+      setFormError("Không gửi được yêu cầu. Vui lòng thử lại.");
+    }
+  };
 
   // ── Cung cấp bản thiết kế cho nhà máy ────────────────────────────────────
   const [designNotes, setDesignNotes] = useState({});
@@ -421,9 +423,9 @@ export default function Technical() {
                     <td>{formatDate(o.createdAt)}</td>
 
                     <td>
-                      <div className="tech-notify-actions">
+                      <div className="admin-notify-actions">
                         <button
-                          className="btn-action btn-action--gray"
+                          className="admin-button-action admin-button-action-gray"
                           onClick={() => dismissNotification(o.id)}
                         >
                           <CheckCircle
@@ -449,10 +451,11 @@ export default function Technical() {
         icon={<ClipboardList size={18} strokeWidth={2} />}
         gradient="blue"
       >
-        <form className="tech-form" onSubmit={handleSubmit}>
+        <form className="technical-page-form" onSubmit={handleSubmit}>
           {/* Banner auto-fill từ đơn hàng */}
           {autoFillBanner && (
-            <div className="form-autofill-banner">
+            <div className="admin-feedback form-autofill-banner">
+              <Bell size={16} strokeWidth={2} aria-hidden="true" />
               {autoFillBanner} — Kiểm tra và chọn vật tư bên dưới trước khi gửi.
             </div>
           )}
@@ -501,10 +504,11 @@ export default function Technical() {
             form.groups.map((g, gi) => (
               <div className="form-group" key={gi}>
                 <h3 className="section-subtitle">
-                  🪑 {g.name} <small>(SL: {g.qty})</small>
+                  <Armchair size={17} strokeWidth={1.8} aria-hidden="true" />
+                  {g.name} <small>(SL: {g.qty})</small>
                 </h3>
-                <div className="tech-material-list">
-                  <div className="tech-material-list__head">
+                <div className="technical-page-material-list">
+                  <div className="technical-page-material-list-head">
                     <span>Vật tư</span>
                     <span>Số lượng cần</span>
                     <span>Đơn vị</span>
@@ -524,7 +528,7 @@ export default function Technical() {
                 </div>
                 <button
                   type="button"
-                  className="btn-add-row"
+                  className="admin-button-add-row"
                   onClick={() => addRow(gi)}
                 >
                   + Thêm vật tư cho {g.name}
@@ -536,8 +540,8 @@ export default function Technical() {
               <label>
                 Danh sách vật tư cần dùng <span className="req">*</span>
               </label>
-              <div className="tech-material-list">
-                <div className="tech-material-list__head">
+              <div className="technical-page-material-list">
+                <div className="technical-page-material-list-head">
                   <span>Vật tư</span>
                   <span>Số lượng cần</span>
                   <span>Đơn vị</span>
@@ -557,7 +561,7 @@ export default function Technical() {
               </div>
               <button
                 type="button"
-                className="btn-add-row"
+                className="admin-button-add-row"
                 onClick={() => addRow(-1)}
               >
                 + Thêm vật tư
@@ -567,14 +571,11 @@ export default function Technical() {
 
           {formError && (
             <p className="form-error">
-              <AlertTriangle
-                size={14}
-                strokeWidth={2}
-                style={{ marginRight: 4 }}
-              />
+              <AlertTriangle size={14} strokeWidth={2} />
               {formError}
             </p>
           )}
+
           {submitted && (
             <p className="form-success">
               <CheckCircle
@@ -582,13 +583,13 @@ export default function Technical() {
                 strokeWidth={2}
                 style={{ marginRight: 4 }}
               />
-              Đã gửi yêu cầu tới Thủ kho!
+              Đã gửi yêu cầu tới Thủ Kho!
             </p>
           )}
 
-          <button type="submit" className="btn-submit">
-            <Send size={15} strokeWidth={2} style={{ marginRight: 6 }} />
-            Gửi yêu cầu cho Thủ kho
+          <button type="submit" className="admin-button-submit form-btn">
+            <Send size={15} strokeWidth={2} />
+            Gửi yêu cầu cho Thủ Kho
           </button>
         </form>
       </AdminCard>
@@ -650,7 +651,7 @@ export default function Technical() {
             </div>
             {productionRequests.length > 5 && (
               <button
-                className="dash-view-more"
+                className="admin-view-more"
                 onClick={() => setShowAllTechnical(!showAllTechnical)}
               >
                 {showAllTechnical ? (
@@ -736,7 +737,7 @@ export default function Technical() {
                             </td>
                             <td>
                               <button
-                                className="btn-action btn-action--green"
+                                className="admin-button-action admin-button-action-green"
                                 disabled={!designNotes[req.id]?.trim()}
                                 onClick={() =>
                                   provideDesign(req.id, designNotes[req.id])
@@ -757,7 +758,7 @@ export default function Technical() {
                 </div>
                 {pendingDesigns.length > 5 && (
                   <button
-                    className="dash-view-more"
+                    className="admin-view-more"
                     onClick={() =>
                       setShowAllPendingDesigns((showAll) => !showAll)
                     }
@@ -815,7 +816,7 @@ export default function Technical() {
                 </div>
                 {doneDesigns.length > 5 && (
                   <button
-                    className="dash-view-more"
+                    className="admin-view-more"
                     onClick={() => setShowAllDoneDesigns((showAll) => !showAll)}
                   >
                     {showAllDoneDesigns ? (

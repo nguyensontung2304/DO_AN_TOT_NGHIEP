@@ -137,7 +137,7 @@ export function CommentSection({ productId }) {
           <div className="comment-section__form-actions">
             <button
               type="submit"
-              className="comment-section__btn comment-section__btn--primary"
+              className="comment-section__btn comment-section__btn--primary public-button-gradient"
               disabled={submitting || !newComment.trim()}
             >
               {submitting ? "Đang gửi..." : "Gửi bình luận"}
@@ -199,7 +199,7 @@ export function CommentSection({ productId }) {
                     {editingId === comment.id ? (
                       <>
                         <button
-                          className="comment-section__btn comment-section__btn--primary comment-section__btn--small"
+                          className="comment-section__btn comment-section__btn--primary public-button-gradient comment-section__btn--small"
                           onClick={() => handleEdit(comment.id)}
                         >
                           Lưu

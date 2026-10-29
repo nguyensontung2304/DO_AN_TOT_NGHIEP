@@ -16,7 +16,6 @@
     height: 68px;
     margin: 0 auto;
     padding: 0 24px;
-
     display: flex;
     align-items: center;
     gap: 32px;
@@ -27,7 +26,6 @@
     display: flex;
     align-items: center;
     gap: 10px;
-
     flex-shrink: 0;
     color: #1a1a2e;
     font-size: 22px;
@@ -79,12 +77,10 @@
     a {
       position: relative;
       padding: 8px 0;
-
       color: #444;
       font-size: 15px;
       font-weight: 500;
       text-decoration: none;
-
       transition:
         color 0.25s ease,
         transform 0.25s ease;
@@ -95,12 +91,10 @@
         position: absolute;
         bottom: 2px;
         left: 0;
-
         width: 0;
         height: 2px;
         border-radius: 2px;
         background: #c0392b;
-
         transition: width 0.3s ease;
       }
 
@@ -128,27 +122,24 @@
   &__actions {
     display: flex;
     align-items: center;
-    gap: 16px;
-
+    gap: 4px;
     margin-left: auto;
     flex-shrink: 0;
   }
 
   // CART
   &__cart {
+    margin-right: 4px;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-
     padding: 7px;
     border: none;
     border-radius: 10px;
-
     background: transparent;
     color: #333;
     cursor: pointer;
-
     transition:
       color 0.25s ease,
       background 0.25s ease,
@@ -176,23 +167,19 @@
       position: absolute;
       top: -3px;
       right: -4px;
-
       display: flex;
       align-items: center;
       justify-content: center;
-
       min-width: 18px;
       height: 18px;
       padding: 0 4px;
       border: 2px solid #fff;
       border-radius: 20px;
-
       background: #c0392b;
       color: #fff;
       font-size: 10px;
       font-weight: 700;
       line-height: 1;
-
       animation: cartBadgeIn 0.25s ease;
     }
   }
@@ -202,18 +189,15 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
     padding: 9px 18px;
     border: 1px solid #1a1a2e;
     border-radius: 8px;
-
     background: #1a1a2e;
     color: #fff;
     font-size: 13px;
     font-weight: 600;
     text-decoration: none;
     white-space: nowrap;
-
     transition:
       background 0.25s ease,
       border-color 0.25s ease,
@@ -236,11 +220,9 @@
   &__admin-btn {
     padding: 6px 9px;
     border-radius: 8px;
-
     color: #333;
     font-size: 20px;
     text-decoration: none;
-
     transition:
       color 0.25s ease,
       background 0.25s ease,
@@ -261,15 +243,13 @@
       display: flex;
       align-items: center;
       gap: 8px;
-
+      max-width: 160px;
       padding: 5px 12px 5px 6px;
       border: 1.5px solid #e0e0e0;
       border-radius: 24px;
-
       background: #fff;
       color: #333;
       cursor: pointer;
-
       transition:
         border-color 0.25s ease,
         background 0.25s ease,
@@ -287,12 +267,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
-
       width: 28px;
       height: 28px;
       flex-shrink: 0;
       overflow: hidden;
-
       border-radius: 50%;
       background: #eee;
 
@@ -314,11 +292,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-
       width: 28px;
       height: 28px;
       flex-shrink: 0;
-
       border-radius: 50%;
       background: linear-gradient(135deg, #2563eb, #1d4ed8);
       color: #fff;
@@ -329,7 +305,6 @@
     &-name {
       max-width: 120px;
       overflow: hidden;
-
       color: #333;
       font-size: 13px;
       font-weight: 600;
@@ -359,15 +334,12 @@
     top: calc(100% + 10px);
     right: 0;
     z-index: 500;
-
-    min-width: 210px;
+    min-width: 270px;
     overflow: hidden;
-
     border: 1px solid #eee;
     border-radius: 12px;
     background: #fff;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-
     transform-origin: top right;
     animation: dropIn 0.2s ease both;
 
@@ -399,11 +371,9 @@
       display: flex;
       align-items: center;
       gap: 10px;
-
       width: 100%;
       padding: 12px 14px;
       border: none;
-
       background: #fff;
       color: #333;
       font-family: inherit;
@@ -412,7 +382,6 @@
       text-align: left;
       text-decoration: none;
       cursor: pointer;
-
       transition:
         color 0.2s ease,
         background 0.2s ease,
@@ -458,17 +427,14 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-
     width: 36px;
     height: 36px;
     padding: 5px;
-
     border: none;
     border-radius: 8px;
     background: transparent;
     color: #333;
     cursor: pointer;
-
     transition:
       color 0.2s ease,
       background 0.2s ease;
@@ -524,12 +490,10 @@
       left: 0;
       right: 0;
       z-index: 100;
-
       display: none;
       flex-direction: column;
       align-items: stretch;
       gap: 6px;
-
       padding: 14px 24px 18px;
       border-top: 1px solid #f1f1f1;
       background: #fff;

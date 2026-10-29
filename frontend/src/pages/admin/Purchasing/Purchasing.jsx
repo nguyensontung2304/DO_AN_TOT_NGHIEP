@@ -8,19 +8,18 @@ import {
 } from "lucide-react";
 import { formatDate } from "../../../utils/formatDate";
 import { useApp } from "../../../context/useApp";
-import "../Technical/technical.scss";
 import "./purchasing.scss";
 
 function AdminCard({ title, icon, children, gradient }) {
   return (
     <div
-      className={`admin-card${gradient ? ` admin-card--gradient-${gradient}` : ""}`}
+      className={`admin-card${gradient ? ` admin-card-gradient-${gradient}` : ""}`}
     >
-      <div className="admin-card__header">
+      <div className="admin-card-header">
         <span>{icon}</span>
         <h2>{title}</h2>
       </div>
-      <div className="admin-card__body">{children}</div>
+      <div className="admin-card-body">{children}</div>
     </div>
   );
 }
@@ -57,20 +56,20 @@ export default function Purchasing() {
       </div>
 
       {/* Stats */}
-      <div className="pur-summary">
-        <div className="pur-summary__card pur-summary__card--yellow">
+      <div className="purchasing-page-summary">
+        <div className="purchasing-page-summary-card admin-card-surface admin-summary-card admin-card-color admin-card-color-blue">
           <strong>{pending.length}</strong>
           <span>Đơn chờ mua</span>
         </div>
-        <div className="pur-summary__card pur-summary__card--blue">
+        <div className="purchasing-page-summary-card admin-card-surface admin-summary-card admin-card-color admin-card-color-purple">
           <strong>{stocked.length}</strong>
           <span>Đã mua & nhập kho</span>
         </div>
-        <div className="pur-summary__card pur-summary__card--green">
+        <div className="purchasing-page-summary-card admin-card-surface admin-summary-card admin-card-color admin-card-color-pink">
           <strong>{stocked.length}</strong>
           <span>Đã nhập kho</span>
         </div>
-        <div className="pur-summary__card pur-summary__card--purple">
+        <div className="purchasing-page-summary-card admin-card-surface admin-summary-card admin-card-color admin-card-color-orange">
           <strong>{totalItems}</strong>
           <span>Tổng mặt hàng</span>
         </div>
@@ -109,7 +108,7 @@ export default function Purchasing() {
                           <li key={ii}>
                             <strong>{item.materialName}</strong>:{" "}
                             {item.qtyToBuy} {item.unit}
-                            <span className="pur-stock-hint">
+                            <span className="purchasing-page-stock-hint">
                               {" "}
                               (tồn: {item.qtyInStock}, cần: {item.qtyNeeded})
                             </span>
@@ -120,7 +119,7 @@ export default function Purchasing() {
                     <td>{formatDate(req.createdAt)}</td>
                     <td>
                       <button
-                        className="btn-action btn-action--green"
+                        className="admin-button-action admin-button-action-green"
                         onClick={() => confirmPurchase(req.id)}
                       >
                         <CheckCircle size={18} strokeWidth={2} /> Xác nhận đã
@@ -178,7 +177,7 @@ export default function Purchasing() {
           </div>
           {stocked.length > 5 && (
             <button
-              className="dash-view-more"
+              className="admin-view-more"
               onClick={() => setShowAllStocked((showAll) => !showAll)}
             >
               {showAllStocked ? (

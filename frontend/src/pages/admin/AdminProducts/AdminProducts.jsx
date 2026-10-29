@@ -21,19 +21,18 @@ import {
 } from "../../../api/productApi";
 import { getCategories } from "../../../api/categoryApi";
 import { getMaterials } from "../../../api/materialApi";
-import "../Technical/technical.scss";
 import "./adminProducts.scss";
 
 //  Helpers
 function AdminCard({ title, icon, children }) {
   return (
     <div className="admin-card">
-      <div className="admin-card__header">
+      <div className="admin-card-header">
         <span>{icon}</span>
         <h2>{title}</h2>
       </div>
 
-      <div className="admin-card__body">{children}</div>
+      <div className="admin-card-body">{children}</div>
     </div>
   );
 }
@@ -93,15 +92,15 @@ function SpecsEditor({ specs, onChange }) {
   };
 
   return (
-    <div className="sub-editor">
-      <div className="sub-editor__head">
+    <div className="admin-products-page-editor">
+      <div className="admin-products-page-editor-head">
         <span>Tên thông số</span>
         <span>Giá trị</span>
         <span></span>
       </div>
 
       {specs.map((s, i) => (
-        <div key={i} className="sub-editor__row">
+        <div key={i} className="admin-products-page-editor-row">
           <input
             placeholder="VD: Kích thước"
             value={s.spec_name}
@@ -116,7 +115,7 @@ function SpecsEditor({ specs, onChange }) {
 
           <button
             type="button"
-            className="btn-icon btn-icon--danger"
+            className="admin-button-icon admin-button-icon-danger"
             onClick={() => remove(i)}
           >
             <Trash2 size={23} />
@@ -124,7 +123,7 @@ function SpecsEditor({ specs, onChange }) {
         </div>
       ))}
 
-      <button type="button" className="btn-add-row" onClick={add}>
+      <button type="button" className="admin-button-add-row" onClick={add}>
         + Thêm thông số
       </button>
     </div>
@@ -179,8 +178,8 @@ function RecipeEditor({ recipe, onChange, materials, materialsLoading }) {
   };
 
   return (
-    <div className="sub-editor">
-      <div className="sub-editor__head">
+    <div className="admin-products-page-editor">
+      <div className="admin-products-page-editor-head">
         <span>Nguyên vật liệu</span>
         <span>Đơn vị</span>
         <span>Số lượng</span>
@@ -188,7 +187,7 @@ function RecipeEditor({ recipe, onChange, materials, materialsLoading }) {
       </div>
 
       {recipe.map((r, i) => (
-        <div key={i} className="sub-editor__row">
+        <div key={i} className="admin-products-page-editor-row">
           {/* CHỌN VẬT LIỆU */}
           <select
             value={r.material_name}
@@ -224,7 +223,7 @@ function RecipeEditor({ recipe, onChange, materials, materialsLoading }) {
           {/* XÓA */}
           <button
             type="button"
-            className="btn-icon btn-icon--danger"
+            className="admin-button-icon admin-button-icon-danger"
             onClick={() => remove(i)}
           >
             <Trash2 size={23} />
@@ -232,7 +231,7 @@ function RecipeEditor({ recipe, onChange, materials, materialsLoading }) {
         </div>
       ))}
 
-      <button type="button" className="btn-add-row" onClick={add}>
+      <button type="button" className="admin-button-add-row" onClick={add}>
         + Thêm nguyên liệu
       </button>
     </div>
@@ -542,7 +541,7 @@ export default function AdminProducts() {
         await createProduct(formData);
 
         showSuccess(
-          <div className="notification">
+          <div className="admin-products-page-notification">
             <CircleCheck size={18} />
             Đã thêm sản phẩm mới!
           </div>,
@@ -551,7 +550,7 @@ export default function AdminProducts() {
         await updateProduct(editTarget.id, formData);
 
         showSuccess(
-          <div className="notification">
+          <div className="admin-products-page-notification">
             <CircleCheck size={18} />
             Đã cập nhật sản phẩm!
           </div>,
@@ -579,7 +578,7 @@ export default function AdminProducts() {
       await deleteProduct(deleteTarget.id);
       setDeleteTarget(null);
       showSuccess(
-        <div className="notification">
+        <div className="admin-products-page-notification">
           <CircleCheck size={18} />
           Đã xóa sản phẩm!
         </div>,
@@ -625,7 +624,7 @@ export default function AdminProducts() {
           </p>
         </div>
 
-        <button className="btn-submit" onClick={openCreate}>
+        <button className="admin-button-submit" onClick={openCreate}>
           <CirclePlus size={18} />
           Thêm sản phẩm
         </button>
@@ -642,12 +641,12 @@ export default function AdminProducts() {
       )}
 
       {/* FILTERS */}
-      <div className="ap-filters">
+      <div className="admin-products-page-filters">
         {/* SEARCH */}
-        <div className="ap-search-box">
+        <div className="admin-products-page-search-box">
           <Search size={18} />
           <input
-            className="ap-search"
+            className="admin-products-page-search"
             placeholder="Tìm theo tên..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -656,7 +655,7 @@ export default function AdminProducts() {
 
         {/* CATEGORY FILTER */}
         <select
-          className="ap-select"
+          className="admin-products-page-select"
           value={filterCat}
           onChange={(e) => setFilterCat(e.target.value)}
           disabled={categoriesLoading}
@@ -672,7 +671,9 @@ export default function AdminProducts() {
           ))}
         </select>
 
-        <span className="ap-count">{filtered.length} sản phẩm</span>
+        <span className="admin-products-page-count">
+          {filtered.length} sản phẩm
+        </span>
       </div>
 
       {/* TABLE */}
@@ -705,12 +706,12 @@ export default function AdminProducts() {
                   <tr key={p.id}>
                     <td>{p.id}</td>
 
-                    <td className="ap-image">
+                    <td className="admin-products-page-image">
                       {p.image ? (
                         <img
                           src={p.image}
                           alt={p.name}
-                          className="ap-product-image"
+                          className="admin-products-page-product-image"
                         />
                       ) : (
                         "—"
@@ -722,7 +723,7 @@ export default function AdminProducts() {
                     </td>
 
                     <td>
-                      <span className="badge badge--blue">
+                      <span className="admin-status admin-status-blue">
                         {p.categoryName || p.category_name || "—"}
                       </span>
                     </td>
@@ -733,23 +734,25 @@ export default function AdminProducts() {
 
                     <td>
                       {p.badge ? (
-                        <span className="badge badge--yellow">{p.badge}</span>
+                        <span className="admin-status admin-status-yellow">
+                          {p.badge}
+                        </span>
                       ) : (
                         "—"
                       )}
                     </td>
 
                     <td>
-                      <div className="ap-actions">
+                      <div className="admin-products-page-actions">
                         <button
-                          className="btn-action btn-action--blue"
+                          className="admin-button-action admin-button-action-blue"
                           onClick={() => openEdit(p)}
                         >
                           <Pencil size={15} strokeWidth={2} /> Sửa
                         </button>
 
                         <button
-                          className="btn-action btn-action--danger"
+                          className="admin-button-action admin-button-action-danger"
                           onClick={() => setDeleteTarget(p)}
                         >
                           <Trash2 size={15} strokeWidth={2} /> Xóa
@@ -766,34 +769,37 @@ export default function AdminProducts() {
 
       {/* CREATE / EDIT MODAL */}
       {modal && (
-        <div className="modal-overlay" onClick={closeModal}>
+        <div className="admin-products-page-modal-overlay" onClick={closeModal}>
           <div
-            className="modal-box modal-box--wide"
+            className="admin-products-page-modal-box admin-products-page-modal-box-wide"
             onClick={(e) => e.stopPropagation()}
           >
             {/* HEADER */}
-            <div className="modal-header">
+            <div className="admin-products-page-modal-header">
               <h3>
                 {modal === "create" ? (
-                  <div className="modal-header-title">
+                  <div className="admin-products-page-modal-header-title">
                     <CirclePlus size={25} />
                     Thêm sản phẩm mới
                   </div>
                 ) : (
-                  <div className="modal-header-title">
+                  <div className="admin-products-page-modal-header-title">
                     <Pencil size={25} />
                     Sửa: {editTarget?.name}
                   </div>
                 )}
               </h3>
 
-              <button className="modal-close" onClick={closeModal}>
+              <button
+                className="admin-products-page-modal-close"
+                onClick={closeModal}
+              >
                 ✕
               </button>
             </div>
 
             {/* FORM */}
-            <form className="tech-form ap-form" onSubmit={handleSave}>
+            <form className="admin-products-page-form" onSubmit={handleSave}>
               {/* ROW 1 */}
               <div className="form-row">
                 {/* NAME */}
@@ -1025,10 +1031,10 @@ export default function AdminProducts() {
               )}
 
               {/* FOOTER */}
-              <div className="modal-footer">
+              <div className="admin-products-page-modal-footer">
                 <button
                   type="button"
-                  className="btn-cancel"
+                  className="admin-button-cancel"
                   onClick={closeModal}
                 >
                   Hủy
@@ -1036,7 +1042,7 @@ export default function AdminProducts() {
 
                 <button
                   type="submit"
-                  className="btn-submit"
+                  className="admin-button-submit"
                   disabled={
                     saving || categoriesLoading || categories.length === 0
                   }
@@ -1066,17 +1072,23 @@ export default function AdminProducts() {
 
       {/* DELETE MODAL */}
       {deleteTarget && (
-        <div className="modal-overlay" onClick={() => setDeleteTarget(null)}>
-          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="admin-products-page-modal-overlay"
+          onClick={() => setDeleteTarget(null)}
+        >
+          <div
+            className="admin-products-page-modal-box"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* HEADER */}
 
-            <div className="modal-header">
+            <div className="admin-products-page-modal-header">
               <h3>
                 <Trash2 /> Xác nhận xóa
               </h3>
 
               <button
-                className="modal-close"
+                className="admin-products-page-modal-close"
                 onClick={() => setDeleteTarget(null)}
               >
                 ✕
@@ -1085,7 +1097,7 @@ export default function AdminProducts() {
 
             {/* BODY */}
 
-            <div className="modal-body">
+            <div className="admin-products-page-modal-body">
               <p>
                 Bạn có chắc muốn xóa sản phẩm{" "}
                 <strong>"{deleteTarget.name}"</strong>
@@ -1100,23 +1112,23 @@ export default function AdminProducts() {
 
             {/* FOOTER */}
 
-            <div className="modal-footer">
+            <div className="admin-products-page-modal-footer">
               <button
-                className="btn-cancel"
+                className="admin-button-cancel"
                 onClick={() => setDeleteTarget(null)}
               >
                 Hủy
               </button>
 
               <button
-                className="btn-action btn-action--danger"
+                className="admin-button-action admin-button-action-danger"
                 onClick={handleDelete}
                 disabled={deleting}
               >
                 {deleting ? (
                   "Đang xóa..."
                 ) : (
-                  <div className="delete">
+                  <div className="admin-products-page-delete">
                     <Trash2 size={18} />
                     Xóa
                   </div>

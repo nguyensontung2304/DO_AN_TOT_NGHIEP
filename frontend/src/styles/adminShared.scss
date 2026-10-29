@@ -1,0 +1,608 @@
+// nội dung và tiêu đề card lớn
+.admin-card {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 30px;
+  background: #fff;
+  border: 1px solid #e8eaff;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.07);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 32px rgba(79, 70, 229, 0.13);
+  }
+
+  &-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 22px;
+    color: #fff;
+    background: linear-gradient(120deg, #6366f1, #8b5cf6);
+    border-bottom: none;
+
+    svg {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      padding: 7px;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 11px;
+    }
+
+    h2 {
+      margin: 0;
+      color: #fff;
+      font-size: 23px;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+  }
+
+  &-body {
+    padding: 20px 22px;
+    background: linear-gradient(180deg, #fff 0%, #fcfcff 100%);
+  }
+  &-gradient-blue &-header {
+    background: linear-gradient(120deg, #2563eb, #06b6d4);
+  }
+  &-gradient-green &-header {
+    background: linear-gradient(120deg, #059669, #34d399);
+  }
+  &-gradient-orange &-header {
+    background: linear-gradient(120deg, #ea580c, #fbbf24);
+  }
+  &-gradient-purple &-header {
+    background: linear-gradient(120deg, #7c3aed, #c084fc);
+  }
+  &-gradient-pink &-header {
+    background: linear-gradient(120deg, #db2777, #fb7185);
+  }
+}
+
+// nội dung card nhỏ dashboard
+.admin-dashboard-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  border-radius: 12px;
+  &-icon {
+    font-size: 32px;
+  }
+  strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #1a1a2e;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  p {
+    margin: 0;
+    color: #888;
+    font-size: 13px;
+  }
+}
+
+// nền họa tiết và hover cho các card nhỏ
+.admin-card-surface {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      circle at 10% 20%,
+      rgba(192, 57, 43, 0.08),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 90% 80%,
+      rgba(37, 99, 235, 0.08),
+      transparent 30%
+    ),
+    #f8f9fc;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s;
+
+  &::before,
+  &::after {
+    position: absolute;
+    width: 250px;
+    height: 200px;
+    border-radius: 50%;
+    content: "";
+    pointer-events: none;
+    transition: transform 0.4s ease;
+  }
+  &::before {
+    top: -120px;
+    right: -100px;
+    background: rgba(192, 57, 43, 0.05);
+  }
+  &::after {
+    bottom: -140px;
+    left: -100px;
+    background: rgba(37, 99, 235, 0.05);
+  }
+  &:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 45px rgba(26, 26, 46, 0.13);
+    &::before {
+      transform: scale(1.25);
+    }
+    &::after {
+      transform: scale(1.2);
+    }
+  }
+}
+
+// kích thước và chữ dùng chung cho card nhỏ
+.admin-summary-card {
+  border-radius: 12px;
+  padding: 20px 24px;
+  text-align: center;
+  strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #1a1a2e;
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  span {
+    color: #888;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-summary-card,
+  .admin-dashboard-card {
+    padding: 16px 12px;
+  }
+
+  .admin-summary-card strong {
+    font-size: 26px;
+  }
+}
+
+// bảng màu card nhỏ
+.admin-card-color {
+  &.admin-card-color.admin-card-color-blue {
+    background:
+      radial-gradient(
+        ellipse 90% 110% at 0% 0%,
+        #d6e4ff 0%,
+        #f0f5ff 40%,
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 90% 110% at 100% 100%,
+        #d6e4ff 0%,
+        #f0f5ff 40%,
+        transparent 70%
+      ),
+      #fff;
+    svg {
+      color: #2563eb;
+    }
+  }
+  &.admin-card-color.admin-card-color-purple {
+    background:
+      radial-gradient(
+        ellipse 90% 110% at 0% 0%,
+        #efdbff 0%,
+        #f9f0ff 40%,
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 90% 110% at 100% 100%,
+        #efdbff 0%,
+        #f9f0ff 40%,
+        transparent 70%
+      ),
+      #fff;
+    svg {
+      color: #7c3aed;
+    }
+  }
+  &.admin-card-color.admin-card-color-orange {
+    background:
+      radial-gradient(
+        ellipse 90% 110% at 0% 0%,
+        #ffe7ba 0%,
+        #fff7e6 40%,
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 90% 110% at 100% 100%,
+        #ffe7ba 0%,
+        #fff7e6 40%,
+        transparent 70%
+      ),
+      #fff;
+    svg {
+      color: #10b981;
+    }
+  }
+  &.admin-card-color.admin-card-color-pink {
+    background:
+      radial-gradient(
+        ellipse 90% 110% at 0% 0%,
+        #ffd6e7 0%,
+        #fff0f6 40%,
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 90% 110% at 100% 100%,
+        #ffd6e7 0%,
+        #fff0f6 40%,
+        transparent 70%
+      ),
+      #fff;
+    svg {
+      color: #10b981;
+    }
+  }
+  &.admin-card-color.admin-card-color-green {
+    background:
+      radial-gradient(
+        ellipse 90% 110% at 0% 0%,
+        #d9f7be 0%,
+        #f6ffed 40%,
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 90% 110% at 100% 100%,
+        #d9f7be 0%,
+        #f6ffed 40%,
+        transparent 70%
+      ),
+      #fff;
+    svg {
+      color: #10b981;
+    }
+  }
+  &.admin-card-color.admin-card-color-yellow {
+    background:
+      radial-gradient(
+        ellipse 90% 110% at 0% 0%,
+        #ffffb8 0%,
+        #feffe6 40%,
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 90% 110% at 100% 100%,
+        #ffffb8 0%,
+        #feffe6 40%,
+        transparent 70%
+      ),
+      #fff;
+    svg {
+      color: #10b981;
+    }
+  }
+  &.admin-card-color.admin-card-color-cyan {
+    background:
+      radial-gradient(
+        ellipse 90% 110% at 0% 0%,
+        #b5f5ec 0%,
+        #e6fffb 40%,
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 90% 110% at 100% 100%,
+        #b5f5ec 0%,
+        #e6fffb 40%,
+        transparent 70%
+      ),
+      #fff;
+    svg {
+      color: #10b981;
+    }
+  }
+}
+
+.admin-card-accent-pink svg {
+  color: #ec4899;
+}
+
+// button thao tác và màu trạng thái
+.admin-button-action {
+  border: none;
+  padding: 7px 14px;
+  border-radius: 7px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  &-green {
+    background: #d4edda;
+    color: #155724;
+    &:hover:not(:disabled) {
+      background: #28a745;
+      color: #fff;
+    }
+  }
+  &-blue {
+    background: #cce5ff;
+    color: #004085;
+    &:hover:not(:disabled) {
+      background: #007bff;
+      color: #fff;
+    }
+  }
+  &-orange {
+    background: #ffe5cc;
+    color: #7a3c00;
+    &:hover:not(:disabled) {
+      background: #fd7e14;
+      color: #fff;
+    }
+  }
+  &-red,
+  &-danger {
+    background: #f8d7da;
+    color: #721c24;
+    &:hover:not(:disabled) {
+      background: #dc3545;
+      color: #fff;
+    }
+  }
+  &-purple {
+    background: #e8d5ff;
+    color: #5c2d91;
+    &:hover:not(:disabled) {
+      background: #6f42c1;
+      color: #fff;
+    }
+  }
+  &-gray {
+    background: #e9ecef;
+    color: #495057;
+    &:hover:not(:disabled) {
+      background: #adb5bd;
+      color: #fff;
+    }
+  }
+}
+
+// cho 4 cái icon thùng rác
+.admin-button-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: background 0.15s;
+  // svg {
+  //   width: 25px;
+  //   height: 25px;
+  // }
+  &-danger:hover {
+    background: #ffeaea;
+  }
+}
+
+.admin-notify-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+// button phân trang danh sách xem thêm
+.admin-view-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 8px 16px;
+  border: 1px solid #4f46e5;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 1s ease;
+
+  &:hover {
+    background: linear-gradient(135deg, #4338ca, #6d28d9);
+    border-color: #4338ca;
+    color: #fff;
+    box-shadow: 0 5px 15px rgba(79, 70, 229, 0.4);
+    transform: translateY(-2px);
+  }
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+// button phân trang danh sách xem tất cả
+.admin-button-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 11px 12px;
+  color: #4338ca;
+  background: linear-gradient(110deg, #e0e7ff, #ede9fe);
+  border: 1px solid #c7d2fe;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 1s ease;
+
+  &:hover {
+    color: #ffffff;
+    background: linear-gradient(110deg, #6366f1, #a855f7);
+    border-color: transparent;
+    box-shadow: 0 5px 14px rgba(99, 102, 241, 0.3);
+    transform: translateY(-2px);
+  }
+}
+
+// button thêm thông số thêm nguyên liệu trong model thêm sản phẩm
+.admin-button-add-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  background: none;
+  border: 1.5px dashed #bbb;
+  color: #555;
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: #0f3460;
+    color: #0f3460;
+    background: #f0f4ff;
+  }
+}
+
+// button hủy trong model thêm sản phẩm
+.admin-button-cancel {
+  padding: 0px 18px;
+  margin-top: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #f8d7da;
+  color: #721c24;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #dc3545;
+  }
+}
+
+.admin-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.4;
+  white-space: nowrap;
+  gap: 5px;
+  transition: transform 0.2s ease;
+  &:hover {
+    transform: translateY(-1px);
+  }
+  svg {
+    flex-shrink: 0;
+  }
+  &-yellow {
+    color: #92400e;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-color: #fcd34d;
+  }
+  &-blue {
+    color: #1d4ed8;
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    border-color: #93c5fd;
+  }
+  &-orange {
+    color: #c2410c;
+    background: linear-gradient(135deg, #ffedd5, #fed7aa);
+    border-color: #fdba74;
+  }
+  &-teal {
+    color: #0f766e;
+    background: linear-gradient(135deg, #ccfbf1, #99f6e4);
+    border-color: #5eead4;
+  }
+  &-purple {
+    color: #6d28d9;
+    background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+    border-color: #c4b5fd;
+  }
+  &-green {
+    color: #15803d;
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    border-color: #86efac;
+  }
+  &-red {
+    color: #b91c1c;
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    border-color: #fca5a5;
+  }
+  &-gray {
+    color: #475569;
+    background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+    border-color: #cbd5e1;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-button-action {
+    justify-content: center;
+  }
+  .admin-button-submit {
+    width: 100%;
+    justify-content: center;
+    align-self: stretch;
+    padding: 12px 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-card {
+    margin-bottom: 20px;
+    border-radius: 14px;
+  }
+  .admin-card-header {
+    padding: 16px;
+    h2 {
+      font-size: 19px;
+    }
+  }
+  .admin-card-body {
+    padding: 16px;
+  }
+}
+@media (max-width: 480px) {
+  .admin-card {
+    border-radius: 12px;
+  }
+  .admin-card-header {
+    gap: 9px;
+    padding: 13px;
+    h2 {
+      font-size: 16px;
+    }
+  }
+  .admin-card-body {
+    padding: 12px;
+  }
+}

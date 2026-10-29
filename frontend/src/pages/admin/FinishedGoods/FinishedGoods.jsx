@@ -10,17 +10,16 @@ import {
 import { useState } from "react";
 import { useApp } from "../../../context/useApp";
 import { formatDate } from "../../../utils/formatDate";
-import "../Technical/technical.scss";
 import "./finishedGoods.scss";
 
 function AdminCard({ title, icon, gradient, children }) {
   return (
-    <div className={`admin-card admin-card--gradient-${gradient}`}>
-      <div className="admin-card__header">
+    <div className={`admin-card admin-card-gradient-${gradient}`}>
+      <div className="admin-card-header">
         <span>{icon}</span>
         <h2>{title}</h2>
       </div>
-      <div className="admin-card__body">{children}</div>
+      <div className="admin-card-body">{children}</div>
     </div>
   );
 }
@@ -87,20 +86,20 @@ export default function FinishedGoods() {
       </div>
 
       {/* Stats */}
-      <div className="fg-summary">
-        <div className="fg-summary__card fg-summary__card--green">
+      <div className="fg-page-summary">
+        <div className="fg-page-summary-card admin-card-surface admin-summary-card admin-card-color admin-card-color-pink">
           <strong>{totalQty}</strong>
           <span>Tổng sản phẩm</span>
         </div>
-        <div className="fg-summary__card fg-summary__card--blue">
+        <div className="fg-page-summary-card admin-card-surface admin-summary-card admin-card-color admin-card-color-purple">
           <strong>{totalTypes}</strong>
           <span>Loại sản phẩm</span>
         </div>
-        <div className="fg-summary__card fg-summary__card--yellow">
+        <div className="fg-page-summary-card admin-card-surface admin-summary-card admin-card-color admin-card-color-blue">
           <strong>{delivered}</strong>
           <span>Lô đã nhận</span>
         </div>
-        <div className="fg-summary__card fg-summary__card--purple">
+        <div className="fg-page-summary-card admin-card-surface admin-summary-card admin-card-color admin-card-color-orange">
           <strong>
             {productionReports.reduce(
               (s, r) => s + (r.scrapItems?.length || 0),
@@ -150,23 +149,23 @@ export default function FinishedGoods() {
                         </td>
                         <td>{g.unit}</td>
                         <td>
-                          <span className="fg-qty">{g.qty}</span>
+                          <span className="fg-page-qty">{g.qty}</span>
                         </td>
                         <td>{formatDate(g.receivedAt)}</td>
                         <td>
-                          <div className="fg-status-row">
+                          <div className="fg-page-status-row">
                             {g.status === "handed_over" || g.handedOver ? (
-                              <span className="badge badge--blue">
+                              <span className="admin-status admin-status-blue">
                                 Đã bàn giao
                               </span>
                             ) : (
                               <>
-                                <span className="badge badge--green">
+                                <span className="admin-status admin-status-green">
                                   Trong kho
                                 </span>
                                 <button
                                   type="button"
-                                  className="btn-action btn-action--purple"
+                                  className="admin-button-action admin-button-action-purple"
                                   onClick={() => deliverToCustomer(g)}
                                 >
                                   <Truck
@@ -187,7 +186,7 @@ export default function FinishedGoods() {
             </div>
             {inventoryGoods.length > 5 && (
               <button
-                className="dash-view-more"
+                className="admin-view-more"
                 onClick={() => setShowAllInventory(!showAllInventory)}
               >
                 {showAllInventory ? (
@@ -248,7 +247,7 @@ export default function FinishedGoods() {
                           <strong>{r.productName}</strong>
                         </td>
                         <td>
-                          <span className="badge badge--green">
+                          <span className="admin-status admin-status-green">
                             {r.finishedQty} cái
                           </span>
                         </td>
@@ -262,23 +261,23 @@ export default function FinishedGoods() {
                               ))}
                             </ul>
                           ) : (
-                            <span className="badge badge--gray">Không có</span>
+                            <span className="admin-status admin-status-gray">Không có</span>
                           )}
                         </td>
                         <td>{r.note || "—"}</td>
                         <td>{formatDate(r.createdAt)}</td>
                         <td>
                           {r.status === "handed_over" ? (
-                            <span className="badge badge--blue">
+                            <span className="admin-status admin-status-blue">
                               Đã bàn giao
                             </span>
                           ) : r.status === "delivered" ||
                             r.status === "in_warehouse" ? (
-                            <span className="badge badge--green">
+                            <span className="admin-status admin-status-green">
                               Đang trong kho
                             </span>
                           ) : (
-                            <span className="badge badge--yellow">
+                            <span className="admin-status admin-status-yellow">
                               Chờ thủ kho
                             </span>
                           )}
@@ -290,7 +289,7 @@ export default function FinishedGoods() {
             </div>
             {productionReports.length > 5 && (
               <button
-                className="dash-view-more"
+                className="admin-view-more"
                 onClick={() => setShowAllReports(!showAllReports)}
               >
                 {showAllReports ? (

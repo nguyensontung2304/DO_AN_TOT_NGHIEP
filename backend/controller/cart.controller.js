@@ -92,7 +92,6 @@ export const addToCart = async (req, res) => {
     // Đã có trong giỏ -> tăng qty
     if (!cartItem.deletedAt) {
       cartItem.qty += qty;
-
       await cartItem.save();
 
       return res.status(200).json({

@@ -829,9 +829,9 @@
     flex-direction: column;
     gap: 6px;
 
-    > span {
+    span {
       color: #858b9b;
-      font-size: 12px;
+      font-size: 15px;
     }
 
     .star {
@@ -1135,7 +1135,7 @@
       }
 
       &-image {
-        height: 180px;
+        height: 160px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1205,7 +1205,7 @@
         margin-top: auto;
         padding-top: 8px;
         color: #777d8d;
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 800;
         transition:
           color 0.3s ease,
@@ -1521,7 +1521,13 @@
       font-size: 27px;
     }
 
-    &-rating-stars .star svg {
+    &-rating-stars {
+      span {
+        color: #858b9b;
+        font-size: 13px;
+      }
+    }
+    .star svg {
       width: 23px;
       height: 23px;
     }
@@ -1576,12 +1582,11 @@
 
       &-card {
         display: grid;
-        grid-template-columns: 118px minmax(0, 1fr);
+        grid-template-columns: 130px minmax(0, 1fr);
         align-items: stretch;
 
         &-image {
           height: 100%;
-          min-height: 160px;
         }
 
         &-body {

@@ -1,5 +1,4 @@
 import express from "express";
-
 import {
   register,
   login,
@@ -10,7 +9,6 @@ import {
   changePassword,
   updateAvatar,
 } from "../controller/auth.controller.js";
-
 import { verifyToken } from "../middlewares/auth.middleware.js";
 import upload from "../middlewares/uploadAvatar.middleware.js";
 import {

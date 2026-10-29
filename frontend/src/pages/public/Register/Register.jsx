@@ -29,13 +29,13 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Tự động chuyển ảnh sau mỗi 5 giây
+  // Tự động chuyển ảnh sau mỗi 4 giây
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentImageIndex(
         (prevIndex) => (prevIndex + 1) % BRAND_IMAGES.length,
       );
-    }, 5000);
+    }, 4000);
 
     return () => clearInterval(timer);
   }, []);

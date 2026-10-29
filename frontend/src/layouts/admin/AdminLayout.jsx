@@ -9,8 +9,8 @@ export default function AdminLayout() {
   return (
     <div className="admin-layout">
       <AdminHeader />
-      <main className="admin-layout__main">
-        <div className="admin-layout__content">
+      <main className="admin-layout-main">
+        <div className="admin-layout-content">
           <Outlet />
         </div>
       </main>

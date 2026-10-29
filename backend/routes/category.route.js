@@ -2,9 +2,9 @@ import express from "express";
 import { verifyToken, checkAdmin } from "../middlewares/auth.middleware.js";
 import {
   getCategories,
-  createCategory,
-  updateCategory,
-  deleteCategory,
+  // createCategory,
+  // updateCategory,
+  // deleteCategory,
 } from "../controller/category.controller.js";
 
 const router = express.Router();
@@ -14,13 +14,13 @@ const router = express.Router();
 router.get("/", getCategories);
 
 // ====================== ADMIN ======================
-// Thêm danh mục
-router.post("/", verifyToken, checkAdmin, createCategory);
+// // Thêm danh mục
+// router.post("/", verifyToken, checkAdmin, createCategory);
 
-// Sửa danh mục
-router.put("/:id", verifyToken, checkAdmin, updateCategory);
+// // Sửa danh mục
+// router.put("/:id", verifyToken, checkAdmin, updateCategory);
 
-// Xóa danh mục
-router.delete("/:id", verifyToken, checkAdmin, deleteCategory);
+// // Xóa danh mục
+// router.delete("/:id", verifyToken, checkAdmin, deleteCategory);
 
 export default router;

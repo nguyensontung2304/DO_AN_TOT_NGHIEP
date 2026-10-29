@@ -7,7 +7,7 @@
   box-shadow: 0 2px 16px rgba(0, 0, 0, 0.3);
 
   // ── Top bar ──────────────────────────────────────────────────────────────
-  &__top {
+  &-top {
     max-width: 1400px;
     margin: 0 auto;
     padding: 0 24px;
@@ -18,7 +18,7 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   }
 
-  &__brand {
+  &-brand {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -43,13 +43,13 @@
     }
   }
 
-  &__right {
+  &-right {
     display: flex;
     align-items: center;
     gap: 20px;
   }
 
-  &__menu-toggle {
+  &-menu-toggle {
     display: none;
     align-items: center;
     justify-content: center;
@@ -63,11 +63,11 @@
     cursor: pointer;
   }
 
-  &__notify {
+  &-notify {
     position: relative;
   }
 
-  &__alert {
+  &-alert {
     background: rgba(231, 76, 60, 0.15);
     color: #ff6b6b;
     border: 1px solid rgba(231, 76, 60, 0.3);
@@ -85,7 +85,7 @@
     }
   }
 
-  &__notify-panel {
+  &-notify-panel {
     position: absolute;
     top: calc(100% + 10px);
     right: 0;
@@ -99,7 +99,7 @@
     z-index: 50;
   }
 
-  &__notify-head {
+  &-notify-head {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -115,20 +115,20 @@
     }
   }
 
-  &__notify-empty {
+  &-notify-empty {
     padding: 20px 14px;
     font-size: 13px;
     color: #888;
     margin: 0;
   }
 
-  &__notify-panel ul {
+  &-notify-panel ul {
     list-style: none;
     margin: 0;
     padding: 0;
   }
 
-  &__notify-panel li {
+  &-notify-panel li {
     border-bottom: 1px solid #f3f3f3;
 
     &.is-read button {
@@ -152,7 +152,7 @@
     }
   }
 
-  &__notify-dot {
+  &-notify-dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
@@ -160,24 +160,24 @@
     flex-shrink: 0;
     background: #6495ed;
 
-    &--blue {
+    &-blue {
       background: #4c8dff;
     }
-    &--purple {
+    &-purple {
       background: #9b59b6;
     }
-    &--orange {
+    &-orange {
       background: #e67e22;
     }
-    &--teal {
+    &-teal {
       background: #1abc9c;
     }
-    &--green {
+    &-green {
       background: #27ae60;
     }
   }
 
-  &__notify-body {
+  &-notify-body {
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -205,23 +205,23 @@
     }
   }
 
-  &__user {
+  &-user {
     display: flex;
     align-items: center;
     gap: 8px;
   }
 
-  &__avatar {
+  &-avatar {
     font-size: 20px;
   }
 
-  &__username {
+  &-username {
     font-size: 14px;
     font-weight: 600;
     color: #ccd6f6;
   }
 
-  &__logout {
+  &-logout {
     display: flex;
     background: rgba(231, 76, 60, 0.15);
     color: #ff6b6b;
@@ -241,7 +241,7 @@
   }
 
   // ── Nav bar ──────────────────────────────────────────────────────────────
-  &__nav {
+  &-nav {
     max-width: 1400px;
     margin: 0 auto;
     padding: 0 24px;
@@ -257,7 +257,7 @@
     }
   }
 
-  &__nav-item {
+  &-nav-item {
     display: flex;
     gap: 8px;
     padding: 8px 16px;
@@ -282,11 +282,11 @@
     }
   }
 
-  &__nav-icon {
+  &-nav-icon {
     font-size: 16px;
   }
 
-  &__nav-badge {
+  &-nav-badge {
     background: #e74c3c;
     color: #fff;
     border-radius: 10px;
@@ -296,14 +296,14 @@
   }
 
   @media (max-width: 768px) {
-    &__top {
+    &-top {
       position: relative;
       height: 60px;
       padding: 0 16px;
       gap: 12px;
     }
 
-    &__brand {
+    &-brand {
       gap: 8px;
       min-width: 0;
 
@@ -321,17 +321,17 @@
       }
     }
 
-    &__right {
+    &-right {
       margin-left: auto;
       gap: 10px;
     }
 
-    &__menu-toggle {
+    &-menu-toggle {
       display: inline-flex;
       flex-shrink: 0;
     }
 
-    &__alert {
+    &-alert {
       display: inline-flex;
       width: 34px;
       height: 34px;
@@ -344,11 +344,11 @@
       }
     }
 
-    &__username {
+    &-username {
       display: none;
     }
 
-    &__logout {
+    &-logout {
       padding: 7px 9px;
 
       span {
@@ -356,7 +356,7 @@
       }
     }
 
-    &__nav {
+    &-nav {
       display: none;
       width: 100%;
       height: auto;
@@ -373,19 +373,19 @@
       }
     }
 
-    &__nav-item {
+    &-nav-item {
       min-height: 42px;
       padding: 10px 12px;
     }
   }
 
   @media (max-width: 480px) {
-    &__top {
+    &-top {
       padding: 0 10px;
       gap: 8px;
     }
 
-    &__brand {
+    &-brand {
       gap: 6px;
 
       strong {
@@ -397,33 +397,33 @@
       }
     }
 
-    &__right {
+    &-right {
       gap: 6px;
     }
 
-    &__avatar {
+    &-avatar {
       font-size: 18px;
     }
 
-    &__user > div {
+    &-user > div {
       display: none !important;
     }
 
-    &__menu-toggle {
+    &-menu-toggle {
       width: 36px;
       height: 36px;
     }
 
-    &__logout {
+    &-logout {
       padding: 6px;
     }
 
-    &__nav {
+    &-nav {
       padding-right: 10px;
       padding-left: 10px;
     }
 
-    &__notify-panel {
+    &-notify-panel {
       position: fixed;
       top: 66px;
       right: 8px;
