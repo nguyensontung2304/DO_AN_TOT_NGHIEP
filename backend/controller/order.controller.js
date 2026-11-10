@@ -167,16 +167,6 @@ export const createOrder = async (req, res) => {
       order: mapOrder(createdOrder),
     });
   } catch (err) {
-    // IN LỖI SQL THẬT RA TERMINAL
-
-    console.error("=================================");
-    console.error("LỖI TẠO ĐƠN HÀNG");
-    console.error("message:", err.message);
-    console.error("parent:", err.parent?.message);
-    console.error("original:", err.original?.message);
-    console.error("sql:", err.sql);
-    console.error("=================================");
-
     // DATABASE ERROR
     if (err.name === "SequelizeDatabaseError") {
       return res.status(500).json({

@@ -23,7 +23,7 @@ function ProductCard({ product }) {
 
   const [added, setAdded] = useState(false);
 
-  const handleAdd = async () => {
+  const handleAddToCart = async () => {
     if (!currentUser?.id) {
       window.location.href = ROUTES.USER.LOGIN;
       return;
@@ -150,7 +150,7 @@ function ProductCard({ product }) {
                   ? "home-products-inner-category-list-product-body-buttons-cart-added"
                   : ""
               }`}
-              onClick={handleAdd}
+              onClick={handleAddToCart}
             >
               {added ? (
                 <>

@@ -5,16 +5,6 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 16px;
     margin-bottom: 28px;
-
-    @media (max-width: 768px) {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    @media (max-width: 480px) {
-      grid-template-columns: 1fr;
-    }
   }
 
   // Form thêm vật tư
@@ -74,6 +64,119 @@
     white-space: nowrap;
   }
 
+  // Kiểm kê yêu cầu sản xuất từ Kỹ thuật
+  &-production-check {
+    &-table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid #e5e7ff;
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    &-table {
+      width: 100%;
+      min-width: 620px;
+      border-collapse: collapse;
+      color: #333;
+      font-size: 15px;
+
+      thead {
+        background: linear-gradient(120deg, #eef2ff, #f5f3ff);
+      }
+
+      th {
+        padding: 11px 14px;
+        border-bottom: 2px solid #e0e0e0;
+        background: #f0f2f5;
+        color: #555;
+        font-weight: 700;
+        text-align: left;
+        white-space: nowrap;
+      }
+
+      td {
+        padding: 11px 14px;
+        border-bottom: 1px solid #f0f0f0;
+        color: #333;
+        line-height: 1.6;
+        vertical-align: middle;
+
+        strong {
+          color: #312e81;
+          font-weight: 700;
+        }
+      }
+
+      tbody tr {
+        transition:
+          background 0.2s ease,
+          box-shadow 0.2s ease;
+
+        &:nth-child(even) {
+          background: #fafaff;
+        }
+
+        &:hover {
+          background: #fafafa;
+          box-shadow: inset 4px 0 0 #818cf8;
+        }
+
+        &:last-child td {
+          border-bottom: none;
+        }
+      }
+    }
+
+    &-material-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin: 0;
+      padding: 0;
+      color: #555;
+      font-size: 13px;
+      list-style: none;
+
+      strong {
+        display: inline-block;
+        min-width: 0;
+        color: #312e81;
+        font-weight: 700;
+      }
+    }
+
+    &-material-item {
+      display: block;
+      padding: 2px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: #fafafa;
+
+      &-ok {
+        color: #229954;
+      }
+
+      &-lack {
+        color: #e74c3c;
+      }
+    }
+
+    &-material-lack-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-left: 6px;
+      padding: 3px 8px;
+      border-radius: 5px;
+      background: #fdecea;
+      color: #c0392b;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+  }
+
   // Danh sách vật tư: dễ đọc, mỗi vật tư một khối
   .material-list-inline {
     display: flex;
@@ -106,36 +209,16 @@
     h1 {
       display: flex;
       align-items: center;
-      gap: 8px;
       margin-bottom: 6px;
       color: #1a1a2e;
       font-size: 26px;
       font-weight: 800;
-    }
-
-    @media (max-width: 768px) {
-      margin-bottom: 20px;
-
-      h1 {
-        font-size: 23px;
-        line-height: 1.3;
-      }
-    }
-
-    @media (max-width: 480px) {
-      h1 {
-        font-size: 21px;
-      }
     }
   }
 
   .page-sub {
     color: #888;
     font-size: 14px;
-
-    @media (max-width: 480px) {
-      font-size: 13px;
-    }
   }
 
   // Thông báo
@@ -258,16 +341,6 @@
       font-size: 13px;
       resize: vertical;
     }
-
-    @media (max-width: 768px) {
-      min-width: 620px;
-      font-size: 13px;
-
-      th,
-      td {
-        padding: 9px 10px;
-      }
-    }
   }
 
   // Nhóm nút hành động
@@ -276,10 +349,6 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 6px;
-
-    @media (max-width: 768px) {
-      min-width: 120px;
-    }
   }
 
   // Nút xem thêm
@@ -291,8 +360,14 @@
     margin-top: 16px;
   }
 
-  // Responsive form
+  // Responsive
   @media (max-width: 768px) {
+    &-summary {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
     &-mat-form {
       align-items: stretch;
 
@@ -304,6 +379,52 @@
       .admin-button-submit {
         width: 100%;
       }
+    }
+
+    &-production-check-table {
+      font-size: 13px;
+
+      th,
+      td {
+        padding: 9px 10px;
+      }
+    }
+
+    .page-header {
+      margin-bottom: 20px;
+
+      h1 {
+        font-size: 23px;
+        line-height: 1.3;
+      }
+    }
+
+    .data-table {
+      min-width: 620px;
+      font-size: 13px;
+
+      th,
+      td {
+        padding: 9px 10px;
+      }
+    }
+
+    .admin-notify-actions {
+      min-width: 120px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    &-summary {
+      grid-template-columns: 1fr;
+    }
+
+    .page-header h1 {
+      font-size: 21px;
+    }
+
+    .page-sub {
+      font-size: 13px;
     }
   }
 }

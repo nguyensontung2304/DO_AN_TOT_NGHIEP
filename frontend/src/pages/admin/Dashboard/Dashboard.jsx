@@ -231,7 +231,6 @@ export default function Dashboard() {
       </div>
 
       {/* Alerts */}
-
       {(pending > 0 ||
         purPending > 0 ||
         designPend > 0 ||
@@ -242,13 +241,9 @@ export default function Dashboard() {
           {pending > 0 && (
             <Link
               to={ROUTES.ADMIN.WAREHOUSE}
-              className="dashboard-page-alert dashboard-page-alert-yellow"
+              className="dashboard-page-alert dashboard-page-alert-green"
             >
-              <AlertTriangle
-                size={14}
-                strokeWidth={2}
-                style={{ marginRight: 6 }}
-              />
+              <AlertTriangle size={16} strokeWidth={2} />
               {pending} yêu cầu sản xuất chờ Thủ kho kiểm kê
             </Link>
           )}
@@ -258,11 +253,7 @@ export default function Dashboard() {
               to={ROUTES.ADMIN.PURCHASING}
               className="dashboard-page-alert dashboard-page-alert-orange"
             >
-              <ShoppingCart
-                size={14}
-                strokeWidth={2}
-                style={{ marginRight: 6 }}
-              />
+              <ShoppingCart size={16} strokeWidth={2} />
               {purPending} đơn mua hàng chờ xử lý
             </Link>
           )}
@@ -272,7 +263,7 @@ export default function Dashboard() {
               to={ROUTES.ADMIN.TECHNICAL}
               className="dashboard-page-alert dashboard-page-alert-blue"
             >
-              <Ruler size={14} strokeWidth={2} style={{ marginRight: 6 }} />
+              <Ruler size={16} strokeWidth={2} />
               {designPend} yêu cầu bản thiết kế chờ Kỹ thuật
             </Link>
           )}
@@ -282,7 +273,7 @@ export default function Dashboard() {
               to={ROUTES.ADMIN.WAREHOUSE}
               className="dashboard-page-alert dashboard-page-alert-purple"
             >
-              <Package size={14} strokeWidth={2} style={{ marginRight: 6 }} />
+              <Package size={16} strokeWidth={2} />
               {reportPend} lô thành phẩm chờ Thủ kho nhận
             </Link>
           )}
@@ -292,11 +283,7 @@ export default function Dashboard() {
               to={ROUTES.ADMIN.WAREHOUSE}
               className="dashboard-page-alert dashboard-page-alert-red"
             >
-              <AlertTriangle
-                size={14}
-                strokeWidth={2}
-                style={{ marginRight: 6 }}
-              />
+              <AlertTriangle size={16} strokeWidth={2} />
               {lowStock} loại vật tư sắp hết tồn kho
             </Link>
           )}
@@ -306,11 +293,7 @@ export default function Dashboard() {
               to={ROUTES.ADMIN.ORDERS}
               className="dashboard-page-alert dashboard-page-alert-yellow"
             >
-              <ClipboardList
-                size={14}
-                strokeWidth={2}
-                style={{ marginRight: 6 }}
-              />
+              <ClipboardList size={16} strokeWidth={2} />
               {pendingOrders} đơn hàng chờ xác nhận
             </Link>
           )}

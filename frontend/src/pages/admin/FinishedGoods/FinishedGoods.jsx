@@ -78,7 +78,12 @@ export default function FinishedGoods() {
     <div className="fg-page">
       <div className="page-header">
         <h1>
-          <Package /> Kho Thành phẩm
+          <Package
+            size={24}
+            strokeWidth={2}
+            style={{ verticalAlign: "middle", marginRight: 8 }}
+          />{" "}
+          Kho Thành phẩm
         </h1>
         <p className="page-sub">
           Tổng hợp thành phẩm đã sản xuất và bàn giao từ Nhà máy
@@ -261,7 +266,9 @@ export default function FinishedGoods() {
                               ))}
                             </ul>
                           ) : (
-                            <span className="admin-status admin-status-gray">Không có</span>
+                            <span className="admin-status admin-status-gray">
+                              Không có
+                            </span>
                           )}
                         </td>
                         <td>{r.note || "—"}</td>

@@ -24,15 +24,17 @@ const invalidLink = (res) =>
 export async function forgotPassword(req, res) {
   const email =
     typeof req.body?.email === "string" ? req.body.email.trim() : "";
+
   if (email.length > 255 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return res.status(400).json({ message: "Email không đúng định dạng" });
   }
+
   let clientUrl;
+
   try {
     clientUrl = new URL(process.env.CLIENT_URL);
-  } catch {
-    /* thiếu cấu hình */
-  }
+  } catch {}
+
   if (
     !isMailConfigured ||
     !clientUrl ||
@@ -44,7 +46,9 @@ export async function forgotPassword(req, res) {
   }
 
   const token = randomBytes(32).toString("hex");
+
   const tokenHash = hashToken(token);
+
   const user = await sequelize.transaction(async (transaction) => {
     // So khớp email không phân biệt hoa/thường, không thay đổi email đang lưu của user.
     const current = await User.findOne({
@@ -52,22 +56,28 @@ export async function forgotPassword(req, res) {
         sequelize.fn("lower", sequelize.col("email")),
         email.toLowerCase(),
       ),
+
       transaction,
       lock: transaction.LOCK.UPDATE,
     });
+
     if (!current) return null;
+
     const now = Date.now();
+
     if (
       current.reset_password_requested_at &&
       now - current.reset_password_requested_at.getTime() < RESEND_COOLDOWN
     )
       return null;
+
     await current.update(
       {
         reset_password_token_hash: tokenHash,
         reset_password_expires_at: new Date(now + TOKEN_TTL),
         reset_password_requested_at: new Date(now),
       },
+
       { transaction },
     );
     return current;

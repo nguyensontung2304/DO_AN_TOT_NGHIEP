@@ -90,8 +90,7 @@ const ForgotPassword = () => {
           <h1 className="forgot_password-title">Quên mật khẩu?</h1>
 
           <p className="forgot_password-description">
-            Nhập địa chỉ email của bạn. Nếu email hợp lệ, chúng tôi sẽ gửi hướng
-            dẫn đặt lại mật khẩu.
+            Nhập địa chỉ email của bạn.
           </p>
 
           {error && (

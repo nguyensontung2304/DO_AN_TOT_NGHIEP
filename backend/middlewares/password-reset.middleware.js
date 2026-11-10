@@ -1,5 +1,3 @@
-// Giới hạn request theo IP trong RAM, phù hợp server đơn của đồ án.
-// Khi chạy nhiều instance, dùng rate limiter có kho chung (Redis) hoặc gateway.
 export function passwordResetRateLimit(limit) {
   const windowMs = 15 * 60 * 1000;
   const requests = new Map();

@@ -616,7 +616,12 @@ export default function AdminProducts() {
       <div className="page-header">
         <div>
           <h1>
-            <Sofa size={26} strokeWidth={2} /> Quản lý sản phẩm
+            <Sofa
+              size={24}
+              strokeWidth={2}
+              style={{ verticalAlign: "middle", marginRight: 8 }}
+            />{" "}
+            Quản lý sản phẩm
           </h1>
 
           <p className="page-sub">

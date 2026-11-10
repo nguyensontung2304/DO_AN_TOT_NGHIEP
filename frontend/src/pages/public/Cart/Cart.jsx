@@ -360,6 +360,7 @@ export default function Cart() {
           item.productId === productId ? { ...item, qty: newQty } : item,
         ),
       );
+
       window.dispatchEvent(new Event("cartUpdated"));
     } catch (error) {
       console.error("Lỗi cập nhật số lượng:", error);

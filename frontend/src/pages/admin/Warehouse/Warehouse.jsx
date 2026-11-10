@@ -506,106 +506,108 @@ export default function Warehouse() {
         icon={<Search size={18} strokeWidth={2} />}
         gradient="teal"
       >
-        {pendingRequests.length === 0 ? (
-          <p className="empty-state">Không có yêu cầu mới từ Kỹ thuật.</p>
-        ) : (
-          <div className="table-wrap">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Sản phẩm</th>
-                  <th>SL SX</th>
-                  <th>Kiểm kê vật tư</th>
-                  <th>Kết quả</th>
-                  <th>Hành động</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pendingRequests.map((req, i) => {
-                  const checked = checkStock(req);
-                  const hasLack = checked.some((m) => m.lacking > 0);
-                  return (
-                    <tr key={req.id}>
-                      <td>{i + 1}</td>
-                      <td>
-                        <strong>{req.productName}</strong>
-                      </td>
-                      <td>{req.productQty}</td>
-                      <td>
-                        <ul className="material-list-inline">
-                          {checked.map((m, mi) => (
-                            <li
-                              key={mi}
-                              className={
-                                m.lacking > 0
-                                  ? "warehouse-page-lack"
-                                  : "warehouse-page-ok"
-                              }
+        <div className="warehouse-page-production-check">
+          {pendingRequests.length === 0 ? (
+            <p className="empty-state">Không có yêu cầu mới từ Kỹ thuật.</p>
+          ) : (
+            <div className="warehouse-page-production-check-table-wrap">
+              <table className="warehouse-page-production-check-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Sản phẩm</th>
+                    <th>Số lượng</th>
+                    <th>Kiểm kê vật tư</th>
+                    <th>Kết quả</th>
+                    <th>Hành động</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pendingRequests.map((req, i) => {
+                    const checked = checkStock(req);
+                    const hasLack = checked.some((m) => m.lacking > 0);
+                    return (
+                      <tr key={req.id}>
+                        <td>{i + 1}</td>
+                        <td>
+                          <strong>{req.productName}</strong>
+                        </td>
+                        <td>{req.productQty}</td>
+                        <td>
+                          <ul className="warehouse-page-production-check-material-list">
+                            {checked.map((m, mi) => (
+                              <li
+                                key={mi}
+                                className={
+                                  m.lacking > 0
+                                    ? "warehouse-page-production-check-material-item warehouse-page-production-check-material-item-lack"
+                                    : "warehouse-page-production-check-material-item warehouse-page-production-check-material-item-ok"
+                                }
+                              >
+                                {m.materialName}: cần{" "}
+                                <strong>{m.requiredQty}</strong> {m.unit}
+                                {" · "}tồn <strong>{m.inStock}</strong>
+                                {m.lacking > 0 && (
+                                  <span className="warehouse-page-production-check-material-lack-tag">
+                                    {" "}
+                                    <AlertTriangle
+                                      size={14}
+                                      strokeWidth={2}
+                                      aria-hidden="true"
+                                    />
+                                    thiếu {m.lacking}
+                                  </span>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        </td>
+                        <td>
+                          {hasLack ? (
+                            <span className="admin-status admin-status-red">
+                              Thiếu vật tư
+                            </span>
+                          ) : (
+                            <span className="admin-status admin-status-green">
+                              Đủ hàng
+                            </span>
+                          )}
+                        </td>
+                        <td>
+                          {hasLack ? (
+                            <button
+                              className="admin-button-action admin-button-action-orange"
+                              onClick={() => handleSendToPurchasing(req)}
                             >
-                              {m.materialName}: cần{" "}
-                              <strong>{m.requiredQty}</strong> {m.unit}
-                              {" · "}tồn <strong>{m.inStock}</strong>
-                              {m.lacking > 0 && (
-                                <span className="warehouse-page-lack-tag">
-                                  {" "}
-                                  <AlertTriangle
-                                    size={14}
-                                    strokeWidth={2}
-                                    aria-hidden="true"
-                                  />
-                                  thiếu {m.lacking}
-                                </span>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      </td>
-                      <td>
-                        {hasLack ? (
-                          <span className="admin-status admin-status-red">
-                            Thiếu vật tư
-                          </span>
-                        ) : (
-                          <span className="admin-status admin-status-green">
-                            Đủ hàng
-                          </span>
-                        )}
-                      </td>
-                      <td>
-                        {hasLack ? (
-                          <button
-                            className="admin-button-action admin-button-action-orange"
-                            onClick={() => handleSendToPurchasing(req)}
-                          >
-                            <ShoppingCart
-                              size={13}
-                              strokeWidth={2}
-                              style={{ marginRight: 4 }}
-                            />
-                            Gửi mua hàng
-                          </button>
-                        ) : (
-                          <button
-                            className="admin-button-action admin-button-action-green"
-                            onClick={() => handleSendToPurchasing(req)}
-                          >
-                            <CheckCircle
-                              size={13}
-                              strokeWidth={2}
-                              style={{ marginRight: 4 }}
-                            />
-                            Đủ — Sẵn sàng SX
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+                              <ShoppingCart
+                                size={13}
+                                strokeWidth={2}
+                                style={{ marginRight: 4 }}
+                              />
+                              Gửi mua hàng
+                            </button>
+                          ) : (
+                            <button
+                              className="admin-button-action admin-button-action-green"
+                              onClick={() => handleSendToPurchasing(req)}
+                            >
+                              <CheckCircle
+                                size={13}
+                                strokeWidth={2}
+                                style={{ marginRight: 4 }}
+                              />
+                              Đủ — Sẵn sàng sản xuất
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </AdminCard>
 
       {/* 3. Nhập kho hàng đã mua─ */}
@@ -624,7 +626,7 @@ export default function Warehouse() {
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Sản phẩm SX</th>
+                  <th>Sản phẩm sản xuất</th>
                   <th>Vật tư nhập kho</th>
                   <th>Ngày mua</th>
                   <th>Hành động</th>
@@ -686,7 +688,7 @@ export default function Warehouse() {
                 <tr>
                   <th>#</th>
                   <th>Sản phẩm</th>
-                  <th>SL SX</th>
+                  <th>Số lượng</th>
                   <th>Vật tư bàn giao</th>
                   <th>Hành động</th>
                 </tr>

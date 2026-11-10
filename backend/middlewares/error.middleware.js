@@ -1,7 +1,6 @@
 import multer from "multer";
 
 // Middleware xử lý lỗi chung, phải đặt SAU tất cả routes trong app.js
-//
 // Express nhận ra đây là middleware xử lý lỗi vì hàm có 4 tham số (error đứng đầu).
 // Express 5 tự bắt lỗi của các controller async rồi chuyển vào đây,
 // nên trong controller không cần viết try/catch nữa.

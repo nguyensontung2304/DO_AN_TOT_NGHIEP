@@ -32,9 +32,7 @@ function buildOrderEmailHtml(order) {
     : "";
 
   const orderCode = order.code || "Đang cập nhật";
-
   const orderUrl = `${process.env.CLIENT_URL}/cart/orders`;
-
   const itemRows = (order.order_items || [])
     .map(
       (item) => `
@@ -603,7 +601,6 @@ function buildOrderEmailHtml(order) {
   `;
 }
 
-// GỬI EMAIL XÁC NHẬN ĐƠN HÀNG
 export async function sendOrderConfirmationEmail(orderId) {
   if (!isMailConfigured) {
     console.warn(
@@ -650,29 +647,23 @@ export async function sendOrderConfirmationEmail(orderId) {
 
     if (!order) {
       console.error(`Không tìm thấy đơn hàng ID ${orderId} để gửi email`);
-
       return;
     }
 
     if (!order.user) {
       console.error(`Không tìm thấy user của đơn hàng ${orderId}`);
-
       return;
     }
 
     if (!order.user.email) {
       console.error(`User của đơn hàng ${order.id} không có email`);
-
       return;
     }
 
     await transporter.sendMail({
       from: process.env.MAIL_FROM || process.env.MAIL_USER,
-
       to: order.user.email,
-
       subject: `[Nội Thất Việt] Xác nhận đơn hàng #${order.code}`,
-
       html: buildOrderEmailHtml(order),
     });
 

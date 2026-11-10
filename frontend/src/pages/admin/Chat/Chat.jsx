@@ -222,7 +222,12 @@ function AdminChat() {
       <div className="admin-chat-heading">
         <div>
           <h2 className="admin-chat-title">
-            <MessageCircle /> Chat với khách hàng
+            <MessageCircle
+              size={24}
+              strokeWidth={2}
+              style={{ verticalAlign: "middle", marginRight: 8 }}
+            />{" "}
+            Chat với khách hàng
           </h2>
           <p className="admin-chat-subtitle">
             Trả lời trực tiếp khách hàng đang cần hỗ trợ
@@ -256,7 +261,11 @@ function AdminChat() {
             ) : conversations.length === 0 ? (
               <div className="admin-chat-state">
                 <div className="admin-chat-state-icon">
-                  <MessageCircle size={22} strokeWidth={1.8} aria-hidden="true" />
+                  <MessageCircle
+                    size={22}
+                    strokeWidth={1.8}
+                    aria-hidden="true"
+                  />
                 </div>
                 <p>Chưa có khách nào nhắn tin</p>
                 <span>

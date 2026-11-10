@@ -29,6 +29,7 @@ router.post("/login", login);
 // refresh-token
 router.post("/refresh-token", refreshToken);
 
+// quên mật kahaur
 router.post("/forgot-password", passwordResetRateLimit(10), forgotPassword);
 router.post(
   "/reset-password/validate",

@@ -53,7 +53,6 @@ export default function RequireAdmin() {
   // Kiểm tra quyền hạn theo từng component đối với admin bộ phận
   const isRootAdmin =
     currentUser?.isRootAdmin === true ||
-    currentUser?.is_root_admin === true ||
     currentUser?.email?.toLowerCase() === "admin@gmail.com";
 
   if (currentUser && !isRootAdmin) {

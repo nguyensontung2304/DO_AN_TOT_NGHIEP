@@ -7,26 +7,6 @@
     margin-bottom: 24px;
   }
 
-  &-alert {
-    display: block;
-    padding: 12px 18px;
-    border-radius: 9px;
-    font-size: 14px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: opacity 0.15s;
-
-    &:hover {
-      opacity: 0.85;
-    }
-
-    &-red {
-      background: #fff0f0;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
-    }
-  }
-
   // Stats grid
   &-stats {
     display: grid;
@@ -250,7 +230,6 @@
     h1 {
       display: flex;
       align-items: center;
-      gap: 8px;
       margin-bottom: 6px;
       color: #1a1a2e;
       font-size: 26px;

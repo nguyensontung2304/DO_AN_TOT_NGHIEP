@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useState } from "react";
 import { formatDate } from "../../../utils/formatDate";
+import { getProductById } from "../../../api/productApi";
 import {
   Settings,
   Trash2,
@@ -45,7 +46,7 @@ function StatusBadge({ status }) {
   return <span className={`admin-status ${s.cls}`}>{s.label}</span>;
 }
 
-// ── Material row in the form ──────────────────────────────────────────────────
+// Material row in the form
 function MaterialRow({
   row,
   index,
@@ -186,7 +187,7 @@ export default function Technical() {
     dismissNotification,
   } = useApp();
 
-  // ── Form tạo yêu cầu SX ────────────────────────────────────────────────────
+  // Form tạo yêu cầu SX
   const [form, setForm] = useState(emptyForm);
   const [formError, setFormError] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -204,7 +205,14 @@ export default function Technical() {
     if (
       !confirmedOrderDraft ||
       confirmedOrderDraft.id === filledOrderId ||
-      !(confirmedOrderDraft.cart || []).length
+      !(confirmedOrderDraft.cart || []).length ||
+      // The materials catalog is fetched asynchronously; on Neon it may arrive
+      // after the order recipes. Wait so recipe rows can be matched to stock.
+      !materials.length ||
+      // updateOrderStatus publishes a draft before the recipe lookup finishes.
+      // Wait for the enriched draft so a slower Neon response cannot leave the
+      // form marked as filled with an empty material list.
+      !Array.isArray(confirmedOrderDraft.itemsWithRecipe)
     ) {
       return;
     }
@@ -216,11 +224,42 @@ export default function Technical() {
     }
   }, [confirmedOrderDraft, filledOrderId, materials]);
 
-  // Nạp lại 1 đơn từ bảng thông báo vào form
-  const loadOrderIntoForm = (order) => {
+  // Nạp lại 1 đơn từ bảng thông báo vào form, kèm công thức hiện tại của sản phẩm.
+  const loadOrderIntoForm = async (order) => {
     setFilledOrderId(null);
     setFormError("");
-    setConfirmedOrderDraft(order);
+    try {
+      const itemsWithRecipe = await Promise.all(
+        (order.cart || []).map(async (item) => {
+          const response = await getProductById(item.productId);
+          return {
+            ...item,
+            materials: (response.data?.recipe || []).map((recipe) => ({
+              material_name: recipe.material_name,
+              unit: recipe.unit,
+              qty: Number(recipe.qty) * Number(item.qty),
+            })),
+          };
+        }),
+      );
+      const materialMap = new Map();
+      itemsWithRecipe.forEach((item) => {
+        item.materials.forEach((recipe) => {
+          const key = recipe.material_name.toLowerCase().trim();
+          const existing = materialMap.get(key);
+          if (existing) existing.qty += recipe.qty;
+          else materialMap.set(key, { ...recipe });
+        });
+      });
+      setConfirmedOrderDraft({
+        ...order,
+        itemsWithRecipe,
+        recipeRows: [...materialMap.values()],
+      });
+    } catch (error) {
+      setFormError("Không tải được công thức vật tư của đơn hàng. Vui lòng thử lại.");
+      console.error("Không tải được công thức vật tư:", error);
+    }
   };
 
   const resetAfterSubmit = () => {
@@ -303,7 +342,7 @@ export default function Technical() {
     }
   };
 
-  // ── Cung cấp bản thiết kế cho nhà máy ────────────────────────────────────
+  // Cung cấp bản thiết kế cho nhà máy
   const [designNotes, setDesignNotes] = useState({});
 
   // Sửa dòng vật tư — groupIndex = -1 nghĩa là form 1 sản phẩm
@@ -378,7 +417,7 @@ export default function Technical() {
         </p>
       </div>
 
-      {/* ── 0. Thông báo đơn hàng mới được admin xác nhận ────��─────────────── */}
+      {/* 0. Thông báo đơn hàng mới được admin xác nhận� */}
       <AdminCard
         title={`Thông báo đơn hàng mới (${pendingNotifications.length})`}
         icon={<Bell size={18} strokeWidth={2} />}
@@ -445,7 +484,7 @@ export default function Technical() {
         )}
       </AdminCard>
 
-      {/* ── 1. Tạo yêu cầu SX ─────────────────────────────────────────────── */}
+      {/* 1. Tạo yêu cầu SX */}
       <AdminCard
         title="Tạo yêu cầu sản xuất"
         icon={<ClipboardList size={18} strokeWidth={2} />}
@@ -594,7 +633,7 @@ export default function Technical() {
         </form>
       </AdminCard>
 
-      {/* ── 2. Danh sách yêu cầu SX đã tạo ────────────────────────────────── */}
+      {/* 2. Danh sách yêu cầu SX đã tạo */}
       <AdminCard
         title="Danh sách yêu cầu sản xuất đã tạo"
         icon={<FileText size={18} strokeWidth={2} />}
@@ -610,7 +649,7 @@ export default function Technical() {
                   <tr>
                     <th>#</th>
                     <th>Sản phẩm</th>
-                    <th>SL SX</th>
+                    <th>Số lượng</th>
                     <th>Vật tư cần</th>
                     <th>Ghi chú</th>
                     <th>Ngày tạo</th>
@@ -679,7 +718,7 @@ export default function Technical() {
         )}
       </AdminCard>
 
-      {/* ── 3. Yêu cầu bản thiết kế từ Nhà máy ────────────────────────────── */}
+      {/* 3. Yêu cầu bản thiết kế từ Nhà máy */}
       <AdminCard
         title="Yêu cầu bản thiết kế từ Nhà máy"
         icon={<Ruler size={18} strokeWidth={2} />}

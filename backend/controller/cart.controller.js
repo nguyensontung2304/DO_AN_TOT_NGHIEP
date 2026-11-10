@@ -88,8 +88,9 @@ export const addToCart = async (req, res) => {
     paranoid: false,
   });
 
+  // kiểm tra có trong giỏ chưa
   if (cartItem) {
-    // Đã có trong giỏ -> tăng qty
+    // chưa bị bị xoá
     if (!cartItem.deletedAt) {
       cartItem.qty += qty;
       await cartItem.save();
@@ -100,8 +101,7 @@ export const addToCart = async (req, res) => {
       });
     }
 
-    // Đã bị xoá mềm -> hồi sinh dòng cũ với số lượng yêu cầu
-    // (không cộng vào qty cũ, vì người dùng đã chủ động xoá sản phẩm đó)
+    // đã bị xoá mềm
     cartItem.qty = qty;
 
     await cartItem.restore();
@@ -113,7 +113,7 @@ export const addToCart = async (req, res) => {
     });
   }
 
-  // Nếu chưa có -> tạo mới
+  // chưa có trong gỉ hàng
   const newCartItem = await CartItem.create({
     user_id: userId,
     product_id: productId,

@@ -178,7 +178,12 @@ export default function Factory() {
     <div className="factory-page">
       <div className="page-header">
         <h1>
-          <Wrench /> Nhà máy Sản xuất
+          <Wrench
+            size={24}
+            strokeWidth={2}
+            style={{ verticalAlign: "middle", marginRight: 8 }}
+          />{" "}
+          Nhà máy Sản xuất
         </h1>
         <p className="page-sub">
           Nhận bàn giao, yêu cầu bản thiết kế, báo cáo sản xuất và bàn giao
@@ -221,7 +226,7 @@ export default function Factory() {
                 <tr>
                   <th>#</th>
                   <th>Sản phẩm</th>
-                  <th>SL SX</th>
+                  <th>Số lượng</th>
                   <th>Vật tư nhận</th>
                   <th>Ngày bàn giao</th>
                   <th>Hành động</th>

@@ -29,11 +29,11 @@ function ProductCard({ product }) {
   const currentUser = useSelector((state) => state.user.currentUser);
   const [added, setAdded] = useState(false);
 
-  const handleAdd = async () => {
-    // if (!currentUser?.id) {
-    //   window.location.href = ROUTES.USER.LOGIN;
-    //   return;
-    // }
+  const handleAddToCart = async () => {
+    if (!currentUser?.id) {
+      window.location.href = ROUTES.USER.LOGIN;
+      return;
+    }
 
     try {
       await addToCart({
@@ -132,7 +132,7 @@ function ProductCard({ product }) {
               className={`product-card__button ${
                 added ? "product-card__button--added" : ""
               }`}
-              onClick={handleAdd}
+              onClick={handleAddToCart}
             >
               {added ? (
                 <>
