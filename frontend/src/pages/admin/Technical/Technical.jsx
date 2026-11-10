@@ -257,7 +257,9 @@ export default function Technical() {
         recipeRows: [...materialMap.values()],
       });
     } catch (error) {
-      setFormError("Không tải được công thức vật tư của đơn hàng. Vui lòng thử lại.");
+      setFormError(
+        "Không tải được công thức vật tư của đơn hàng. Vui lòng thử lại.",
+      );
       console.error("Không tải được công thức vật tư:", error);
     }
   };

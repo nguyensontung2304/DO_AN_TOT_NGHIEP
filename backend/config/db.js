@@ -1,24 +1,49 @@
+// import { Sequelize } from "sequelize";
+
+// // Thông tin kết nối đọc từ file .env
+// const sequelize = new Sequelize(
+//   process.env.DB_NAME, // database name
+//   process.env.DB_USER, // username
+//   process.env.DB_PASSWORD, // password
+//   {
+//     host: process.env.DB_HOST,
+//     port: process.env.DB_PORT,
+//     dialect: "postgres",
+//     logging: false,
+//     define: {
+//       freezeTableName: true,
+//       timestamps: false,
+//       // created_at / updated_at / deleted_at trong DB viết snake_case
+//       underscored: true,
+//     },
+//   },
+// );
+
+// await sequelize.authenticate();
+
+// export default sequelize;
+
+// ====================== kết nối database neon ======================
 import { Sequelize } from "sequelize";
 
-// Thông tin kết nối đọc từ file .env
-const sequelize = new Sequelize(
-  process.env.DB_NAME, // database name
-  process.env.DB_USER, // username
-  process.env.DB_PASSWORD, // password
-  {
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    dialect: "postgres",
-    logging: false,
-    define: {
-      freezeTableName: true,
-      timestamps: false,
-      // created_at / updated_at / deleted_at trong DB viết snake_case
-      underscored: true,
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
+  dialect: "postgres",
+  logging: false,
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false,
     },
   },
-);
+  define: {
+    freezeTableName: true,
+    timestamps: false,
+    underscored: true,
+  },
+});
 
 await sequelize.authenticate();
+
+console.log("Connected to Neon PostgreSQL successfully!");
 
 export default sequelize;
