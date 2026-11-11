@@ -433,7 +433,9 @@ export async function updateAvatar(req, res) {
   }
 
   const result = await user.update({
-    avatar: `/uploads/${req.file.filename}`,
+    // avatar: `/uploads/${req.file.filename}`,
+    // ====================== upload ảnh lên Supabase Storage ======================
+    avatar: req.file.publicUrl,
   });
 
   console.log("Avatar sau khi cập nhật:", result.avatar);

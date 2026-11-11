@@ -261,7 +261,9 @@ export const createProduct = async (req, res) => {
 
   // XỬ LÝ ẢNH
   // req.file được tạo bởi multer
-  const image = req.file ? `/uploads/products/${req.file.filename}` : null;
+  // const image = req.file ? `/uploads/products/${req.file.filename}` : null;
+  // ====================== upload ảnh lên Supabase Storage ======================
+  const image = req.file ? req.file.publicUrl : null;
 
   // PARSE SPECS
   let parsedSpecs = [];
@@ -382,9 +384,11 @@ export const updateProduct = async (req, res) => {
   // XỬ LÝ ẢNH
   // Nếu chọn ảnh mới → dùng ảnh mới
   // Nếu không chọn → giữ ảnh cũ
-  const image = req.file
-    ? `/uploads/products/${req.file.filename}`
-    : product.image;
+  // const image = req.file
+  //   ? `/uploads/products/${req.file.filename}`
+  //   : product.image;
+  // ====================== upload ảnh lên Supabase Storage ======================
+  const image = req.file ? req.file.publicUrl : product.image;
 
   // PARSE SPECS
   let parsedSpecs;
