@@ -4,6 +4,7 @@ import { Camera } from "lucide-react";
 import { updateMyAvatar } from "../../../../../api/authApi";
 import { setUser } from "../../../../../redux/userSlice";
 import "./avatarUpload.scss";
+import LoadingSpinner from "../../../../../components/public/LoadingSpinner/LoadingSpinner";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
@@ -110,7 +111,7 @@ export default function AvatarUpload({ currentUser }) {
         }`}
       >
         <Camera size={18} aria-hidden="true" />
-        {loading ? "Đang tải ảnh..." : "Đổi ảnh đại diện"}
+        {loading ? <><LoadingSpinner size={16} /> Đang tải ảnh...</> : "Đổi ảnh đại diện"}
       </label>
 
       <input

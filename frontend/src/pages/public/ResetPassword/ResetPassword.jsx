@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { validateResetPasswordLink, resetPassword } from "../../../api/authApi";
 import { ROUTES } from "../../../constants/router";
 import "./resetPassword.scss";
+import LoadingSpinner from "../../../components/public/LoadingSpinner/LoadingSpinner";
 
 const ResetPassword = () => {
   const location = useLocation();
@@ -234,7 +235,7 @@ const ResetPassword = () => {
   } else if (validation.token !== token || checking) {
     content = (
       <div className="reset_password-status">
-        <div className="reset_password-spinner" aria-label="Đang tải" />
+        <LoadingSpinner size={28} />
         <p className="reset_password-status-text">Đang kiểm tra link...</p>
       </div>
     );
@@ -364,7 +365,7 @@ const ResetPassword = () => {
             type="submit"
             disabled={loading}
           >
-            {loading ? "Đang cập nhật..." : "Đặt lại mật khẩu"}
+            {loading ? <><LoadingSpinner size={16} /> Đang cập nhật...</> : "Đặt lại mật khẩu"}
           </button>
         </form>
       </>

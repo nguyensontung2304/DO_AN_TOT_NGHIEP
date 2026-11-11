@@ -11,6 +11,7 @@ import {
   markConversationRead,
 } from "../../../utils/adminChatReadState";
 import "./chat.scss";
+import LoadingSpinner from "../../../components/public/LoadingSpinner/LoadingSpinner";
 
 const formatTime = (createdAt) => {
   if (!createdAt) return "";
@@ -255,7 +256,7 @@ function AdminChat() {
           <div className="admin-chat-conversation-list">
             {conversationLoading ? (
               <div className="admin-chat-state">
-                <span className="admin-chat-spinner" />
+                <LoadingSpinner size={22} />
                 <p>Đang tải danh sách...</p>
               </div>
             ) : conversations.length === 0 ? (

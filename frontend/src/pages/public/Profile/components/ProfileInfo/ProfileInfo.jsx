@@ -5,6 +5,7 @@ import { updateMyProfile } from "../../../../../api/authApi";
 import { setUser } from "../../../../../redux/userSlice";
 
 import "./profileInfo.scss";
+import LoadingSpinner from "../../../../../components/public/LoadingSpinner/LoadingSpinner";
 
 export default function ProfileInfo({ currentUser }) {
   const dispatch = useDispatch();
@@ -102,7 +103,7 @@ export default function ProfileInfo({ currentUser }) {
         disabled={loading}
       >
         <UserRound size={18} strokeWidth={2} />
-        {loading ? "Đang lưu..." : "Lưu thay đổi"}
+        {loading ? <><LoadingSpinner size={16} /> Đang lưu...</> : "Lưu thay đổi"}
       </button>
     </form>
   );

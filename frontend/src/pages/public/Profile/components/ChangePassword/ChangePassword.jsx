@@ -5,6 +5,7 @@ import { changePassword } from "../../../../../api/authApi";
 import PasswordField from "../../../../../components/public/PasswordField/PasswordField";
 
 import "./changePassword.scss";
+import LoadingSpinner from "../../../../../components/public/LoadingSpinner/LoadingSpinner";
 
 // Đánh giá độ mạnh mật khẩu
 function getStrength(password) {
@@ -170,7 +171,7 @@ export default function ChangePassword() {
         disabled={loading}
       >
         <LockKeyhole size={18} strokeWidth={2} aria-hidden="true" />
-        {loading ? "Đang xử lý..." : "Đổi mật khẩu"}
+        {loading ? <><LoadingSpinner size={16} /> Đang xử lý...</> : "Đổi mật khẩu"}
       </button>
     </form>
   );

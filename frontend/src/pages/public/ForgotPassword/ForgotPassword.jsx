@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ROUTES } from "../../../constants/router";
 import { forgotPassword } from "../../../api/authApi";
 import "./forgotPassword.scss";
+import LoadingSpinner from "../../../components/public/LoadingSpinner/LoadingSpinner";
 
 const RESEND_COOLDOWN = 60;
 
@@ -127,7 +128,7 @@ const ForgotPassword = () => {
               type="submit"
               disabled={loading}
             >
-              {loading ? "Đang gửi..." : "Gửi hướng dẫn"}
+              {loading ? <><LoadingSpinner size={16} /> Đang gửi...</> : "Gửi hướng dẫn"}
             </button>
           </form>
 

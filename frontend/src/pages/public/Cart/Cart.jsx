@@ -2,10 +2,9 @@
 import {
   Package,
   ShoppingCart,
-  LoaderCircle,
   ChevronRight,
 } from "lucide-react";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { ROUTES } from "../../../constants/router";
@@ -24,6 +23,7 @@ import CheckoutForm from "./components/CheckoutForm/CheckoutForm";
 import CartSummary from "./components/CartSummary/CartSummary";
 import OrdersView from "./components/OrdersView/OrdersView";
 import OrderSuccess from "./components/OrderSuccess/OrderSuccess";
+import LoadingSpinner from "../../../components/public/LoadingSpinner/LoadingSpinner";
 import "./cart.scss";
 
 const ORDERS_KEY = (userId) => `orders_${userId}`;
@@ -65,6 +65,8 @@ export default function Cart() {
   const step = pathname === ROUTES.USER.CART_CHECKOUT ? "checkout" : "cart";
 
   const [justOrdered, setJustOrdered] = useState(false);
+  const [orderSubmitting, setOrderSubmitting] = useState(false);
+  const orderSubmittingRef = useRef(false);
 
   // GIỎ HÀNG
   const [cart, setCart] = useState([]);
@@ -385,6 +387,7 @@ export default function Cart() {
 
   // ĐẶT HÀNG
   const handleOrder = async () => {
+    if (orderSubmittingRef.current) return;
     if (!currentUser) {
       navigate(ROUTES.USER.LOGIN, {
         state: { from: ROUTES.USER.CART },
@@ -398,6 +401,9 @@ export default function Cart() {
     }
 
     if (!validateForm()) return;
+
+    orderSubmittingRef.current = true;
+    setOrderSubmitting(true);
 
     const name = String(form.name).trim();
     const phone = String(form.phone).trim();
@@ -494,6 +500,9 @@ export default function Cart() {
           error.response?.data?.message ||
           "Đặt hàng thất bại.",
       );
+    } finally {
+      orderSubmittingRef.current = false;
+      setOrderSubmitting(false);
     }
   };
 
@@ -567,7 +576,7 @@ export default function Cart() {
     return (
       <div className="cart">
         <div className="cart__empty cart__empty--loading">
-          <LoaderCircle size={48} strokeWidth={1.8} />
+          <LoadingSpinner size={48} />
           <h2>Đang tải giỏ hàng...</h2>
         </div>
       </div>
@@ -688,7 +697,7 @@ export default function Cart() {
                     {step === "checkout" ? (
                       !formInitialized ? (
                         <div className="cart__empty cart__empty--loading">
-                          <LoaderCircle size={36} />
+                          <LoadingSpinner size={36} />
                           <p>Đang tải địa chỉ giao hàng...</p>
                         </div>
                       ) : (
@@ -718,6 +727,7 @@ export default function Cart() {
                     isLoggedIn={!!currentUser}
                     onProceedCheckout={goCheckout}
                     onConfirmOrder={handleOrder}
+                    orderSubmitting={orderSubmitting}
                   />
                 </div>
               </>

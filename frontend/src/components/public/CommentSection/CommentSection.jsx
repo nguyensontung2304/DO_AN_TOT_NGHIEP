@@ -9,6 +9,7 @@ import {
 } from "../../../api/commentsApi";
 import { useSelector } from "react-redux";
 import "./commentSection.scss";
+import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 
 export function CommentSection({ productId }) {
   const user = useSelector((state) => state.user.currentUser);
@@ -114,7 +115,7 @@ export function CommentSection({ productId }) {
   if (loading) {
     return (
       <div className="comment-section">
-        <div className="comment-section__loading">Đang tải bình luận...</div>
+        <div className="comment-section__loading"><LoadingSpinner size={24} /> Đang tải bình luận...</div>
       </div>
     );
   }

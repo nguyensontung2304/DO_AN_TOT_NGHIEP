@@ -376,6 +376,8 @@
     font-size: 14px;
   }
   .form-success {
+    display: flex;
+    align-items: center;
     padding: 10px 14px;
     border: 1px solid #c3e6cb;
     border-radius: 8px;

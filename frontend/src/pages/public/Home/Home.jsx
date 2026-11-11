@@ -7,7 +7,6 @@ import {
   ShoppingCart,
   LockKeyhole,
   Check,
-  Clock3,
   AlertCircle,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -16,6 +15,7 @@ import { useSelector } from "react-redux";
 import { getProducts, getCategories, addToCart } from "../../../api";
 import { ROUTES, getPath } from "../../../constants/router";
 import "./home.scss";
+import LoadingSpinner from "../../../components/public/LoadingSpinner/LoadingSpinner";
 
 // PRODUCT CARD
 function ProductCard({ product }) {
@@ -425,7 +425,7 @@ export default function Home() {
 
           {loading ? (
             <div className="home-products-inner-status">
-              <Clock3 size={42} />
+              <LoadingSpinner size={42} />
               <p>Đang tải sản phẩm...</p>
             </div>
           ) : error ? (

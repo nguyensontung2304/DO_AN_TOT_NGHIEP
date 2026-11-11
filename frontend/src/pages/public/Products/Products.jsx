@@ -7,7 +7,6 @@ import {
   X,
   ShoppingCart,
   LockKeyhole,
-  Clock,
   MessageCircle,
   Star,
   Frown,
@@ -19,6 +18,7 @@ import { getProducts, addToCart } from "../../../api";
 import { getCategories } from "../../../api/categoryApi";
 import { ROUTES, getPath } from "../../../constants/router";
 import "./products.scss";
+import LoadingSpinner from "../../../components/public/LoadingSpinner/LoadingSpinner";
 
 const PRODUCTS_PER_PAGE = 12;
 const ALL_CATEGORY = "Tất cả";
@@ -307,7 +307,7 @@ export default function Products() {
       <div className="products-page">
         <div className="products-page__inner">
           <div className="products-page__empty">
-            <Clock size={40} />
+            <LoadingSpinner size={40} />
             <p>Đang tải sản phẩm...</p>
           </div>
         </div>

@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { register } from "../../../api/authApi";
 import { ROUTES } from "../../../constants/router";
 import "./register.scss";
+import LoadingSpinner from "../../../components/public/LoadingSpinner/LoadingSpinner";
 
 const BRAND_IMAGES = [
   "/images/brand1.jpeg",
@@ -247,7 +248,7 @@ export default function Register() {
               type="submit"
               disabled={loading}
             >
-              {loading ? "Đang đăng ký..." : "Đăng ký"}
+              {loading ? <><LoadingSpinner size={16} /> Đang đăng ký...</> : "Đăng ký"}
             </button>
           </form>
 

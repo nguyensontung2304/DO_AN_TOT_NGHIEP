@@ -22,6 +22,7 @@ import {
 import { getCategories } from "../../../api/categoryApi";
 import { getMaterials } from "../../../api/materialApi";
 import "./adminProducts.scss";
+import LoadingSpinner from "../../../components/public/LoadingSpinner/LoadingSpinner";
 
 //  Helpers
 function AdminCard({ title, icon, children }) {
@@ -687,7 +688,7 @@ export default function AdminProducts() {
         icon={<ClipboardList size={18} strokeWidth={2} />}
       >
         {loading ? (
-          <p className="empty-state">Đang tải...</p>
+          <p className="empty-state"><LoadingSpinner size={20} /> Đang tải...</p>
         ) : filtered.length === 0 ? (
           <p className="empty-state">Không có sản phẩm nào.</p>
         ) : (

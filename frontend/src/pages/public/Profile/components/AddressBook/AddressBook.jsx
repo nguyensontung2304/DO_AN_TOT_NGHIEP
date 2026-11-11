@@ -20,6 +20,7 @@ import {
   setDefaultAddress,
 } from "../../../../../api/addressApi";
 import "./addressBook.scss";
+import LoadingSpinner from "../../../../../components/public/LoadingSpinner/LoadingSpinner";
 
 const initialForm = {
   label: "",
@@ -249,7 +250,7 @@ function AddressBook({ currentUser }) {
       {/* Trạng thái tải dữ liệu */}
       {loading ? (
         <div className="address-book-loading">
-          <span className="address-book-spinner" />
+          <LoadingSpinner size={24} />
           <p>Đang tải danh sách địa chỉ...</p>
         </div>
       ) : !error && addresses.length === 0 ? (

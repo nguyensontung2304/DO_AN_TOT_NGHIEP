@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useState } from "react";
 import {
-  Clock,
   CheckCircle,
   ShoppingCart,
   LockKeyhole,
@@ -23,6 +22,7 @@ import { postRatingProduct, getMyRating } from "../../../api/ratingApi";
 import { RatingStars } from "../../../components/public/RatingStarts/RatingStarts";
 import { CommentSection } from "../../../components/public/CommentSection/CommentSection";
 import "./productDetail.scss";
+import LoadingSpinner from "../../../components/public/LoadingSpinner/LoadingSpinner";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -138,7 +138,7 @@ export default function ProductDetail() {
     return (
       <div className="pd-page-notfound">
         <span className="pd-page-notfound-icon">
-          <Clock size={28} />
+          <LoadingSpinner size={28} />
         </span>
         <h2>Đang tải sản phẩm...</h2>
       </div>

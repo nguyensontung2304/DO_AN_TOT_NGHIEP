@@ -1,6 +1,5 @@
 import {
   LockKeyhole,
-  LoaderCircle,
   Inbox,
   UserRound,
   Phone,
@@ -13,6 +12,7 @@ import {
 import { Link } from "react-router-dom";
 import { ROUTES } from "../../../../../constants/router";
 import "./ordersView.scss";
+import LoadingSpinner from "../../../../../components/public/LoadingSpinner/LoadingSpinner";
 
 // Nhãn và màu sắc của trạng thái đơn hàng
 const STATUS_LABEL = {
@@ -74,11 +74,7 @@ export default function OrdersView({
   if (loading) {
     return (
       <div className="cart-empty">
-        <LoaderCircle
-          className="cart-empty-icon cart-empty-icon-loading"
-          size={48}
-          strokeWidth={1.8}
-        />
+        <LoadingSpinner size={48} className="cart-empty-icon" />
 
         <h2>Đang tải đơn hàng...</h2>
       </div>

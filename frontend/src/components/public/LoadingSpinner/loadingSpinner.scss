@@ -1,0 +1,13 @@
+.loading-spinner {
+  display: inline-block;
+  flex: 0 0 auto;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  vertical-align: middle;
+  animation: loading-spinner-turn 0.75s linear infinite;
+}
+
+@keyframes loading-spinner-turn {
+  to { transform: rotate(360deg); }
+}

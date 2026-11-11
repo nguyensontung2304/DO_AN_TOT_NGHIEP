@@ -7,6 +7,7 @@ import { setUser } from "../../../redux/userSlice";
 
 import { ROUTES } from "../../../constants/router";
 import "./login.scss";
+import LoadingSpinner from "../../../components/public/LoadingSpinner/LoadingSpinner";
 
 const ADMIN_COMPONENT_PATHS = {
   dashboard: "/admin",
@@ -219,7 +220,7 @@ export default function Login() {
             )}
 
             <button className="login-button" type="submit" disabled={loading}>
-              {loading ? "Đang đăng nhập..." : "Đăng nhập"}
+              {loading ? <><LoadingSpinner size={16} /> Đang đăng nhập...</> : "Đăng nhập"}
             </button>
           </form>
 

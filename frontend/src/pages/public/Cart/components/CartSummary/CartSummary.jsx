@@ -1,4 +1,5 @@
 import "./cartSummary.scss";
+import LoadingSpinner from "../../../../../components/public/LoadingSpinner/LoadingSpinner";
 import {
   Truck,
   ShieldCheck,
@@ -15,6 +16,7 @@ function CartSummary({
   isLoggedIn,
   onProceedCheckout,
   onConfirmOrder,
+  orderSubmitting,
 }) {
   return (
     <aside className="cart-summary">
@@ -98,8 +100,10 @@ function CartSummary({
           type="button"
           className="cart-summary__button public-button-gradient"
           onClick={onConfirmOrder}
+          disabled={orderSubmitting}
+          aria-busy={orderSubmitting}
         >
-          <CheckCircle size={18} />
+          {orderSubmitting ? <LoadingSpinner size={18} /> : <CheckCircle size={18} />}
           <span>Xác nhận đặt hàng</span>
         </button>
       )}

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { getProvinces, getWards } from "../../../api/locationApi";
 import "./addressFields.scss";
+import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 
 function AddressFields({
   form = {},
@@ -263,7 +264,7 @@ function AddressFields({
       <div className="address-fields__row">
         <div className="address-fields__group">
           <label htmlFor="provinceCode">
-            Tỉnh / Thành phố <span>*</span>
+            Tỉnh / Thành phố <span>*</span> {provinceList.loading && <LoadingSpinner size={14} />}
           </label>
 
           <select
@@ -292,7 +293,7 @@ function AddressFields({
 
         <div className="address-fields__group">
           <label htmlFor="wardCode">
-            Phường / Xã / Đặc khu <span>*</span>
+            Phường / Xã / Đặc khu <span>*</span> {wards.loading && <LoadingSpinner size={14} />}
           </label>
 
           <select
