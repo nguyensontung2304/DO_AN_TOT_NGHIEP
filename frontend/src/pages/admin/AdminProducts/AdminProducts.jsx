@@ -7,7 +7,6 @@ import {
   CircleCheck,
   CirclePlus,
   Save,
-  LoaderCircle,
   TriangleAlert,
   Search,
 } from "lucide-react";
@@ -181,7 +180,7 @@ function RecipeEditor({ recipe, onChange, materials, materialsLoading }) {
   return (
     <div className="admin-products-page-editor">
       <div className="admin-products-page-editor-head">
-        <span>Nguyên vật liệu</span>
+        <span>Nguyên vật liệu {materialsLoading && <LoadingSpinner size={14} />}</span>
         <span>Đơn vị</span>
         <span>Số lượng</span>
         <span></span>
@@ -196,9 +195,7 @@ function RecipeEditor({ recipe, onChange, materials, materialsLoading }) {
             disabled={materialsLoading}
           >
             <option value="">
-              {materialsLoading
-                ? "Đang tải vật liệu..."
-                : "-- Chọn vật liệu --"}
+              {materialsLoading ? "Đang tải vật liệu..." : "-- Chọn vật liệu --"}
             </option>
 
             {(materials || []).map((material) => (
@@ -676,6 +673,7 @@ export default function AdminProducts() {
             </option>
           ))}
         </select>
+        {categoriesLoading && <LoadingSpinner size={16} />}
 
         <span className="admin-products-page-count">
           {filtered.length} sản phẩm
@@ -831,6 +829,7 @@ export default function AdminProducts() {
                   <label>
                     Danh mục <span className="req">*</span>
                   </label>
+                  {categoriesLoading && <LoadingSpinner size={14} />}
 
                   <select
                     value={form.category_id}
@@ -844,9 +843,7 @@ export default function AdminProducts() {
                     disabled={categoriesLoading}
                   >
                     <option value="">
-                      {categoriesLoading
-                        ? "Đang tải danh mục..."
-                        : "-- Chọn danh mục --"}
+                      {categoriesLoading ? "Đang tải danh mục..." : "-- Chọn danh mục --"}
                     </option>
 
                     {categories.map((category) => (
@@ -1055,7 +1052,7 @@ export default function AdminProducts() {
                 >
                   {saving ? (
                     <>
-                      <LoaderCircle size={18} className="spinning" />
+                      <LoadingSpinner size={18} />
                       Đang lưu...
                     </>
                   ) : modal === "create" ? (

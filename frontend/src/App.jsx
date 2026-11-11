@@ -9,6 +9,7 @@ import { ROUTES } from "./constants/router";
 import RequireAdmin from "./components/RequireAdmin";
 import PrivateLayout from "./components/PrivateLayout";
 import ScrollToTop from "./components/ScrollToTop";
+import LoadingSpinner from "./components/public/LoadingSpinner/LoadingSpinner";
 
 // PUBLIC LAYOUT
 import PublicLayout from "./layouts/public/PublicLayout";
@@ -81,7 +82,13 @@ function App() {
   }, [getUser]);
 
   // Chờ xác thực xong mới render để tránh header nháy giữa "Đăng nhập" và user dropdown
-  if (authLoading) return null;
+  if (authLoading) {
+    return (
+      <div className="app-loading-screen">
+        <LoadingSpinner size={40} />
+      </div>
+    );
+  }
 
   return (
     <>

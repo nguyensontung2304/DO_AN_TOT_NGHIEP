@@ -8,11 +8,11 @@ import {
   Mail,
   FileText,
   ClipboardList,
-  Loader2,
 } from "lucide-react";
 import { useApp } from "../../../context/useApp";
 import { getProductById } from "../../../api";
 import "./orders.scss";
+import LoadingSpinner from "../../../components/public/LoadingSpinner/LoadingSpinner";
 
 function AdminCard({ title, icon, children, gradient }) {
   return (
@@ -285,7 +285,7 @@ function OrderItemCard({
           >
             {confirming ? (
               <>
-                <Loader2 size={14} strokeWidth={2} style={{ marginRight: 4 }} />
+                <LoadingSpinner size={14} style={{ marginRight: 4 }} />
                 Đang xử lý...
               </>
             ) : (

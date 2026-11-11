@@ -299,8 +299,7 @@ export default function ProductDetail() {
                 >
                   {adding ? (
                     <>
-                      <Clock size={18} className="pd-page-icon-spin" /> Đang
-                      thêm...
+                      <LoadingSpinner size={18} /> Đang thêm...
                     </>
                   ) : added ? (
                     <>

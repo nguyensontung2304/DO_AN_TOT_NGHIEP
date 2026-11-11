@@ -44,3 +44,10 @@ button {
 .public-layout main {
   background: #fff;
 }
+.app-loading-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  color: #353568;
+}
